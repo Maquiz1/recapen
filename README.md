@@ -31,9 +31,9 @@ A comprehensive, role-based management system designed for the PEN-Plus initiati
 3. **Database Configuration:**
    Ensure PostgreSQL is running and you have a `.env` file in the `backend/config/` directory with:
    ```env
-   DB_NAME=recapen_db
-   DB_USER=postgres
-   DB_PASSWORD=Data@2026
+   DB_NAME=your_db_name
+   DB_USER=your_db_user
+   DB_PASSWORD=your_db_password
    DB_HOST=localhost
    DB_PORT=5432
    ```
