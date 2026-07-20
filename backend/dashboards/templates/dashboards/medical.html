@@ -1,0 +1,562 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block page_title %}Medical Dashboard{% endblock %}
+{% block header_actions %}
+              <div class="input-group">
+                <span class="input-group-text bg-primary-lighten">
+                  <i class="ri-calendar-2-line text-primary"></i>
+                </span>
+                <input type="text" id="abc" class="form-control custom-daterange">
+              </div>
+{% endblock %}
+
+{% block content %}
+<!-- App body starts -->
+          <div class="app-body">
+
+            <!-- Row starts -->
+            <div class="row gx-3">
+              <div class="col-xxl-9 col-sm-12">
+                <div class="card mb-3 bg-3">
+                  <div class="card-body">
+                    <div class="mh-230">
+                      <div class="py-3 px-2 text-white">
+                        <h6>Good Morning,</h6>
+                        <h3 class="mb-1">Dr. Ema Wilson</h3>
+                        <p class="fw-normal">Your schedule today.</p>
+                        <div class="mt-4 d-flex gap-3">
+                          <div class="d-flex align-items-center">
+                            <div class="icon-box lg bg-lime rounded-5 me-2">
+                              <i class="ri-stethoscope-line fs-4"></i>
+                            </div>
+                            <div class="d-flex flex-column">
+                              <h2 class="m-0 lh-1">86</h2>
+                              <p class="m-0">Appointments</p>
+                            </div>
+                          </div>
+                          <div class="d-flex align-items-center">
+                            <div class="icon-box lg bg-lime rounded-5 me-2">
+                              <i class="ri-lungs-line fs-4"></i>
+                            </div>
+                            <div class="d-flex flex-column">
+                              <h2 class="m-0 lh-1">23</h2>
+                              <p class="m-0">Surgeries</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xxl-3 col-sm-12">
+                <div class="card mb-3 bg-primary">
+                  <div class="card-body">
+                    <div class="mh-230 text-white">
+                      <h5>Patients</h5>
+                      <div class="text-dark apex-labels-primary">
+                        <div class="overflow-hidden">
+                          <div id="weeklyPatients"></div>
+                        </div>
+                      </div>
+                      <div class="text-center w-75 m-auto">
+                        Increased patients by <span class="badge bg-lime">90</span> in the last Seven days.
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Row ends -->
+
+            <!-- Row starts -->
+            <div class="row gx-3">
+              <div class="col-xxl-4 col-sm-6">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Doctors</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="scroll300">
+
+                      <ul class="list-unstyled d-grid gap-3">
+                        <li class="w-100">
+                          <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <img src="{% static 'assets/images/doctor.png' %}" class="img-3x rounded-circle" alt="Doctor Dashboard">
+                            <div class="flex-fill">
+                              <span class="d-flex fw-semibold">Dr. Smith Chang</span>
+                              <span class="text-muted small">Cardiology</span>
+                            </div>
+                            <span class="badge bg-primary-subtle rounded-pill text-primary">
+                              <i class="ri-circle-fill me-1"></i>Available</span>
+                          </div>
+                        </li>
+                        <li class="w-100">
+                          <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <img src="{% static 'assets/images/doctor2.png' %}" class="img-3x rounded-circle" alt="Doctor Dashboard">
+                            <div class="flex-fill">
+                              <span class="d-flex fw-semibold">Dr. Dmitriy Groshev</span>
+                              <span class="text-muted small">Orthopedics</span>
+                            </div>
+                            <span class="badge bg-primary-subtle rounded-pill text-primary">
+                              <i class="ri-circle-fill me-1"></i>Available</span>
+                          </div>
+                        </li>
+                        <li class="w-100">
+                          <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <img src="{% static 'assets/images/doctor3.png' %}" class="img-3x rounded-circle" alt="Doctor Dashboard">
+                            <div class="flex-fill">
+                              <span class="d-flex fw-semibold">Dr. Sheryl Glass</span>
+                              <span class="text-muted small">Dermatology</span>
+                            </div>
+                            <span class="badge bg-danger-subtle rounded-pill text-danger">
+                              <i class="ri-circle-fill me-1"></i>Not Available</span>
+                          </div>
+                        </li>
+                        <li class="w-100">
+                          <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <img src="{% static 'assets/images/doctor4.png' %}" class="img-3x rounded-circle" alt="Doctor Dashboard">
+                            <div class="flex-fill">
+                              <span class="d-flex fw-semibold">Dr. Gabriela Tyler</span>
+                              <span class="text-muted small">Neurology</span>
+                            </div>
+                            <span class="badge bg-primary-subtle rounded-pill text-primary">
+                              <i class="ri-circle-fill me-1"></i>Available</span>
+                          </div>
+                        </li>
+                        <li class="w-100">
+                          <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <img src="{% static 'assets/images/doctor6.png' %}" class="img-3x rounded-circle" alt="Doctor Dashboard">
+                            <div class="flex-fill">
+                              <span class="d-flex fw-semibold">Dr. Lilly Chavez</span>
+                              <span class="text-muted small">Ophthalmology</span>
+                            </div>
+                            <span class="badge bg-primary-subtle rounded-pill text-primary">
+                              <i class="ri-circle-fill me-1"></i>Available</span>
+                          </div>
+                        </li>
+                        <li class="w-100">
+                          <div class="d-flex align-items-center gap-3 flex-wrap">
+                            <img src="{% static 'assets/images/doctor7.png' %}" class="img-3x rounded-circle" alt="Doctor Dashboard">
+                            <div class="flex-fill">
+                              <span class="d-flex fw-semibold">Dr. Robbie Dudley</span>
+                              <span class="text-muted small">Gastroenterology</span>
+                            </div>
+                            <span class="badge bg-danger-subtle rounded-pill text-danger">
+                              <i class="ri-circle-fill me-1"></i>Not Available</span>
+                          </div>
+                        </li>
+                      </ul>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xxl-4 col-sm-6">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Reviews</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="scroll300">
+
+                      <!-- Reviews starts -->
+                      <div class="d-grid gap-5">
+                        <div class="d-flex">
+                          <img src="{% static 'assets/images/patient1.png' %}" class="img-3x rounded-2" alt="Medical Admin Template">
+                          <div class="ms-3">
+                            <span class="badge border border-primary text-primary mb-3">Recommend</span>
+                            <h6>Kristie Jimenez</h6>
+                            <p class="mb-2">I am consulting with her for last 10 years and she is really good in
+                              thyroid. Her experience has greatest strength. By looking at the report she will
+                              diagnosis the problem and listen to us. We might think she is in a hurry to complete
+                              the
+                              patient but her experience makes her 100%.</p>
+                            <p class="badge bg-primary"><i class="ri-thumb-up-line"></i> I recommend the doctor.</p>
+                            <div class="rating-stars">
+                              <div class="readonly5"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="d-flex">
+                          <img src="{% static 'assets/images/patient2.png' %}" class="img-3x rounded-2" alt="Medical Admin Template">
+                          <div class="ms-3">
+                            <span class="badge border border-primary text-primary mb-3">Excellent</span>
+                            <h6>Natasha Dunn</h6>
+                            <p class="mb-2">Dr.Jessika is my physician from past four years. Till now, whatever
+                              treatment and advice she has given me is of the best kind. I am extremely satisfied
+                              with
+                              it. There may be about 10 minutes of waiting period before consultation. The hospital
+                              and staff are good as well.</p>
+                            <p class="badge bg-primary"><i class="ri-thumb-up-line"></i> I recommend the doctor.</p>
+                            <div class="rating-stars">
+                              <div class="readonly5"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="d-flex">
+                          <img src="{% static 'assets/images/patient3.png' %}" class="img-3x rounded-2" alt="Medical Admin Template">
+                          <div class="ms-3">
+                            <span class="badge border border-danger text-danger mb-3">Bad</span>
+                            <h6>Winnie Black</h6>
+                            <p class="mb-2">Its a not recommerded example. Its a not recommerded example. Its a not
+                              recommerded example. Its a not recommerded example.
+                            </p>
+                            <p class="badge bg-secondary text-body"><i class="ri-thumb-down-line"></i> I do not
+                              recommend the
+                              doctor.
+                            </p>
+                            <div class="rating-stars">
+                              <div class="readonly2"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="d-grid">
+                          <button class="btn btn-primary">Load More</button>
+                        </div>
+                      </div>
+                      <!-- Reviews ends -->
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xxl-4 col-sm-12">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Consultation</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="scroll300">
+                      <div id="patients2"></div>
+                      <div class="d-flex gap-2 mt-3 px-3">
+                        <div class="w-50 border border-secondary rounded-5 p-2">
+                          <div class="d-flex align-items-center">
+                            <div class="icon-box md bg-primary rounded-5 me-2">
+                              <i class="ri-men-line fs-4"></i>
+                            </div>
+                            <div class="d-flex flex-column">
+                              <h3 class="m-0 lh-1 text-primary">86</h3>
+                              <p class="m-0">Male</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="w-50 border border-secondary rounded-5 p-2">
+                          <div class="d-flex align-items-center">
+                            <div class="icon-box md bg-primary rounded-5 me-2">
+                              <i class="ri-women-line fs-4"></i>
+                            </div>
+                            <div class="d-flex flex-column">
+                              <h3 class="m-0 lh-1 text-primary">38</h3>
+                              <p class="m-0">Female</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Row ends -->
+
+            <!-- Row starts -->
+            <div class="row gx-3">
+              <div class="col-sm-12">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Patients</h5>
+                  </div>
+                  <div class="card-body pt-0">
+
+                    <!-- Table starts -->
+                    <div class="table-outer">
+                      <div class="table-responsive">
+                        <table class="table m-0 align-middle">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Patient Name</th>
+                              <th>Age</th>
+                              <th>Consulting Doctor</th>
+                              <th>Department</th>
+                              <th>Date</th>
+                              <th>Time</th>
+                              <th>Disease</th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>01</td>
+                              <td>
+                                Deena Cooley
+                              </td>
+                              <td>65</td>
+                              <td>
+                                <img src="{% static 'assets/images/doctor.png' %}" class="img-2x rounded-5 me-1"
+                                  alt="Hospital Admin Template">
+                                Vicki Walsh
+                              </td>
+                              <td>Surgeon</td>
+                              <td>Today</td>
+                              <td>9:30AM</td>
+                              <td>Diabeties</td>
+                              <td>
+                                <div class="d-inline-flex gap-1">
+                                  <button class="btn btn-success btn-sm" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" data-bs-title="Accepted">
+                                    <i class="ri-checkbox-circle-line"></i>
+                                  </button>
+                                  <button class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" data-bs-title="Reject" disabled>
+                                    <i class="ri-close-circle-line"></i>
+                                  </button>
+                                  <a href="edit-appointment.html" class="btn btn-outline-info btn-sm"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Appointment">
+                                    <i class="ri-edit-box-line"></i>
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>02</td>
+                              <td>
+                                Jerry Wilcox
+                              </td>
+                              <td>73</td>
+                              <td>
+                                <img src="{% static 'assets/images/doctor1.png' %}" class="img-2x rounded-5 me-1"
+                                  alt="Hospital Admin Template">
+                                April Gallegos
+                              </td>
+                              <td>Gynecologist</td>
+                              <td>Today</td>
+                              <td>9:45AM</td>
+                              <td>Fever</td>
+                              <td>
+                                <div class="d-inline-flex gap-1">
+                                  <button class="btn btn-outline-success btn-sm" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" data-bs-title="Accept" disabled>
+                                    <i class="ri-checkbox-circle-line"></i>
+                                  </button>
+                                  <button class="btn btn-danger btn-sm" data-bs-toggle="tooltip" data-bs-placement="top"
+                                    data-bs-title="Rejected">
+                                    <i class="ri-close-circle-line"></i>
+                                  </button>
+                                  <a href="edit-appointment.html" class="btn btn-outline-info btn-sm"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Appointment">
+                                    <i class="ri-edit-box-line"></i>
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>03</td>
+                              <td>
+                                Eduardo Kramer
+                              </td>
+                              <td>84</td>
+                              <td>
+                                <img src="{% static 'assets/images/doctor2.png' %}" class="img-2x rounded-5 me-1"
+                                  alt="Hospital Admin Template">
+                                Basil Frost
+                              </td>
+                              <td>Psychiatrists</td>
+                              <td>Today</td>
+                              <td>10:00AM</td>
+                              <td>Cold</td>
+                              <td>
+                                <div class="d-inline-flex gap-1">
+                                  <button class="btn btn-outline-success btn-sm" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" data-bs-title="Accept">
+                                    <i class="ri-checkbox-circle-line"></i>
+                                  </button>
+                                  <button class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" data-bs-title="Reject">
+                                    <i class="ri-close-circle-line"></i>
+                                  </button>
+                                  <a href="edit-appointment.html" class="btn btn-outline-info btn-sm"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Appointment">
+                                    <i class="ri-edit-box-line"></i>
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>04</td>
+                              <td>
+                                Jason Compton
+                              </td>
+                              <td>56</td>
+                              <td>
+                                <img src="{% static 'assets/images/doctor4.png' %}" class="img-2x rounded-5 me-1"
+                                  alt="Hospital Admin Template">
+                                Nannie Guerrero
+                              </td>
+                              <td>Urologist</td>
+                              <td>Today</td>
+                              <td>10:15AM</td>
+                              <td>Prostate</td>
+                              <td>
+                                <div class="d-inline-flex gap-1">
+                                  <button class="btn btn-outline-success btn-sm" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" data-bs-title="Accept">
+                                    <i class="ri-checkbox-circle-line"></i>
+                                  </button>
+                                  <button class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" data-bs-title="Reject">
+                                    <i class="ri-close-circle-line"></i>
+                                  </button>
+                                  <a href="edit-appointment.html" class="btn btn-outline-info btn-sm"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Appointment">
+                                    <i class="ri-edit-box-line"></i>
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>05</td>
+                              <td>
+                                Emmitt Bryan
+                              </td>
+                              <td>49</td>
+                              <td>
+                                <img src="{% static 'assets/images/doctor5.png' %}" class="img-2x rounded-5 me-1"
+                                  alt="Hospital Admin Template">
+                                Daren Andrade
+                              </td>
+                              <td>Cardiology</td>
+                              <td>Today</td>
+                              <td>10:30AM</td>
+                              <td>Asthma</td>
+                              <td>
+                                <div class="d-inline-flex gap-1">
+                                  <button class="btn btn-outline-success btn-sm" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" data-bs-title="Accept">
+                                    <i class="ri-checkbox-circle-line"></i>
+                                  </button>
+                                  <button class="btn btn-outline-danger btn-sm" data-bs-toggle="tooltip"
+                                    data-bs-placement="top" data-bs-title="Reject">
+                                    <i class="ri-close-circle-line"></i>
+                                  </button>
+                                  <a href="edit-appointment.html" class="btn btn-outline-info btn-sm"
+                                    data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Appointment">
+                                    <i class="ri-edit-box-line"></i>
+                                  </a>
+                                </div>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                    <!-- Table ends -->
+
+                  </div>
+                </div>
+              </div>
+              <div class="col-xxl-4 col-sm-12">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Revenue</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="overflow-hidden">
+                      <div id="revenue"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xxl-4 col-sm-12">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Pharmacy</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="overflow-hidden">
+                      <div id="orders"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-xxl-4 col-sm-12">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Departments</h5>
+                  </div>
+                  <div class="card-body">
+                    <div class="scroll300">
+                      <div class="d-flex flex-column gap-2">
+                        <div class="p-3 bg-primary-lighten rounded-2 d-flex align-items-center">
+                          <div class="icon-box lg bg-primary-light rounded-5">
+                            <img src="{% static 'assets/images/icons/stomach.svg' %}" class="img-3x" alt="Medical Admin">
+                          </div>
+                          <div class="ms-3">
+                            <h6 class="mb-0">General Physician</h6>
+                            <h4 class="text-primary fw-bold m-0">12</h4>
+                          </div>
+                        </div>
+                        <div class="p-3 bg-primary-lighten rounded-2 d-flex align-items-center">
+                          <div class="icon-box lg bg-primary-light rounded-5">
+                            <img src="{% static 'assets/images/icons/bone.svg' %}" class="img-3x" alt="Medical Admin">
+                          </div>
+                          <div class="ms-3">
+                            <h6 class="mb-0">Orthopedic</h6>
+                            <h4 class="text-primary fw-bold m-0">8</h4>
+                          </div>
+                        </div>
+                        <div class="p-3 bg-primary-lighten rounded-2 d-flex align-items-center">
+                          <div class="icon-box lg bg-primary-light rounded-5">
+                            <img src="{% static 'assets/images/icons/kidney.svg' %}" class="img-3x" alt="Medical Admin">
+                          </div>
+                          <div class="ms-3">
+                            <h6 class="mb-0">Cardiologist</h6>
+                            <h4 class="text-primary fw-bold m-0">6</h4>
+                          </div>
+                        </div>
+                        <div class="p-3 bg-primary-lighten rounded-2 d-flex align-items-center">
+                          <div class="icon-box lg bg-primary-light rounded-5">
+                            <img src="{% static 'assets/images/icons/infusion.svg' %}" class="img-3x" alt="Medical Admin">
+                          </div>
+                          <div class="ms-3">
+                            <h6 class="mb-0">Opthomology</h6>
+                            <h4 class="text-primary fw-bold m-0">5</h4>
+                          </div>
+                        </div>
+                        <div class="p-3 bg-primary-lighten rounded-2 d-flex align-items-center">
+                          <div class="icon-box lg bg-primary-light rounded-5">
+                            <img src="{% static 'assets/images/icons/emergency.svg' %}" class="img-3x" alt="Medical Admin">
+                          </div>
+                          <div class="ms-3">
+                            <h6 class="mb-0">Emergency</h6>
+                            <h4 class="text-primary fw-bold m-0">3</h4>
+                          </div>
+                        </div>
+                        <div class="p-3 bg-primary-lighten rounded-2 d-flex align-items-center">
+                          <div class="icon-box lg bg-primary-light rounded-5">
+                            <img src="{% static 'assets/images/icons/bacteria.svg' %}" class="img-3x" alt="Medical Admin">
+                          </div>
+                          <div class="ms-3">
+                            <h6 class="mb-0">Dentist</h6>
+                            <h4 class="text-primary fw-bold m-0">1</h4>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Row ends -->
+
+          </div>
+          <!-- App body ends -->
+{% endblock %}
+
+{% block page_scripts %}
+    <script src="{% static 'assets/vendor/apex/custom/dashboard2/patients.js' %}"></script>
+    <script src="{% static 'assets/vendor/apex/custom/dashboard2/patients2.js' %}"></script>
+    <script src="{% static 'assets/vendor/apex/custom/dashboard2/revenue.js' %}"></script>
+    <script src="{% static 'assets/vendor/apex/custom/dashboard2/orders.js' %}"></script>
+{% endblock %}

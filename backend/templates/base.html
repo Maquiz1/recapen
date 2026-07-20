@@ -1,0 +1,180 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+  
+<!-- Mirrored from www.bootstrapget.com/demos/apollo-medical-admin-template/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 29 Mar 2025 01:12:52 GMT -->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PEN-Plus Management System</title>
+
+    <!-- Meta -->
+    <meta name="description" content="Marketplace for Bootstrap Admin Dashboards">
+    <meta property="og:title" content="Admin Templates - Dashboard Templates">
+    <meta property="og:description" content="Marketplace for Bootstrap Admin Dashboards">
+    <meta property="og:type" content="Website">
+    <!-- Custom RECAPEN R favicon -->
+    <link rel="shortcut icon" href="{% static 'assets/images/favicon.svg' %}">
+
+    <!-- *************
+		************ CSS Files *************
+	  ************* -->
+    <link rel="stylesheet" href="{% static 'assets/fonts/remix/remixicon.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/main.min.css' %}">
+
+    <!-- *************
+		************ Vendor Css Files *************
+	  ************ -->
+
+    <!-- Scrollbar CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/overlay-scroll/OverlayScrollbars.min.css' %}">
+
+    <!-- Date Range CSS -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/daterange/daterange.css' %}">
+
+    <!-- Data Tables -->
+    <link rel="stylesheet" href="{% static 'assets/vendor/datatables/dataTables.bs5.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendor/datatables/dataTables.bs5-custom.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/vendor/datatables/buttons/dataTables.bs5-custom.css' %}">
+  </head>
+
+  <body>
+
+    <!-- Loading starts -->
+    <div id="loading-wrapper">
+      <div class="spin-wrapper">
+        <div class="circle"></div>
+        <div class="circle"></div>
+      </div>
+      <div class="spin-wrapper">
+        <div class="circle"></div>
+        <div class="circle"></div>
+      </div>
+      <div class="spin-wrapper">
+        <div class="circle"></div>
+        <div class="circle"></div>
+      </div>
+      <div class="spin-wrapper">
+        <div class="circle"></div>
+        <div class="circle"></div>
+      </div>
+      <div class="spin-wrapper">
+        <div class="circle"></div>
+        <div class="circle"></div>
+      </div>
+      <div class="spin-wrapper">
+        <div class="circle"></div>
+        <div class="circle"></div>
+      </div>
+      <div class="spin-wrapper">
+        <div class="circle"></div>
+        <div class="circle"></div>
+      </div>
+      <div class="spin-wrapper">
+        <div class="circle"></div>
+        <div class="circle"></div>
+      </div>
+      <div class="spin-wrapper">
+        <div class="circle"></div>
+        <div class="circle"></div>
+      </div>
+      <div class="spin-wrapper">
+        <div class="circle"></div>
+        <div class="circle"></div>
+      </div>
+      <div class="spin-wrapper">
+        <div class="circle"></div>
+        <div class="circle"></div>
+      </div>
+      <div class="spin-wrapper">
+        <div class="circle"></div>
+        <div class="circle"></div>
+      </div>
+    </div>
+    <!-- Loading ends -->
+
+    <!-- Page wrapper starts -->
+    <div class="page-wrapper">
+
+      <!-- Main container starts -->
+      <div class="main-container">
+
+        {% include 'includes/sidebar.html' %}
+
+        <!-- App container starts -->
+        <div class="app-container">
+
+          {% include 'includes/navbar.html' %}
+
+          <!-- App hero header starts -->
+          <div class="app-hero-header d-flex align-items-center">
+            <!-- Breadcrumb starts -->
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item text-primary" aria-current="page">
+                {% block page_title %}Dashboard{% endblock %}
+              </li>
+            </ol>
+            <!-- Breadcrumb ends -->
+
+            <!-- Sales stats starts -->
+            <div class="ms-auto d-lg-flex d-none flex-row">
+              {% block header_actions %}
+              {% endblock %}
+            </div>
+            <!-- Sales stats ends -->
+          </div>
+          <!-- App Hero header ends -->
+
+          {% block content %}
+          {% endblock %}
+
+
+          {% include 'includes/footer.html' %}
+
+        </div>
+        <!-- App container ends -->
+
+      </div>
+      <!-- Main container ends -->
+
+    </div>
+    <!-- Page wrapper ends -->
+
+    <!-- *************
+			************ JavaScript Files *************
+		************* -->
+    <!-- Required jQuery first, then Bootstrap Bundle JS -->
+    <script src="{% static 'assets/js/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/moment.min.js' %}"></script>
+
+    <!-- *************
+			************ Vendor Js Files *************
+		************* -->
+
+    <!-- Overlay Scroll JS -->
+    <script src="{% static 'assets/vendor/overlay-scroll/jquery.overlayScrollbars.min.js' %}"></script>
+    <script src="{% static 'assets/vendor/overlay-scroll/custom-scrollbar.js' %}"></script>
+
+    <!-- Date Range JS -->
+    <script src="{% static 'assets/vendor/daterange/daterange.js' %}"></script>
+    <script src="{% static 'assets/vendor/daterange/custom-daterange.js' %}"></script>
+
+    <!-- Apex Charts -->
+    <script src="{% static 'assets/vendor/apex/apexcharts.min.js' %}"></script>
+    {% block page_scripts %}
+    {% endblock %}
+
+    <!-- Data Tables -->
+    <script src="{% static 'assets/vendor/datatables/dataTables.min.js' %}"></script>
+    <script src="{% static 'assets/vendor/datatables/dataTables.bootstrap.min.js' %}"></script>
+    <script src="{% static 'assets/vendor/datatables/custom/custom-datatables.js' %}"></script>
+
+    <!-- Custom JS files -->
+    <script src="{% static 'assets/js/custom.js' %}"></script>
+  </body>
+
+
+<!-- Mirrored from www.bootstrapget.com/demos/apollo-medical-admin-template/index.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 29 Mar 2025 01:12:52 GMT -->
+</html>
