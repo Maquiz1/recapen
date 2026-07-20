@@ -61,7 +61,7 @@
                         <span class="badge {% if p.status == 'diagnosed' %}bg-warning-subtle text-warning{% elif p.status == 'enrolled' %}bg-success-subtle text-success{% else %}bg-info-subtle text-info{% endif %} text-uppercase px-2 py-1">{{ p.status }}</span>
                       </td>
                       <td>
-                        <a href="{% url 'patients:consultation' p.pk %}" class="btn btn-outline-primary btn-sm">
+                        <a href="{% url 'patients:diagnosis' p.pk %}" class="btn btn-outline-primary btn-sm">
                           {% if p.status == 'diagnosed' or p.status == 'enrolled' %}
                             <i class="ri-edit-line"></i> Update Diagnosis
                           {% else %}

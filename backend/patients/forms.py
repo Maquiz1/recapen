@@ -1,5 +1,5 @@
 from django import forms
-from .models import Patient, Screening, Consultation, Enrollment, CARDIAC_TYPE_CHOICES
+from .models import Patient, Screening, Diagnosis, Enrollment, CARDIAC_TYPE_CHOICES
 
 class PatientForm(forms.ModelForm):
     class Meta:
@@ -236,16 +236,16 @@ class CardiacInvestigationForm(forms.Form):
                 res.created_by = user
             res.save()
 
-class ConsultationForm(forms.ModelForm):
+class DiagnosisForm(forms.ModelForm):
     confirmed_scd = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_confirmed_scd'}))
     confirmed_dm = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_confirmed_dm'}))
     confirmed_cardiac = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_confirmed_cardiac'}))
 
     class Meta:
-        model = Consultation
+        model = Diagnosis
         fields = ['diagnosis', 'confirmed_cardiac_type', 'comments']
         widgets = {
-            'diagnosis': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Diagnosis...'}),
+            'diagnosis': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Diagnosis...', 'required': 'required'}),
             'confirmed_cardiac_type': forms.Select(attrs={'class': 'form-select', 'id': 'id_confirmed_cardiac_type'}),
             'comments': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Clinical comments...'}),
         }

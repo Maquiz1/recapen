@@ -183,15 +183,15 @@ class Screening(AuditableModel):
     def order_cardiac_xray(self):
         return self.ordered_tests.filter(code='cardiac_xray').exists()
 
-class Consultation(AuditableModel):
-    patient = models.OneToOneField(Patient, on_delete=models.CASCADE, related_name='consultation')
+class Diagnosis(AuditableModel):
+    patient = models.OneToOneField(Patient, on_delete=models.CASCADE, related_name='diagnosis')
     diagnosis = models.TextField()
-    confirmed_diseases = models.ManyToManyField('diseases.Disease', blank=True, related_name='consultations')
+    confirmed_diseases = models.ManyToManyField('diseases.Disease', blank=True, related_name='diagnoses')
     confirmed_cardiac_type = models.CharField(max_length=20, choices=CARDIAC_TYPE_CHOICES, blank=True, null=True)
     comments = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"Consultation for {self.patient}"
+        return f"Diagnosis for {self.patient}"
 
     @property
     def confirmed_scd(self):

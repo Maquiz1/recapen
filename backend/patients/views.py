@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from .models import Patient, Screening, Consultation, Enrollment
-from .forms import PatientForm, ScreeningForm, SCDInvestigationForm, DMInvestigationForm, CardiacInvestigationForm, ConsultationForm, EnrollmentForm
+from .models import Patient, Screening, Diagnosis, Enrollment
+from .forms import PatientForm, ScreeningForm, SCDInvestigationForm, DMInvestigationForm, CardiacInvestigationForm, DiagnosisForm, EnrollmentForm
 
 def patient_list(request):
     patients = Patient.objects.filter(is_deleted=False).order_by('-created_at')
@@ -91,7 +91,7 @@ def patient_investigation(request, pk):
                 cardiac_form.save(user=request.user)
                 
             messages.success(request, f"Investigation results updated for {patient}.")
-            return redirect('patients:consultation', pk=patient.pk)
+            return redirect('patients:diagnosis', pk=patient.pk)
     
     return render(request, 'patients/patient_investigation.html', {
         'patient': patient,
@@ -101,13 +101,13 @@ def patient_investigation(request, pk):
         'cardiac_form': cardiac_form
     })
 
-def patient_consultation(request, pk):
+def patient_diagnosis(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
-    consultation, _ = Consultation.objects.get_or_create(patient=patient)
+    diagnosis, _ = Diagnosis.objects.get_or_create(patient=patient)
     enrollment, _ = Enrollment.objects.get_or_create(patient=patient)
     
     if request.method == 'POST':
-        c_form = ConsultationForm(request.POST, instance=consultation, prefix='consult')
+        c_form = DiagnosisForm(request.POST, instance=diagnosis, prefix='consult')
         e_form = EnrollmentForm(request.POST, instance=enrollment, prefix='enroll')
         
         if c_form.is_valid() and e_form.is_valid():
@@ -126,7 +126,7 @@ def patient_consultation(request, pk):
             if e.is_eligible:
                 patient.status = 'diagnosed'
                 patient.save()
-                messages.success(request, f"Consultation recorded. {patient} is eligible for enrollment.")
+                messages.success(request, f"Diagnosis recorded. {patient} is eligible for enrollment.")
                 return redirect('patients:diagnosis_list')
             else:
                 patient.status = 'ineligible'
@@ -134,10 +134,10 @@ def patient_consultation(request, pk):
                 messages.warning(request, f"Patient {patient} marked as ineligible for program.")
                 return redirect('patients:diagnosis_list')
     else:
-        c_form = ConsultationForm(instance=consultation, prefix='consult')
+        c_form = DiagnosisForm(instance=diagnosis, prefix='consult')
         e_form = EnrollmentForm(instance=enrollment, prefix='enroll')
         
-    return render(request, 'patients/patient_consultation.html', {
+    return render(request, 'patients/patient_diagnosis.html', {
         'patient': patient,
         'c_form': c_form,
         'e_form': e_form

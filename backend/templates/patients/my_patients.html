@@ -180,7 +180,7 @@
                           Enter Labs <i class="ri-arrow-right-line"></i>
                         </a>
                       {% elif patient.status == 'diagnosed' %}
-                        <a href="{% url 'patients:consultation' patient.pk %}" class="btn btn-sm btn-outline-success w-100">
+                        <a href="{% url 'patients:diagnosis' patient.pk %}" class="btn btn-sm btn-outline-success w-100">
                           Consult / Enroll <i class="ri-arrow-right-line"></i>
                         </a>
                       {% elif patient.status == 'enrolled' %}
