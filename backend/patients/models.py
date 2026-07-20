@@ -214,6 +214,7 @@ class Enrollment(AuditableModel):
     patient = models.OneToOneField(Patient, on_delete=models.CASCADE, related_name='enrollment')
     is_eligible = models.BooleanField(default=True)
     cohort = models.CharField(max_length=20, choices=COHORT_CHOICES, blank=True, null=True)
+    remarks = models.TextField(blank=True, null=True, help_text="Explanation if not eligible")
     enrollment_date = models.DateField(auto_now_add=True)
 
     def __str__(self):

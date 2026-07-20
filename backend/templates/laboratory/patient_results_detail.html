@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}{{ patient.first_name }} {{ patient.last_name }} - Lab Results{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row gx-3">
+    <div class="col-sm-12">
+      <!-- Patient Summary Card -->
+      <div class="card mb-3 bg-light border-0">
+        <div class="card-body py-3">
+          <div class="row align-items-center">
+            <div class="col">
+              <span class="text-muted small">Patient Name:</span>
+              <h5 class="mb-0 text-primary">{{ patient.first_name }} {{ patient.last_name }}</h5>
+            </div>
+            <div class="col">
+              <span class="text-muted small">Patient ID:</span>
+              <p class="mb-0 fw-semibold">{{ patient.patient_id }}</p>
+            </div>
+            <div class="col">
+              <span class="text-muted small">Gender:</span>
+              <p class="mb-0 fw-semibold text-capitalize">{{ patient.gender }}</p>
+            </div>
+            <div class="col-auto">
+              <span class="badge bg-secondary-subtle text-secondary text-uppercase">{{ patient.status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title">Laboratory Test History</h5>
+          <div>
+            <a href="{% url 'patients:investigation' patient.pk %}" class="btn btn-warning btn-sm me-2">
+              <i class="ri-edit-line"></i> Update Results
+            </a>
+            <a href="{% url 'laboratory:patients_results' %}" class="btn btn-outline-secondary btn-sm">
+              <i class="ri-arrow-left-line"></i> Back to Patients
+            </a>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-outer">
+            <div class="table-responsive">
+              <table class="table align-middle truncate m-0 table-hover">
+                <thead>
+                  <tr>
+                    <th>Test Name</th>
+                    <th>Code</th>
+                    <th>Category</th>
+                    <th>Result Value</th>
+                    <th>Date Performed</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for res in results %}
+                    <tr>
+                      <td>
+                        <span class="fw-semibold">{{ res.test.name }}</span>
+                      </td>
+                      <td>
+                        <div class="small text-muted">{{ res.test.code }}</div>
+                      </td>
+                      <td>
+                        <span class="badge bg-secondary text-capitalize">{{ res.test.get_category_display }}</span>
+                      </td>
+                      <td>
+                        <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-2">{{ res.result_value }}</span>
+                      </td>
+                      <td>
+                        {{ res.performed_date|date:"d M Y" }}
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="5" class="text-center p-5 text-muted">
+                        <h5>No laboratory results found for this patient.</h5>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

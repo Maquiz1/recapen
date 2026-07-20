@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Patient Diagnosis List{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  {% if messages %}
+    <div class="row gx-3">
+      <div class="col-sm-12">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Row starts -->
+  <div class="row gx-3">
+    <div class="col-sm-12">
+      <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title">Patients Awaiting Diagnosis</h5>
+          <div class="search-container d-md-block d-none">
+            <input type="text" class="form-control" id="searchFilter" placeholder="Search Patient...">
+            <i class="ri-search-line" style="position: absolute; right: 15px; top: 12px; color: #aaa;"></i>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-outer">
+            <div class="table-responsive">
+              <table class="table align-middle truncate m-0 table-hover">
+                <thead>
+                  <tr>
+                    <th>Patient ID</th>
+                    <th>Patient Name</th>
+                    <th>Gender</th>
+                    <th>Status</th>
+                    <th>Diagnosis Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="diagnosisTableBody">
+                  {% for p in patients %}
+                    <tr class="diagnosis-row-item" data-search="{{ p.first_name }} {{ p.last_name }} {{ p.patient_id }}">
+                      <td>
+                        <span class="fw-semibold">{{ p.patient_id|default:p.national_id|default:p.pk }}</span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <img src="{% static 'images/user.png' %}" class="img-3x rounded-5 me-3" alt="Patient Avatar">
+                          <span class="fw-semibold text-dark">{{ p.first_name }} {{ p.last_name }}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="text-capitalize">{{ p.gender }}</span>
+                      </td>
+                      <td>
+                        <span class="badge {% if p.status == 'diagnosed' %}bg-warning-subtle text-warning{% elif p.status == 'enrolled' %}bg-success-subtle text-success{% else %}bg-info-subtle text-info{% endif %} text-uppercase px-2 py-1">{{ p.status }}</span>
+                      </td>
+                      <td>
+                        <a href="{% url 'patients:consultation' p.pk %}" class="btn btn-outline-primary btn-sm">
+                          {% if p.status == 'diagnosed' or p.status == 'enrolled' %}
+                            <i class="ri-edit-line"></i> Update Diagnosis
+                          {% else %}
+                            <i class="ri-stethoscope-line"></i> Perform Diagnosis
+                          {% endif %}
+                        </a>
+                        {% if p.status == 'diagnosed' %}
+                        <a href="{% url 'patients:enrollment' p.pk %}" class="btn btn-success btn-sm ms-1">
+                          <i class="ri-checkbox-circle-line"></i> Enroll
+                        </a>
+                        {% endif %}
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="5" class="text-center p-5 text-muted">
+                        <h5>No patients currently ready for diagnosis.</h5>
+                        <p class="mb-0">Patients will appear here after they have been screened.</p>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Row ends -->
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchFilter');
+    const tableRows = document.querySelectorAll('.diagnosis-row-item');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase().trim();
+        tableRows.forEach(row => {
+          const searchStr = row.getAttribute('data-search').toLowerCase();
+          if (searchStr.includes(query)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    }
+  });
+</script>
+{% endblock %}

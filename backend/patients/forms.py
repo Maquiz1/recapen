@@ -286,8 +286,9 @@ class ConsultationForm(forms.ModelForm):
 class EnrollmentForm(forms.ModelForm):
     class Meta:
         model = Enrollment
-        fields = ['is_eligible', 'cohort']
+        fields = ['is_eligible', 'cohort', 'remarks']
         widgets = {
-            'is_eligible': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'is_eligible': forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'is_eligible_checkbox'}),
             'cohort': forms.Select(attrs={'class': 'form-select'}),
+            'remarks': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Explanation if not eligible', 'id': 'remarks_input'}),
         }

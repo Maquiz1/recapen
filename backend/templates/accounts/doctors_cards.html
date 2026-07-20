@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="app-body">
+
+            <!-- Row starts -->
+            <div class="row gx-3">
+              <div class="col-sm-12 col-12">
+                <div class="card mb-3">
+                  <div class="card-body">
+
+                    <!-- Row starts -->
+                    <div class="d-flex align-items-end gap-2">
+                      <div class="m-0">
+                        <label class="form-label" for="a1">Doctor Name</label>
+                        <input type="text" class="form-control" id="a1" placeholder="Search By Doctors Name">
+                      </div>
+                      <div class="m-0">
+                        <label class="form-label" for="a2">Department</label>
+                        <input type="text" class="form-control" id="a2" placeholder="Search By Department">
+                      </div>
+                      <div class="m-0">
+                        <button class="btn btn-primary">Search</button>
+                      </div>
+                    </div>
+                    <!-- Row ends -->
+
+                  </div>
+                </div>
+              </div>
+              {% for doctor in doctors %}
+              <div class="col-xxl-3 col-sm-6 col-12">
+                <div class="card mb-3 doc-card">
+                  <img src="{% static 'assets/images/doctors/1.jpg' %}" alt="Medical Admin Template" class="img-fluid rounded-top">
+                  <span class="badge bg-white text-primary rounded-1 doc-price fs-6 fw-bold">Consult</span>
+                  <div class="card-body">
+                    <div class="text-center">
+                      <a href="{% url 'accounts:doctor_profile' doctor.id %}" class="d-flex align-items-center flex-column">
+                        <h5>Dr. {{ doctor.first_name }} {{ doctor.last_name }}</h5>
+                        <h6 class="text-truncate">{{ doctor.designation|default:"Doctor" }}</h6>
+                        <p>{{ doctor.experience|default:"Experienced" }}</p>
+                      </a>
+                      <div class="d-flex justify-content-center mb-3">
+                        <span class="badge bg-primary-subtle rounded-1 text-primary"><i
+                            class="ri-star-fill me-1"></i>4.8</span>
+                      </div>
+                      <a href="#" class="btn btn-primary">
+                        Book Appointment
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {% empty %}
+              <div class="col-12 text-center">
+                <p>No doctors found.</p>
+              </div>
+              {% endfor %}
+            </div>
+            <!-- Row ends -->
+
+          </div>
+{% endblock content %}

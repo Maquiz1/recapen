@@ -8,6 +8,12 @@ def patient_list(request):
     patients = Patient.objects.filter(is_deleted=False).order_by('-created_at')
     return render(request, 'patients/patient_list.html', {'patients': patients})
 
+def patient_diagnosis_list(request):
+    # Only show patients that have been screened, diagnosed, or enrolled.
+    # The primary action will be to perform diagnosis.
+    patients = Patient.objects.filter(is_deleted=False, status__in=['screened', 'diagnosed', 'enrolled']).order_by('-created_at')
+    return render(request, 'patients/patient_diagnosis_list.html', {'patients': patients})
+
 def patient_register(request):
     if request.method == 'POST':
         form = PatientForm(request.POST)
@@ -121,12 +127,12 @@ def patient_consultation(request, pk):
                 patient.status = 'diagnosed'
                 patient.save()
                 messages.success(request, f"Consultation recorded. {patient} is eligible for enrollment.")
-                return redirect('patients:enrollment', pk=patient.pk)
+                return redirect('patients:diagnosis_list')
             else:
                 patient.status = 'ineligible'
                 patient.save()
                 messages.warning(request, f"Patient {patient} marked as ineligible for program.")
-                return redirect('patients:list')
+                return redirect('patients:diagnosis_list')
     else:
         c_form = ConsultationForm(instance=consultation, prefix='consult')
         e_form = EnrollmentForm(instance=enrollment, prefix='enroll')

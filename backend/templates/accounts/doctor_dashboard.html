@@ -1,0 +1,552 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="app-body">
+
+            <!-- Row starts -->
+            <div class="row gx-3">
+              <div class="col-sm-12">
+                <div class="card mb-3 border">
+                  <div class="card-body">
+
+                    <!-- Row starts -->
+                    <div class="row gx-3">
+                      <div class="col-xl-6 col-sm-6">
+                        <div class="d-flex align-items-start gap-3 flex-wrap">
+                          <img src="{% static 'images/doctors/1.jpg' %}" class="mw-240 rounded-2" alt="Medical Dashboard">
+                          <div class="">
+                            <span class="badge bg-primary-subtle text-primary"><i
+                                class="ri-circle-fill me-1"></i>Available</span>
+                            <h6 class="fw-normal mt-2">Good Morning,</h6>
+                            <h5 class="fw-normal">Dr. {{ doctor.first_name|default:doctor.username }} {{ doctor.last_name }}</h5>
+                            <h6 class="fw-normal">{{ doctor.get_role_type_display }}</h6>
+                            <h6 class="fw-normal">{{ doctor.email }}</h6>
+                            <div class="d-flex mt-3">
+                              <div class="rating-stars">
+                                <div class="readonly5"></div>
+                              </div>
+                              <span class="fw-bold">3860</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="col-xl-6 col-sm-6">
+
+                        <!-- Row starts -->
+                        <div class="row g-3">
+                          <div class="col-sm-4">
+                            <div class="card border rounded-5">
+                              <div class="card-body">
+
+                                <!-- Card details start -->
+                                <div class="text-center">
+                                  <div class="icon-box md border border-primary rounded-5 mb-2 m-auto">
+                                    <i class="ri-empathize-line fs-5 text-primary"></i>
+                                  </div>
+                                  <h3 class="text-primary">680</h3>
+                                  <h6>Total Patients</h6>
+                                  <small class="text-primary">20% Higher than last week.</small>
+                                </div>
+                                <!-- Card details end -->
+
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-sm-4">
+                            <div class="card border rounded-5">
+                              <div class="card-body">
+
+                                <!-- Card details start -->
+                                <div class="text-center">
+                                  <div class="icon-box md border border-primary rounded-5 mb-2 m-auto">
+                                    <i class="ri-stethoscope-line fs-5 text-primary"></i>
+                                  </div>
+                                  <h3 class="text-primary">30</h3>
+                                  <h6>Surgeries</h6>
+                                  <small class="text-primary">30% Higher than last week.</small>
+                                </div>
+                                <!-- Card details end -->
+
+                              </div>
+                            </div>
+                          </div>
+                          <div class="col-sm-4">
+                            <div class="card border rounded-5">
+                              <div class="card-body">
+
+                                <!-- Card details start -->
+                                <div class="text-center">
+                                  <div class="icon-box md border border-primary rounded-5 mb-2 m-auto">
+                                    <i class="ri-money-dollar-circle-line fs-5 text-primary"></i>
+                                  </div>
+                                  <h3 class="text-primary">$980</h3>
+                                  <h6>Earnings</h6>
+                                  <small class="text-primary">60% Higher than last week.</small>
+                                </div>
+                                <!-- Card details end -->
+
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- Row ends -->
+
+                      </div>
+                    </div>
+                    <!-- Row ends -->
+
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Row ends -->
+
+            <!-- Row starts -->
+            <div class="row gx-3">
+              <div class="col-sm-12">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Appointments</h5>
+                  </div>
+                  <div class="card-body">
+
+                    <div class="card-info bg-primary-subtle rounded-1 small lh-1">
+                      21% higher than last year.
+                    </div>
+                    <div id="appointments"></div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Row ends -->
+
+            <!-- Row starts -->
+            <div class="row gx-3">
+              <div class="col-sm-12">
+                <div class="card mb-3">
+                  <div class="card-body">
+                    <h5 class="card-title">Appointments</h5>
+                    <!-- Table starts -->
+                    <div class="table-responsive">
+                      <table id="hideSearchExample" class="table m-0 align-middle">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>Patient Name</th>
+                            <th>Age</th>
+                            <th>Time</th>
+                            <th>Diagnosis</th>
+                            <th>Type</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>001</td>
+                            <td>
+                              <img src="assets/images/patient.png" class="img-2x rounded-5 me-1"
+                                alt="Doctors Admin Template">
+                              Willian Mathews
+                            </td>
+                            <td>21</td>
+                            <td>
+                              10:30AM
+                            </td>
+                            <td>Heart Attack</td>
+                            <td>
+                              <span class="badge bg-warning-subtle text-warning fs-6">General</span>
+                            </td>
+                            <td>
+                              <div class="d-inline-flex gap-1">
+                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="modal"
+                                  data-bs-target="#delRow">
+                                  <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reject">
+                                    <i class="ri-close-fill"></i>
+                                  </span>
+                                </button>
+                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="tooltip"
+                                  data-bs-placement="top" data-bs-title="Approve">
+                                  <i class="ri-check-fill"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>002</td>
+                            <td>
+                              <img src="assets/images/patient1.png" class="img-2x rounded-5 me-1"
+                                alt="Doctors Admin Template">
+                              Adam Bradley
+                            </td>
+                            <td>36</td>
+                            <td>
+                              10:45AM
+                            </td>
+                            <td>Diabetes</td>
+                            <td>
+                              <span class="badge bg-primary-subtle text-primary fs-6">Consulting</span>
+                            </td>
+                            <td>
+                              <div class="d-inline-flex gap-1">
+                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="modal"
+                                  data-bs-target="#delRow">
+                                  <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reject">
+                                    <i class="ri-close-fill"></i>
+                                  </span>
+                                </button>
+                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="tooltip"
+                                  data-bs-placement="top" data-bs-title="Approve">
+                                  <i class="ri-check-fill"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>003</td>
+                            <td>
+                              <img src="assets/images/patient2.png" class="img-2x rounded-5 me-1"
+                                alt="Doctors Admin Template">
+                              Merle Daniel
+                            </td>
+                            <td>82</td>
+                            <td>
+                              11:00AM
+                            </td>
+                            <td>Chancroid</td>
+                            <td>
+                              <span class="badge bg-warning-subtle text-warning fs-6">General</span>
+                            </td>
+                            <td>
+                              <div class="d-inline-flex gap-1">
+                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="modal"
+                                  data-bs-target="#delRow">
+                                  <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reject">
+                                    <i class="ri-close-fill"></i>
+                                  </span>
+                                </button>
+                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="tooltip"
+                                  data-bs-placement="top" data-bs-title="Approve">
+                                  <i class="ri-check-fill"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>004</td>
+                            <td>
+                              <img src="assets/images/patient3.png" class="img-2x rounded-5 me-1"
+                                alt="Doctors Admin Template">
+                              Nicole Sellers
+                            </td>
+                            <td>29</td>
+                            <td>
+                              11:15AM
+                            </td>
+                            <td>Pediatric</td>
+                            <td>
+                              <span class="badge bg-primary-subtle text-primary fs-6">Consulting</span>
+                            </td>
+                            <td>
+                              <div class="d-inline-flex gap-1">
+                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="modal"
+                                  data-bs-target="#delRow">
+                                  <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reject">
+                                    <i class="ri-close-fill"></i>
+                                  </span>
+                                </button>
+                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="tooltip"
+                                  data-bs-placement="top" data-bs-title="Approve">
+                                  <i class="ri-check-fill"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>005</td>
+                            <td>
+                              <img src="assets/images/patient4.png" class="img-2x rounded-5 me-1"
+                                alt="Doctors Admin Template">
+                              Kathy Atkinson
+                            </td>
+                            <td>58</td>
+                            <td>
+                              11:45AM
+                            </td>
+                            <td>Alphaviruses</td>
+                            <td>
+                              <span class="badge bg-warning-subtle text-warning fs-6">General</span>
+                            </td>
+                            <td>
+                              <div class="d-inline-flex gap-1">
+                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="modal"
+                                  data-bs-target="#delRow">
+                                  <span data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Reject">
+                                    <i class="ri-close-fill"></i>
+                                  </span>
+                                </button>
+                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="tooltip"
+                                  data-bs-placement="top" data-bs-title="Approve">
+                                  <i class="ri-check-fill"></i>
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <!-- Table ends -->
+
+                    <!-- Modal Delete Row -->
+                    <div class="modal fade" id="delRow" tabindex="-1" aria-labelledby="delRowLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="delRowLabel">
+                              Confirm
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            Are you sure you want to reject the Appointment?
+                          </div>
+                          <div class="modal-footer">
+                            <div class="d-flex justify-content-end gap-2">
+                              <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal"
+                                aria-label="Close">No</button>
+                              <button type="button" class="btn btn-danger" data-bs-dismiss="modal"
+                                aria-label="Close">Yes</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Row ends -->
+
+            <!-- Row starts -->
+            <div class="row gx-3">
+              <div class="col-sm-12">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Patients</h5>
+                  </div>
+                  <div class="card-body">
+
+                    <div class="card-info bg-primary-subtle rounded-1 small">
+                      20% higher than last year.
+                    </div>
+                    <div id="patients"></div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Row ends -->
+
+            <!-- Row starts -->
+            <div class="row gx-3">
+              <div class="col-xxl-6 col-sm-12">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Patient Reviews</h5>
+                  </div>
+                  <div class="card-body">
+
+                    <!-- Reviews starts -->
+                    <div class="scroll300">
+                      <div class="d-grid gap-4">
+                        <div class="d-flex">
+                          <img src="assets/images/patient1.png" class="img-4x rounded-2" alt="Medical Admin Template">
+                          <div class="ms-3">
+                            <h6>Wendi Combs</h6>
+                            <p class="mb-2">I had a very good experience here. I got a best psychiatrist and a
+                              therapist. They analysed my case very deeply and there medicines helped me a lot.</p>
+                            <div class="rating-stars">
+                              <div class="readonly5"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="d-flex">
+                          <img src="assets/images/patient2.png" class="img-4x rounded-2" alt="Medical Admin Template">
+                          <div class="ms-3">
+                            <h6>Nick Morrow</h6>
+                            <p class="mb-2">Dr.Jessika listens to you very patiently & gives you sufficient time
+                              to say your problems. She diagnosed in no time & i was able to recover quickly, not
+                              just
+                              diagnosing correctly, she helped me in changing my lifestyle habits.</p>
+                            <div class="rating-stars">
+                              <div class="readonly5"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="d-flex">
+                          <img src="assets/images/patient3.png" class="img-4x rounded-2" alt="Medical Admin Template">
+                          <div class="ms-3">
+                            <h6>Carole Dodson</h6>
+                            <p class="mb-2">She is very supportive and suggest well. Good surgeon known from past 10
+                              years. My mother was a renal transplant patient but in most risky condition she
+                              treated
+                              her in day care procedure and avoided hospital admission.
+                            </p>
+                            <div class="rating-stars">
+                              <div class="readonly4"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="d-flex">
+                          <img src="assets/images/patient4.png" class="img-4x rounded-2" alt="Medical Admin Template">
+                          <div class="ms-3">
+                            <h6>Ashley Clay</h6>
+                            <p class="mb-2">Jessika is a very good Doctor because I had good experience with hee,
+                              she
+                              treated my father who is a diabetic patient.
+                            </p>
+                            <div class="rating-stars">
+                              <div class="readonly5"></div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="d-flex">
+                          <img src="assets/images/patient5.png" class="img-4x rounded-2" alt="Medical Admin Template">
+                          <div class="ms-3">
+                            <h6>Emmitt Macias</h6>
+                            <p class="mb-2">One of the finest doctor’s I ever met. A very good human being more than
+                              a
+                              doctor.</p>
+                            <div class="rating-stars">
+                              <div class="readonly4"></div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Reviews ends -->
+
+                  </div>
+                </div>
+              </div>
+              <div class="col-xxl-6 col-sm-12">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Income</h5>
+                  </div>
+                  <div class="card-body">
+
+                    <div class="scroll300">
+                      <div id="income"></div>
+                      <div class="mt-2 text-center">
+                        <span class="badge bg-primary">22%</span> income has increase that last year.
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+              <div class="col-xxl-4 col-sm-4">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Recent Patients</h5>
+                  </div>
+                  <div class="card-body">
+
+                    <div class="scroll300">
+                      <div class="d-flex flex-column gap-2">
+                        <div class="d-flex flex-column p-3 border rounded-2">
+                          <div class="d-flex align-items-center flex-row">
+                            <img src="assets/images/patient5.png" class="img-4x rounded-5 me-3" alt="Medical Dashboard">
+                            <div>
+                              <h6 class="mb-1">Emmitt Macias</h6>
+                              <p class="mb-1 small">Last Appointment 20 Sept 2024</p>
+                              <span class="badge bg-primary-subtle text-primary">Patient ID : P0039</span>
+                              <p class="mb-3 mt-1">Need an appointment urgent.</p>
+                              <div class="d-flex gap-2">
+                                <a href="appointments-list.html" class="btn btn-primary btn-sm">
+                                  Approve
+                                </a>
+                                <button type="button" class="btn btn-outline-secondary btn-sm">Decline</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="d-flex flex-column p-3 border rounded-2">
+                          <div class="d-flex align-items-center flex-row mb-3">
+                            <img src="assets/images/patient1.png" class="img-4x rounded-5 me-3" alt="Medical Dashboard">
+                            <div>
+                              <h6 class="mb-1">Kathy Atkinson</h6>
+                              <p class="mb-1 small">Last Appointment 26 Sept 2024</p>
+                              <span class="badge bg-primary-subtle text-primary">Patient ID : P0063</span>
+                              <p class="mb-3 mt-1">Need an appointment urgent.</p>
+                              <div class="d-flex gap-2">
+                                <a href="appointments-list.html" class="btn btn-primary btn-sm">
+                                  Approve
+                                </a>
+                                <button type="button" class="btn btn-outline-secondary btn-sm">Decline</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="d-flex flex-column p-3 border rounded-2">
+                          <div class="d-flex align-items-center flex-row mb-3">
+                            <img src="assets/images/patient2.png" class="img-4x rounded-5 me-3" alt="Medical Dashboard">
+                            <div>
+                              <h6 class="mb-1">Merle Daniel</h6>
+                              <p class="mb-1 small">Last Appointment 15 Mar 2024</p>
+                              <span class="badge bg-primary-subtle text-primary">Patient ID : P0086</span>
+                              <p class="mb-3 mt-1">Need an appointment urgent.</p>
+                              <div class="d-flex gap-2">
+                                <a href="appointments-list.html" class="btn btn-primary btn-sm">
+                                  Approve
+                                </a>
+                                <button type="button" class="btn btn-outline-secondary btn-sm">Decline</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+              <div class="col-xxl-4 col-sm-4">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Patient Age</h5>
+                  </div>
+                  <div class="card-body">
+
+                    <div class="scroll300 auto-align-graph">
+                      <div id="gender"></div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+              <div class="col-xxl-4 col-sm-4">
+                <div class="card mb-3">
+                  <div class="card-header">
+                    <h5 class="card-title">Surgeries</h5>
+                  </div>
+                  <div class="card-body">
+
+                    <div class="scroll300 auto-align-graph">
+                      <div id="surgeries"></div>
+                      <div class="mt-2 text-center">
+                        <span class="badge bg-primary">22%</span> male patients decreased than last month.
+                        <span class="badge bg-danger">38%</span> female patients increase than last month.
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Row ends -->
+
+          </div>
+{% endblock content %}

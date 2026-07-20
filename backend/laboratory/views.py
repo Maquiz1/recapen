@@ -45,3 +45,24 @@ def test_edit_redirect(request):
         return redirect('laboratory:edit', pk=first_test.pk)
     messages.warning(request, "No lab tests registered yet. Please create a lab test first.")
     return redirect('laboratory:list')
+
+def patient_results_list(request):
+    from patients.models import Patient
+    # Show patients that have been screened (i.e. tests ordered) or diagnosed
+    patients = Patient.objects.filter(status__in=['screened', 'diagnosed', 'enrolled'], is_deleted=False).order_by('-created_at')
+    return render(request, 'laboratory/patient_results_list.html', {'patients': patients})
+
+def patients_with_results(request):
+    from patients.models import Patient
+    # Patients who have test results
+    patients = Patient.objects.filter(test_results__isnull=False, is_deleted=False).distinct().order_by('-created_at')
+    return render(request, 'laboratory/patients_results_list.html', {'patients': patients})
+
+def patient_results_detail(request, pk):
+    from patients.models import Patient
+    patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
+    results = patient.test_results.select_related('test').order_by('-performed_date', 'test__name')
+    return render(request, 'laboratory/patient_results_detail.html', {
+        'patient': patient,
+        'results': results
+    })

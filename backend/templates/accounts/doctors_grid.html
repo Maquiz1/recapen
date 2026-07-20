@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="app-body">
+
+            <!-- Row starts -->
+            <div class="row gx-3">
+              <div class="col-sm-12">
+                <div class="card">
+                  <div class="card-header d-flex align-items-center justify-content-between">
+                    <h5 class="card-title">Doctors List</h5>
+                    <a href="{% url 'accounts:doctor_add' %}" class="btn btn-primary ms-auto">Add Doctor</a>
+                  </div>
+                  <div class="card-body pt-0">
+
+                    <!-- Table starts -->
+                    <div class="table-responsive">
+                      <table id="scrollVertical" class="table truncate m-0 align-middle">
+                        <thead>
+                          <tr>
+                            <th>ID</th>
+                            <th>Doctor Name</th>
+                            <th>Designation</th>
+                            <th class="text-center">Sun</th>
+                            <th class="text-center">Mon</th>
+                            <th class="text-center">Tue</th>
+                            <th class="text-center">Wed</th>
+                            <th class="text-center">Thu</th>
+                            <th class="text-center">Fri</th>
+                            <th class="text-center">Sat</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for doctor in doctors %}
+                          <tr>
+                            <td>#{{ doctor.id|stringformat:"04d" }}</td>
+                            <td>
+                              <img src="{% static 'assets/images/doctor.png' %}" class="img-2x rounded-5 me-1"
+                                alt="Medical Admin Template">
+                              {{ doctor.first_name }} {{ doctor.last_name }}
+                            </td>
+                            <td>{{ doctor.designation|default:"Doctor" }}</td>
+                            <td class="text-center text-danger">NA</td>
+                            <td class="text-center">9AM-2PM</td>
+                            <td class="text-center">9AM-2PM</td>
+                            <td class="text-center">9AM-2PM</td>
+                            <td class="text-center">9AM-2PM</td>
+                            <td class="text-center">9AM-2PM</td>
+                            <td class="text-center">9AM-2PM</td>
+                            <td>
+                              <div class="d-inline-flex gap-1">
+                                <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal"
+                                  data-bs-target="#delRow">
+                                  <i class="ri-delete-bin-line"></i>
+                                </button>
+                                <a href="{% url 'accounts:doctor_edit' doctor.id %}" class="btn btn-outline-success btn-sm"
+                                  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Doctor Details">
+                                  <i class="ri-edit-box-line"></i>
+                                </a>
+                                <a href="{% url 'accounts:doctor_profile' doctor.id %}" class="btn btn-outline-info btn-sm"
+                                  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="View Profile">
+                                  <i class="ri-eye-line"></i>
+                                </a>
+                              </div>
+                            </td>
+                          </tr>
+                          {% empty %}
+                          <tr>
+                            <td colspan="11" class="text-center">No doctors found.</td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                    <!-- Table ends -->
+
+                    <!-- Modal Delete Row -->
+                    <div class="modal fade" id="delRow" tabindex="-1" aria-labelledby="delRowLabel" aria-hidden="true">
+                      <div class="modal-dialog modal-sm">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="delRowLabel">
+                              Confirm
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <div class="modal-body">
+                            Are you sure you want to delete the doctor from list?
+                          </div>
+                          <div class="modal-footer">
+                            <div class="d-flex justify-content-end gap-2">
+                              <button class="btn btn-outline-secondary" data-bs-dismiss="modal"
+                                aria-label="Close">No</button>
+                              <button class="btn btn-danger" data-bs-dismiss="modal" aria-label="Close">Yes</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Row ends -->
+
+          </div>
+{% endblock content %}

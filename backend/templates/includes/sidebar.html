@@ -96,6 +96,9 @@
                     <a href="{% url 'patients:list' %}">Patients List</a>
                   </li>
                   <li>
+                    <a href="{% url 'patients:diagnosis_list' %}">Patient Diagnosis</a>
+                  </li>
+                  <li>
                     <a href="{% url 'patients:register' %}">Add Patient</a>
                   </li>
                   <li>
@@ -114,12 +117,18 @@
               </li>
               <li class="treeview">
                 <a href="#!">
-                  <i class="ri-pulse-line"></i>
+                  <i class="ri-flask-line"></i>
                   <span class="menu-text">Laboratory</span>
                 </a>
                 <ul class="treeview-menu">
                   <li>
                     <a href="{% url 'laboratory:list' %}">Lab Tests List</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'laboratory:results_list' %}">Enter Results</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'laboratory:patients_results' %}">Patients Results</a>
                   </li>
                   <li>
                     <a href="{% url 'laboratory:create' %}">Add Test</a>
