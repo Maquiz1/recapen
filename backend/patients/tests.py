@@ -2,7 +2,7 @@ from django.test import TestCase, Client
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from datetime import date
-from .models import Patient, Screening, Enrollment, Consultation
+from .models import Patient, Screening, Enrollment, Diagnosis
 
 User = get_user_model()
 
@@ -75,7 +75,7 @@ class PatientWorkflowTests(TestCase):
         self.assertTrue(screening.order_dm_hba1c)
         self.assertFalse(screening.order_dm_c_peptide) # Omitted
         
-    def test_investigation_and_consultation_flow(self):
+    def test_investigation_and_diagnosis_flow(self):
         patient = Patient.objects.create(
             first_name='Bob',
             last_name='Blue',
@@ -97,13 +97,13 @@ class PatientWorkflowTests(TestCase):
             'dm-fbg': '8.2'
         }
         response = self.client.post(reverse('patients:investigation', args=[patient.pk]), data)
-        self.assertEqual(response.status_code, 302) # Redirects to consultation
+        self.assertEqual(response.status_code, 302) # Redirects to diagnosis
         
         dm_inv = patient.dm_investigation
         self.assertEqual(float(dm_inv.hba1c), 7.5)
         self.assertIsNone(dm_inv.c_peptide) # Not ordered
         
-        # Post Consultation (Doctor Dx, Confirmed Disease & Eligibility)
+        # Post Diagnosis (Doctor Dx, Confirmed Disease & Eligibility)
         consult_data = {
             'consult-diagnosis': 'Type 2 Diabetes Mellitus',
             'consult-confirmed_dm': 'on',
@@ -111,13 +111,13 @@ class PatientWorkflowTests(TestCase):
             'enroll-is_eligible': 'on', # Checkbox checked
             'enroll-cohort': 'dm'
         }
-        response = self.client.post(reverse('patients:consultation', args=[patient.pk]), consult_data)
+        response = self.client.post(reverse('patients:diagnosis', args=[patient.pk]), consult_data)
         self.assertEqual(response.status_code, 302) # Redirects to enrollment
         
         patient.refresh_from_db()
         self.assertEqual(patient.status, 'diagnosed')
         
-        consult = Consultation.objects.get(patient=patient)
+        consult = Diagnosis.objects.get(patient=patient)
         self.assertTrue(consult.confirmed_dm)
         self.assertFalse(consult.confirmed_scd)
         
@@ -151,7 +151,7 @@ class PatientWorkflowTests(TestCase):
         screening.suspected_diseases.add(Disease.objects.get(code='CARDIAC'))
         screening.ordered_tests.add(LabTest.objects.get(code='ecg'))
         
-        # Post Cardiac consultation confirmation but omit confirmed_cardiac_type
+        # Post Cardiac diagnosis confirmation but omit confirmed_cardiac_type
         consult_data = {
             'consult-diagnosis': 'Cardiac problem',
             'consult-confirmed_cardiac': 'on', # Checked confirmed cardiac
@@ -159,7 +159,7 @@ class PatientWorkflowTests(TestCase):
             'enroll-is_eligible': 'on',
             'enroll-cohort': 'cardiac'
         }
-        response = self.client.post(reverse('patients:consultation', args=[patient.pk]), consult_data)
+        response = self.client.post(reverse('patients:diagnosis', args=[patient.pk]), consult_data)
         # Should stay on page and fail validation
         self.assertEqual(response.status_code, 200)
         self.assertFormError(response, 'c_form', 'confirmed_cardiac_type', 'Please select a cardiac condition type.')

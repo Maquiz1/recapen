@@ -186,7 +186,7 @@
                   <h6 class="mb-0 text-muted">4. Clinical Evaluation</h6>
                   <small class="text-muted">Locked until labs submitted</small>
                 </div>
-              {% elif patient.consultation %}
+              {% elif patient.diagnosis %}
                 <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
                 <div>
                   <h6 class="mb-0 fw-semibold">4. Clinical Evaluation</h6>
@@ -336,17 +336,17 @@
             {% endif %}
 
             <!-- Consultation / Diagnosis -->
-            {% if patient.consultation %}
+            {% if patient.diagnosis %}
               <div class="mb-4">
                 <h6 class="text-primary fw-bold"><i class="ri-stethoscope-line"></i> 3. Clinical Consultation & Diagnosis</h6>
                 <div class="p-3 border rounded bg-warning-lighten border-warning-subtle small mt-2">
-                  <p class="mb-1"><strong>Doctor Diagnosis:</strong> {{ patient.consultation.diagnosis }}</p>
+                  <p class="mb-1"><strong>Doctor Diagnosis:</strong> {{ patient.diagnosis.diagnosis }}</p>
                   <p class="mb-1"><strong>Confirmed Diseases:</strong>
-                    {% if patient.consultation.confirmed_scd %}<span class="badge bg-primary">SCD</span> {% endif %}
-                    {% if patient.consultation.confirmed_dm %}<span class="badge bg-success">Diabetes</span> {% endif %}
-                    {% if patient.consultation.confirmed_cardiac %}<span class="badge bg-danger">Cardiac ({{ patient.consultation.get_confirmed_cardiac_type_display }})</span> {% endif %}
+                    {% if patient.diagnosis.confirmed_scd %}<span class="badge bg-primary">SCD</span> {% endif %}
+                    {% if patient.diagnosis.confirmed_dm %}<span class="badge bg-success">Diabetes</span> {% endif %}
+                    {% if patient.diagnosis.confirmed_cardiac %}<span class="badge bg-danger">Cardiac ({{ patient.diagnosis.get_confirmed_cardiac_type_display }})</span> {% endif %}
                   </p>
-                  <p class="mb-0"><strong>Comments / Plan:</strong> {{ patient.consultation.comments|default:"None" }}</p>
+                  <p class="mb-0"><strong>Comments / Plan:</strong> {{ patient.diagnosis.comments|default:"None" }}</p>
                 </div>
               </div>
             {% endif %}
