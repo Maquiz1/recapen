@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Patient Screening & Lab Orders{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <!-- Row starts -->
+  <div class="row gx-3 justify-content-center">
+    <div class="col-lg-10 col-sm-12">
+      
+      <!-- Patient Summary Card -->
+      <div class="card mb-3 bg-light border-0">
+        <div class="card-body py-3">
+          <div class="row align-items-center">
+            <div class="col">
+              <span class="text-muted small">Patient Name:</span>
+              <h5 class="mb-0 text-primary">{{ patient.first_name }} {{ patient.last_name }}</h5>
+            </div>
+            <div class="col">
+              <span class="text-muted small">Date of Birth:</span>
+              <p class="mb-0 fw-semibold">{{ patient.date_of_birth|date:"d M Y" }}</p>
+            </div>
+            <div class="col">
+              <span class="text-muted small">Gender:</span>
+              <p class="mb-0 fw-semibold text-capitalize">{{ patient.gender }}</p>
+            </div>
+            <div class="col-auto">
+              <span class="badge bg-secondary-subtle text-secondary text-uppercase">{{ patient.status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="card-title">Initial Screening & Laboratory/Diagnostic Orders</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <p class="text-muted">Select the chronic conditions suspected for this patient and check the specific laboratory/diagnostic tests that need to be performed by the lab personnel.</p>
+
+            <div class="row gx-3 mb-4">
+              <!-- SCD Toggle & Tests -->
+              <div class="col-md-4 mb-3">
+                <div class="card border border-primary-subtle p-3 h-100 bg-light-subtle">
+                  <div class="form-check mb-2">
+                    {{ form.suspect_scd }}
+                    <label class="form-check-label fw-bold text-primary ms-1" for="id_suspect_scd">
+                      Sickle Cell Disease (SCD)
+                    </label>
+                  </div>
+                  <hr class="my-2">
+                  <div id="scd-tests-container">
+                    <p class="small text-muted mb-2 fw-semibold">Order Lab Tests:</p>
+                    <div class="form-check mb-1">
+                      {{ form.order_scd_lab }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_scd_lab.id_for_label }}">Lab Investigation (electrophoresis)</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      {{ form.order_scd_screening }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_scd_screening.id_for_label }}">SCD Screening Test</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      {{ form.order_scd_echo }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_scd_echo.id_for_label }}">ECHO Scan</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      {{ form.order_scd_radiology }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_scd_radiology.id_for_label }}">Radiology (Bone X-ray)</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- DM Toggle & Tests -->
+              <div class="col-md-4 mb-3">
+                <div class="card border border-success-subtle p-3 h-100 bg-light-subtle">
+                  <div class="form-check mb-2">
+                    {{ form.suspect_dm }}
+                    <label class="form-check-label fw-bold text-success ms-1" for="id_suspect_dm">
+                      Diabetes Mellitus (DM)
+                    </label>
+                  </div>
+                  <hr class="my-2">
+                  <div id="dm-tests-container">
+                    <p class="small text-muted mb-2 fw-semibold">Order Lab Tests:</p>
+                    <div class="form-check mb-1">
+                      {{ form.order_dm_hba1c }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_dm_hba1c.id_for_label }}">HbA1c (%)</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      {{ form.order_dm_c_peptide }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_dm_c_peptide.id_for_label }}">C-Peptide</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      {{ form.order_dm_creatinine }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_dm_creatinine.id_for_label }}">Serum Creatinine</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      {{ form.order_dm_urea }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_dm_urea.id_for_label }}">Blood Urea</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      {{ form.order_dm_rbg }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_dm_rbg.id_for_label }}">Random Blood Glucose</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      {{ form.order_dm_fbg }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_dm_fbg.id_for_label }}">Fasting Blood Glucose</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cardiac Toggle & Tests -->
+              <div class="col-md-4 mb-3">
+                <div class="card border border-danger-subtle p-3 h-100 bg-light-subtle">
+                  <div class="form-check mb-2">
+                    {{ form.suspect_cardiac }}
+                    <label class="form-check-label fw-bold text-danger ms-1" for="id_suspect_cardiac">
+                      Cardiac Conditions
+                    </label>
+                  </div>
+                  <hr class="my-2">
+                  <div id="cardiac-tests-container">
+                    <p class="small text-muted mb-2 fw-semibold">Order Lab Tests:</p>
+                    <div class="form-check mb-1">
+                      {{ form.order_cardiac_lab }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_cardiac_lab.id_for_label }}">Cardiac Lab Panel</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      {{ form.order_cardiac_echo }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_cardiac_echo.id_for_label }}">Echocardiogram (ECHO)</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      {{ form.order_cardiac_ecg }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_cardiac_ecg.id_for_label }}">ECG / EKG</label>
+                    </div>
+                    <div class="form-check mb-1">
+                      {{ form.order_cardiac_xray }}
+                      <label class="form-check-label small ms-1" for="{{ form.order_cardiac_xray.id_for_label }}">Chest X-Ray</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="mb-3">
+              <label for="{{ form.screening_notes.id_for_label }}" class="form-label">Triage notes / clinical presentation</label>
+              {{ form.screening_notes }}
+              {% if form.screening_notes.errors %}
+                <div class="text-danger mt-1 small">{{ form.screening_notes.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <a href="{% url 'patients:list' %}" class="btn btn-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary">Save & Order Lab Tests</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Row ends -->
+</div>
+
+<script>
+  // Simple interactive helper to check/uncheck all tests when the primary condition toggle changes
+  document.addEventListener('DOMContentLoaded', function() {
+    function setupGroupToggle(triggerId, testClass) {
+      const trigger = document.getElementById(triggerId);
+      const tests = document.querySelectorAll('.' + testClass);
+      
+      function toggleState() {
+        const checked = trigger.checked;
+        tests.forEach(test => {
+          if (!checked) {
+            test.checked = false;
+            test.disabled = true;
+          } else {
+            test.disabled = false;
+          }
+        });
+      }
+      
+      trigger.addEventListener('change', toggleState);
+      toggleState(); // Run initially
+    }
+
+    setupGroupToggle('id_suspect_scd', 'scd-test');
+    setupGroupToggle('id_suspect_dm', 'dm-test');
+    setupGroupToggle('id_suspect_cardiac', 'cardiac-test');
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Cohort Enrollment{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <!-- Row starts -->
+  <div class="row gx-3 justify-content-center">
+    <div class="col-lg-8 col-sm-12">
+      
+      <!-- Patient Summary Card -->
+      <div class="card mb-3 bg-light border-0">
+        <div class="card-body py-3">
+          <div class="row align-items-center">
+            <div class="col">
+              <span class="text-muted small">Patient Name:</span>
+              <h5 class="mb-0 text-primary">{{ patient.first_name }} {{ patient.last_name }}</h5>
+            </div>
+            <div class="col">
+              <span class="text-muted small">Date of Birth:</span>
+              <p class="mb-0 fw-semibold">{{ patient.date_of_birth|date:"d M Y" }}</p>
+            </div>
+            <div class="col">
+              <span class="text-muted small">Gender:</span>
+              <p class="mb-0 fw-semibold text-capitalize">{{ patient.gender }}</p>
+            </div>
+            <div class="col-auto">
+              <span class="badge bg-secondary-subtle text-secondary text-uppercase">{{ patient.status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="card-title">Select Registry Cohort</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            <p class="text-muted">Select the specific PEN-Plus registry cohort to enroll this patient in. This determines their tracking list and data aggregation protocols.</p>
+
+            <div class="mb-4">
+              <label for="{{ form.cohort.id_for_label }}" class="form-label font-semibold">Select Registry Cohort <span class="text-danger">*</span></label>
+              {{ form.cohort }}
+              {% if form.cohort.errors %}
+                <div class="text-danger mt-1 small">{{ form.cohort.errors.0 }}</div>
+              {% endif %}
+            </div>
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <a href="{% url 'patients:consultation' patient.pk %}" class="btn btn-secondary"><i class="ri-arrow-left-line"></i> Back to Consultation</a>
+              <button type="submit" class="btn btn-primary">Enroll Patient</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Row ends -->
+</div>
+{% endblock %}

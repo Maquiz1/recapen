@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Laboratory Tests Directory{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'laboratory:create' %}" class="btn btn-primary">
+  <i class="ri-add-line"></i> Register New Test
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  {% if messages %}
+    <div class="row gx-3">
+      <div class="col-sm-12">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Row starts -->
+  <div class="row gx-3">
+    <div class="col-sm-12">
+      <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title">Registered Lab Tests</h5>
+          <div class="search-container d-md-block d-none">
+            <input type="text" class="form-control" id="searchTests" placeholder="Search Test Name/Code...">
+            <i class="ri-search-line" style="position: absolute; right: 15px; top: 12px; color: #aaa;"></i>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-outer">
+            <div class="table-responsive">
+              <table class="table align-middle truncate m-0 table-hover">
+                <thead>
+                  <tr>
+                    <th>Test Name</th>
+                    <th>Unique Code</th>
+                    <th>Category</th>
+                    <th>Mapped Diseases</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="testTableBody">
+                  {% for test in tests %}
+                    <tr class="test-row-item" data-name="{{ test.name }}" data-code="{{ test.code }}">
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <div class="icon-box sm bg-primary-subtle rounded-5 me-2 text-primary">
+                            <i class="ri-pulse-line"></i>
+                          </div>
+                          <span class="fw-semibold text-dark">{{ test.name }}</span>
+                        </div>
+                      </td>
+                      <td><code>{{ test.code }}</code></td>
+                      <td>
+                        <span class="badge bg-secondary text-capitalize">{{ test.get_category_display }}</span>
+                      </td>
+                      <td>
+                        {% for disease in test.diseases.all %}
+                          <span class="badge bg-primary-subtle text-primary">{{ disease.name }}</span>
+                        {% empty %}
+                          <span class="text-muted small">None</span>
+                        {% endfor %}
+                      </td>
+                      <td>
+                        <a href="{% url 'laboratory:edit' test.pk %}" class="btn btn-outline-warning btn-sm">
+                          <i class="ri-edit-line"></i> Edit
+                        </a>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="5" class="text-center p-5 text-muted">
+                        <h5>No laboratory tests registered yet.</h5>
+                        <p class="mb-0">Click the "Register New Test" button at the top right to get started.</p>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Row ends -->
+</div>
+
+<script>
+  // Simple client-side search filtering
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchTests');
+    const tableRows = document.querySelectorAll('.test-row-item');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase().trim();
+        tableRows.forEach(row => {
+          const name = row.getAttribute('data-name').toLowerCase();
+          const code = row.getAttribute('data-code').toLowerCase();
+          if (name.includes(query) || code.includes(query)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    }
+  });
+</script>
+{% endblock %}

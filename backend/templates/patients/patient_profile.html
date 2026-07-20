@@ -1,0 +1,362 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Patient Profile{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'patients:list' %}" class="btn btn-outline-primary">
+  <i class="ri-arrow-left-line"></i> Back to Patients List
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+
+  <!-- Row starts -->
+  <div class="row gx-3">
+    <div class="col-sm-12">
+      <div class="card mb-3">
+        <div class="card-body">
+          <div class="d-flex flex-wrap">
+            <!-- Stats starts -->
+            <div class="d-flex align-items-center flex-wrap gap-4">
+              <div class="d-flex align-items-center">
+                <div class="icon-box lg bg-primary-subtle rounded-5 me-2">
+                  <i class="ri-account-circle-line fs-3 text-primary"></i>
+                </div>
+                <div>
+                  <h4 class="mb-1">{{ patient.first_name }} {{ patient.last_name }}</h4>
+                  <p class="m-0 text-muted small">Patient Name</p>
+                </div>
+              </div>
+              
+              <div class="d-flex align-items-center">
+                <div class="icon-box lg bg-primary-subtle rounded-5 me-2">
+                  <i class="ri-women-line fs-3 text-primary"></i>
+                </div>
+                <div>
+                  <h4 class="mb-1 text-capitalize">{{ patient.gender }}</h4>
+                  <p class="m-0 text-muted small">Gender</p>
+                </div>
+              </div>
+              
+              <div class="d-flex align-items-center">
+                <div class="icon-box lg bg-primary-subtle rounded-5 me-2">
+                  <i class="ri-calendar-event-line fs-3 text-primary"></i>
+                </div>
+                <div>
+                  <h4 class="mb-1">{{ patient.date_of_birth|date:"d M Y" }}</h4>
+                  <p class="m-0 text-muted small">Date of Birth</p>
+                </div>
+              </div>
+              
+              <div class="d-flex align-items-center">
+                <div class="icon-box lg bg-primary-subtle rounded-5 me-2">
+                  <i class="ri-fingerprint-line fs-3 text-primary"></i>
+                </div>
+                <div>
+                  <h4 class="mb-1">#{{ patient.national_id|default:patient.pk }}</h4>
+                  <p class="m-0 text-muted small">Patient ID / MRN</p>
+                </div>
+              </div>
+            </div>
+            <!-- Stats ends -->
+
+            {% if patient.gender == 'female' %}
+              <img src="{% static 'assets/images/patient1.png' %}" class="img-7x rounded-circle ms-auto" alt="Patient Avatar">
+            {% else %}
+              <img src="{% static 'assets/images/patient.png' %}" class="img-7x rounded-circle ms-auto" alt="Patient Avatar">
+            {% endif %}
+          </div>
+        </div>
+        
+        <div class="card-footer">
+          <div class="d-flex flex-row flex-wrap gap-3">
+            <div class="d-flex align-items-center">
+              <div class="icon-box sm bg-primary-subtle rounded-5 me-2">
+                <i class="ri-stethoscope-line fs-5 text-primary"></i>
+              </div>
+              <div class="small">
+                Triage Status: 
+                {% if patient.status == 'registered' %}
+                  <span class="badge bg-secondary">Registered</span>
+                {% elif patient.status == 'screened' %}
+                  <span class="badge bg-info">Screened</span>
+                {% elif patient.status == 'diagnosed' %}
+                  <span class="badge bg-warning text-dark">Diagnosed</span>
+                {% elif patient.status == 'enrolled' %}
+                  <span class="badge bg-success">Enrolled</span>
+                {% elif patient.status == 'ineligible' %}
+                  <span class="badge bg-danger">Ineligible</span>
+                {% endif %}
+              </div>
+            </div>
+            
+            {% if patient.created_by %}
+              <div class="d-flex align-items-center">
+                <div class="icon-box sm bg-primary-subtle rounded-5 me-2">
+                  <i class="ri-user-line fs-5 text-primary"></i>
+                </div>
+                <div class="small">
+                  Created By: <span class="text-primary fw-semibold">{{ patient.created_by }}</span>
+                </div>
+              </div>
+            {% endif %}
+
+            <div class="d-flex align-items-center">
+              <div class="icon-box sm bg-primary-subtle rounded-5 me-2">
+                <i class="ri-time-line fs-5 text-primary"></i>
+              </div>
+              <div class="small">
+                Last Update: <span class="text-primary fw-semibold">{{ patient.updated_at|date:"d/m/Y H:i" }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Row ends -->
+
+  <!-- Row starts -->
+  <div class="row gx-3">
+    <!-- Clinical Flow Progress Panel -->
+    <div class="col-md-4 col-sm-12">
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="card-title">Clinical Pathway Progress</h5>
+        </div>
+        <div class="card-body">
+          <div class="d-flex flex-column gap-3">
+            
+            <!-- Step 1 -->
+            <div class="d-flex align-items-start gap-2 border-bottom pb-2">
+              <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
+              <div>
+                <h6 class="mb-0 fw-semibold">1. Registration</h6>
+                <small class="text-muted">Completed on {{ patient.created_at|date:"d/m/Y" }}</small>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div class="d-flex align-items-start gap-2 border-bottom pb-2">
+              {% if patient.screening %}
+                <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
+                <div>
+                  <h6 class="mb-0 fw-semibold">2. Initial Screening</h6>
+                  <small class="text-muted">Suspected conditions selected</small>
+                </div>
+              {% else %}
+                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-checkbox-blank-circle-line"></i></div>
+                <div>
+                  <h6 class="mb-0 text-muted">2. Initial Screening</h6>
+                  <a href="{% url 'patients:screening' patient.pk %}" class="btn btn-xs btn-primary mt-1">Start Triage</a>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Step 3 -->
+            <div class="d-flex align-items-start gap-2 border-bottom pb-2">
+              {% if patient.status == 'registered' or not patient.screening %}
+                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
+                <div>
+                  <h6 class="mb-0 text-muted">3. Lab Entry</h6>
+                  <small class="text-muted small">Locked until screened</small>
+                </div>
+              {% elif patient.scd_investigation or patient.dm_investigation or patient.cardiac_investigation %}
+                <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
+                <div>
+                  <h6 class="mb-0 fw-semibold">3. Lab Entry</h6>
+                  <small class="text-muted">Diagnostic values saved</small>
+                </div>
+              {% else %}
+                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-checkbox-blank-circle-line"></i></div>
+                <div>
+                  <h6 class="mb-0 text-muted">3. Lab Entry</h6>
+                  <a href="{% url 'patients:investigation' patient.pk %}" class="btn btn-xs btn-primary mt-1">Enter Results</a>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Step 4 -->
+            <div class="d-flex align-items-start gap-2 border-bottom pb-2">
+              {% if patient.status == 'registered' or patient.status == 'screened' %}
+                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
+                <div>
+                  <h6 class="mb-0 text-muted">4. Clinical Evaluation</h6>
+                  <small class="text-muted">Locked until labs submitted</small>
+                </div>
+              {% elif patient.consultation %}
+                <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
+                <div>
+                  <h6 class="mb-0 fw-semibold">4. Clinical Evaluation</h6>
+                  <small class="text-muted">Diagnoses confirmed</small>
+                </div>
+              {% else %}
+                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-checkbox-blank-circle-line"></i></div>
+                <div>
+                  <h6 class="mb-0 text-muted">4. Clinical Evaluation</h6>
+                  <a href="{% url 'patients:consultation' patient.pk %}" class="btn btn-xs btn-primary mt-1">Consultation</a>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Step 5 -->
+            <div class="d-flex align-items-start gap-2">
+              {% if patient.status == 'enrolled' %}
+                <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
+                <div>
+                  <h6 class="mb-0 fw-semibold">5. Study Enrollment</h6>
+                  <small class="text-muted text-uppercase text-primary fw-bold">{{ patient.enrollment.cohort }} Cohort</small>
+                </div>
+              {% elif patient.status == 'ineligible' %}
+                <div class="icon-box sm bg-danger text-white rounded-circle"><i class="ri-close-line"></i></div>
+                <div>
+                  <h6 class="mb-0 fw-semibold text-danger">Ineligible</h6>
+                  <small class="text-muted">Discharged from timeline</small>
+                </div>
+              {% elif patient.status == 'diagnosed' %}
+                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-checkbox-blank-circle-line"></i></div>
+                <div>
+                  <h6 class="mb-0 text-muted">5. Study Enrollment</h6>
+                  <a href="{% url 'patients:enrollment' patient.pk %}" class="btn btn-xs btn-primary mt-1">Finalize Enrollment</a>
+                </div>
+              {% else %}
+                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
+                <div>
+                  <h6 class="mb-0 text-muted">5. Study Enrollment</h6>
+                </div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline / Lab Results History -->
+    <div class="col-md-8 col-sm-12">
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="card-title">Laboratory & Diagnostic Records</h5>
+        </div>
+        <div class="card-body">
+          
+          {% if not patient.screening %}
+            <div class="p-4 text-center text-muted">
+              <i class="ri-pulse-line fs-1 text-secondary"></i>
+              <p class="mt-2">No screening orders created. Complete Step 2 to record laboratory test orders.</p>
+            </div>
+          {% else %}
+            <!-- Screening Info -->
+            <div class="mb-4">
+              <h6 class="text-primary fw-bold"><i class="ri-list-check"></i> 1. Ordered Tests & Triage Notes</h6>
+              <div class="p-3 border rounded bg-light-subtle small mt-2">
+                <p class="mb-1"><strong>Suspected Path:</strong> 
+                  {% if patient.screening.suspect_scd %}<span class="badge bg-primary-subtle text-primary">SCD</span>{% endif %}
+                  {% if patient.screening.suspect_dm %}<span class="badge bg-success-subtle text-success">Diabetes</span>{% endif %}
+                  {% if patient.screening.suspect_cardiac %}<span class="badge bg-danger-subtle text-danger">Cardiac</span>{% endif %}
+                </p>
+                <p class="mb-1"><strong>Ordered Tests:</strong>
+                  {% if patient.screening.order_scd_lab %}Lab (Electrophoresis), {% endif %}
+                  {% if patient.screening.order_scd_screening %}SCD Screen, {% endif %}
+                  {% if patient.screening.order_scd_echo %}SCD ECHO, {% endif %}
+                  {% if patient.screening.order_scd_radiology %}Bone X-Ray, {% endif %}
+                  {% if patient.screening.order_dm_hba1c %}HbA1c, {% endif %}
+                  {% if patient.screening.order_dm_c_peptide %}C-Peptide, {% endif %}
+                  {% if patient.screening.order_dm_creatinine %}Creatinine, {% endif %}
+                  {% if patient.screening.order_dm_urea %}Urea, {% endif %}
+                  {% if patient.screening.order_dm_rbg %}RBG, {% endif %}
+                  {% if patient.screening.order_dm_fbg %}FBG, {% endif %}
+                  {% if patient.screening.order_cardiac_lab %}Cardiac Lab Panel, {% endif %}
+                  {% if patient.screening.order_cardiac_echo %}Cardiac ECHO, {% endif %}
+                  {% if patient.screening.order_cardiac_ecg %}ECG, {% endif %}
+                  {% if patient.screening.order_cardiac_xray %}Chest X-Ray, {% endif %}
+                </p>
+                <p class="mb-0"><strong>Triage Notes:</strong> {{ patient.screening.screening_notes|default:"None" }}</p>
+              </div>
+            </div>
+
+            <!-- Lab Metrics -->
+            {% if patient.scd_investigation or patient.dm_investigation or patient.cardiac_investigation %}
+              <div class="mb-4">
+                <h6 class="text-primary fw-bold"><i class="ri-health-book-line"></i> 2. Investigation Outcomes</h6>
+                <div class="row gx-3 mt-2">
+                  
+                  <!-- SCD Panel -->
+                  {% if patient.screening.suspect_scd %}
+                    <div class="col-md-6 mb-3">
+                      <div class="border rounded p-3 h-100 bg-primary-lighten border-primary-subtle">
+                        <h6 class="text-primary fw-bold small"><i class="ri-pulse-line"></i> SCD Results</h6>
+                        <ul class="list-unstyled mb-0 small">
+                          <li class="mb-1"><strong>Lab Electrophoresis:</strong> {{ patient.scd_investigation.lab_results|default:"-" }}</li>
+                          <li class="mb-1"><strong>Screening Test:</strong> {{ patient.scd_investigation.scd_screening_results|default:"-" }}</li>
+                          <li class="mb-1"><strong>ECHO:</strong> {{ patient.scd_investigation.echo_results|default:"-" }}</li>
+                          <li class="mb-0"><strong>Radiology X-Ray:</strong> {{ patient.scd_investigation.radiology_results|default:"-" }}</li>
+                        </ul>
+                      </div>
+                    </div>
+                  {% endif %}
+
+                  <!-- DM Panel -->
+                  {% if patient.screening.suspect_dm %}
+                    <div class="col-md-6 mb-3">
+                      <div class="border rounded p-3 h-100 bg-success-lighten border-success-subtle">
+                        <h6 class="text-success fw-bold small"><i class="ri-health-book-line"></i> Diabetes Results</h6>
+                        <ul class="list-unstyled mb-0 small">
+                          <li class="mb-1"><strong>HbA1c (%):</strong> {{ patient.dm_investigation.hba1c|default:"-" }}</li>
+                          <li class="mb-1"><strong>C-Peptide (nmol/L):</strong> {{ patient.dm_investigation.c_peptide|default:"-" }}</li>
+                          <li class="mb-1"><strong>Creatinine (µmol/L):</strong> {{ patient.dm_investigation.creatinine|default:"-" }}</li>
+                          <li class="mb-1"><strong>Urea (mmol/L):</strong> {{ patient.dm_investigation.urea|default:"-" }}</li>
+                          <li class="mb-1"><strong>RBG (mmol/L):</strong> {{ patient.dm_investigation.rbg|default:"-" }}</li>
+                          <li class="mb-0"><strong>FBG (mmol/L):</strong> {{ patient.dm_investigation.fbg|default:"-" }}</li>
+                        </ul>
+                      </div>
+                    </div>
+                  {% endif %}
+
+                  <!-- Cardiac Panel -->
+                  {% if patient.screening.suspect_cardiac %}
+                    <div class="col-md-6 mb-3">
+                      <div class="border rounded p-3 h-100 bg-danger-lighten border-danger-subtle">
+                        <h6 class="text-danger fw-bold small"><i class="ri-heart-pulse-line"></i> Cardiac Results</h6>
+                        <ul class="list-unstyled mb-0 small">
+                          <li class="mb-1"><strong>Cardiac Type:</strong> {{ patient.cardiac_investigation.get_cardiac_type_display|default:"-" }}</li>
+                          <li class="mb-1"><strong>Lab Panel:</strong> {{ patient.cardiac_investigation.lab_results|default:"-" }}</li>
+                          <li class="mb-1"><strong>ECHO Scan:</strong> {{ patient.cardiac_investigation.echo_results|default:"-" }}</li>
+                          <li class="mb-1"><strong>ECG:</strong> {{ patient.cardiac_investigation.ecg_results|default:"-" }}</li>
+                          <li class="mb-0"><strong>X-Ray:</strong> {{ patient.cardiac_investigation.xray_results|default:"-" }}</li>
+                        </ul>
+                      </div>
+                    </div>
+                  {% endif %}
+
+                </div>
+              </div>
+            {% endif %}
+
+            <!-- Consultation / Diagnosis -->
+            {% if patient.consultation %}
+              <div class="mb-4">
+                <h6 class="text-primary fw-bold"><i class="ri-stethoscope-line"></i> 3. Clinical Consultation & Diagnosis</h6>
+                <div class="p-3 border rounded bg-warning-lighten border-warning-subtle small mt-2">
+                  <p class="mb-1"><strong>Doctor Diagnosis:</strong> {{ patient.consultation.diagnosis }}</p>
+                  <p class="mb-1"><strong>Confirmed Diseases:</strong>
+                    {% if patient.consultation.confirmed_scd %}<span class="badge bg-primary">SCD</span> {% endif %}
+                    {% if patient.consultation.confirmed_dm %}<span class="badge bg-success">Diabetes</span> {% endif %}
+                    {% if patient.consultation.confirmed_cardiac %}<span class="badge bg-danger">Cardiac ({{ patient.consultation.get_confirmed_cardiac_type_display }})</span> {% endif %}
+                  </p>
+                  <p class="mb-0"><strong>Comments / Plan:</strong> {{ patient.consultation.comments|default:"None" }}</p>
+                </div>
+              </div>
+            {% endif %}
+
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Row ends -->
+
+</div>
+{% endblock %}

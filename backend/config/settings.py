@@ -50,6 +50,9 @@ INSTALLED_APPS = [
     'core',
     'dashboards',
     'reports',
+    'patients',
+    'diseases',
+    'laboratory',
 ]
 
 MIDDLEWARE = [

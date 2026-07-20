@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Lab Results Entry{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <!-- Row starts -->
+  <div class="row gx-3 justify-content-center">
+    <div class="col-lg-8 col-sm-12">
+      
+      <!-- Patient Summary Card -->
+      <div class="card mb-3 bg-light border-0">
+        <div class="card-body py-3">
+          <div class="row align-items-center">
+            <div class="col">
+              <span class="text-muted small">Patient Name:</span>
+              <h5 class="mb-0 text-primary">{{ patient.first_name }} {{ patient.last_name }}</h5>
+            </div>
+            <div class="col">
+              <span class="text-muted small">Date of Birth:</span>
+              <p class="mb-0 fw-semibold">{{ patient.date_of_birth|date:"d M Y" }}</p>
+            </div>
+            <div class="col">
+              <span class="text-muted small">Gender:</span>
+              <p class="mb-0 fw-semibold text-capitalize">{{ patient.gender }}</p>
+            </div>
+            <div class="col-auto">
+              <span class="badge bg-secondary-subtle text-secondary text-uppercase">{{ patient.status }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header">
+          <h5 class="card-title">Enter Ordered Lab Results</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+
+            {% if not screening.order_scd_lab and not screening.order_scd_screening and not screening.order_scd_echo and not screening.order_scd_radiology and not screening.order_dm_hba1c and not screening.order_dm_c_peptide and not screening.order_dm_creatinine and not screening.order_dm_urea and not screening.order_dm_rbg and not screening.order_dm_fbg and not screening.order_cardiac_lab and not screening.order_cardiac_echo and not screening.order_cardiac_ecg and not screening.order_cardiac_xray %}
+              <div class="alert alert-info" role="alert">
+                <h5 class="alert-heading"><i class="ri-information-line"></i> No lab tests were ordered</h5>
+                No specific lab tests were ordered for this patient. You can proceed directly to the doctor's diagnosis.
+              </div>
+            {% endif %}
+
+            <!-- SCD Ordered Lab Results -->
+            {% if scd_form %}
+              {% if screening.order_scd_lab or screening.order_scd_screening or screening.order_scd_echo or screening.order_scd_radiology %}
+                <div class="card mb-4 border border-primary-subtle">
+                  <div class="card-header bg-primary-lighten">
+                    <h6 class="mb-0 text-primary"><i class="ri-pulse-line"></i> SCD Diagnostics</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row gx-3">
+                      {% if screening.order_scd_lab %}
+                        <div class="col-md-6 mb-3">
+                          <label for="{{ scd_form.lab_results.id_for_label }}" class="form-label">Lab Investigation (electrophoresis)</label>
+                          {{ scd_form.lab_results }}
+                        </div>
+                      {% endif %}
+                      {% if screening.order_scd_screening %}
+                        <div class="col-md-6 mb-3">
+                          <label for="{{ scd_form.scd_screening_results.id_for_label }}" class="form-label">SCD Screening Test Details</label>
+                          {{ scd_form.scd_screening_results }}
+                        </div>
+                      {% endif %}
+                      {% if screening.order_scd_echo %}
+                        <div class="col-md-6 mb-3">
+                          <label for="{{ scd_form.echo_results.id_for_label }}" class="form-label">ECHO Findings</label>
+                          {{ scd_form.echo_results }}
+                        </div>
+                      {% endif %}
+                      {% if screening.order_scd_radiology %}
+                        <div class="col-md-6 mb-3">
+                          <label for="{{ scd_form.radiology_results.id_for_label }}" class="form-label">Radiology (Bone X-ray)</label>
+                          {{ scd_form.radiology_results }}
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            {% endif %}
+
+            <!-- DM Ordered Lab Results -->
+            {% if dm_form %}
+              {% if screening.order_dm_hba1c or screening.order_dm_c_peptide or screening.order_dm_creatinine or screening.order_dm_urea or screening.order_dm_rbg or screening.order_dm_fbg %}
+                <div class="card mb-4 border border-success-subtle">
+                  <div class="card-header bg-success-lighten">
+                    <h6 class="mb-0 text-success"><i class="ri-health-book-line"></i> DM Lab Results</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row gx-3">
+                      {% if screening.order_dm_hba1c %}
+                        <div class="col-sm-4 mb-3">
+                          <label for="{{ dm_form.hba1c.id_for_label }}" class="form-label">HbA1c (%)</label>
+                          {{ dm_form.hba1c }}
+                        </div>
+                      {% endif %}
+                      {% if screening.order_dm_c_peptide %}
+                        <div class="col-sm-4 mb-3">
+                          <label for="{{ dm_form.c_peptide.id_for_label }}" class="form-label">C-Peptide (nmol/L)</label>
+                          {{ dm_form.c_peptide }}
+                        </div>
+                      {% endif %}
+                      {% if screening.order_dm_creatinine %}
+                        <div class="col-sm-4 mb-3">
+                          <label for="{{ dm_form.creatinine.id_for_label }}" class="form-label">Serum Creatinine (µmol/L)</label>
+                          {{ dm_form.creatinine }}
+                        </div>
+                      {% endif %}
+                      {% if screening.order_dm_urea %}
+                        <div class="col-sm-4 mb-3">
+                          <label for="{{ dm_form.urea.id_for_label }}" class="form-label">Blood Urea (mmol/L)</label>
+                          {{ dm_form.urea }}
+                        </div>
+                      {% endif %}
+                      {% if screening.order_dm_rbg %}
+                        <div class="col-sm-4 mb-3">
+                          <label for="{{ dm_form.rbg.id_for_label }}" class="form-label">Random Blood Glucose</label>
+                          {{ dm_form.rbg }}
+                        </div>
+                      {% endif %}
+                      {% if screening.order_dm_fbg %}
+                        <div class="col-sm-4 mb-3">
+                          <label for="{{ dm_form.fbg.id_for_label }}" class="form-label">Fasting Blood Glucose</label>
+                          {{ dm_form.fbg }}
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            {% endif %}
+
+            <!-- Cardiac Ordered Lab Results -->
+            {% if cardiac_form %}
+              {% if screening.order_cardiac_lab or screening.order_cardiac_echo or screening.order_cardiac_ecg or screening.order_cardiac_xray %}
+                <div class="card mb-4 border border-danger-subtle">
+                  <div class="card-header bg-danger-lighten">
+                    <h6 class="mb-0 text-danger"><i class="ri-heart-pulse-line"></i> Cardiac Diagnostics</h6>
+                  </div>
+                  <div class="card-body">
+                    <div class="row gx-3">
+                      <div class="col-sm-12 mb-3">
+                        <label for="{{ cardiac_form.cardiac_type.id_for_label }}" class="form-label">Cardiac Condition Diagnosis Type <span class="text-danger">*</span></label>
+                        {{ cardiac_form.cardiac_type }}
+                      </div>
+                      {% if screening.order_cardiac_lab %}
+                        <div class="col-md-6 mb-3">
+                          <label for="{{ cardiac_form.lab_results.id_for_label }}" class="form-label">Cardiac Lab Panel</label>
+                          {{ cardiac_form.lab_results }}
+                        </div>
+                      {% endif %}
+                      {% if screening.order_cardiac_echo %}
+                        <div class="col-md-6 mb-3">
+                          <label for="{{ cardiac_form.echo_results.id_for_label }}" class="form-label">Echocardiogram (ECHO) Findings</label>
+                          {{ cardiac_form.echo_results }}
+                        </div>
+                      {% endif %}
+                      {% if screening.order_cardiac_ecg %}
+                        <div class="col-md-6 mb-3">
+                          <label for="{{ cardiac_form.ecg_results.id_for_label }}" class="form-label">ECG / EKG Details</label>
+                          {{ cardiac_form.ecg_results }}
+                        </div>
+                      {% endif %}
+                      {% if screening.order_cardiac_xray %}
+                        <div class="col-md-6 mb-3">
+                          <label for="{{ cardiac_form.xray_results.id_for_label }}" class="form-label">Chest X-Ray Findings</label>
+                          {{ cardiac_form.xray_results }}
+                        </div>
+                      {% endif %}
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            {% endif %}
+
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <a href="{% url 'patients:screening' patient.pk %}" class="btn btn-secondary"><i class="ri-arrow-left-line"></i> Back to Screening</a>
+              <button type="submit" class="btn btn-primary">Save & Submit Results</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Row ends -->
+</div>
+{% endblock %}

@@ -60,77 +60,74 @@
                   <span class="menu-text">Appointments</span>
                 </a>
               </li>
-              <li>
-                <a href="my-patients.html">
-                  <i class="ri-empathize-line"></i>
-                  <span class="menu-text">My Patients</span>
-                </a>
-              </li>
-              <li>
-                <a href="patient-profile.html">
-                  <i class="ri-empathize-line"></i>
-                  <span class="menu-text">Patient Profile</span>
-                </a>
-              </li>
-              <li>
-                <a href="doctor-dashboard.html">
+              <li class="treeview">
+                <a href="#!">
                   <i class="ri-stethoscope-line"></i>
-                  <span class="menu-text">Doctors Dashboard</span>
+                  <span class="menu-text">Manage Doctors</span>
                 </a>
+                <ul class="treeview-menu">
+                  <li>
+                    <a href="{% url 'accounts:grid' %}">Doctors Grid</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'accounts:cards' %}">Doctors Cards</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'accounts:create' %}">Add Doctor</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'accounts:dashboard_no_pk' %}">Doctor Dashboard</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'accounts:profile_no_pk' %}">Doctor Profile</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'accounts:edit_no_pk' %}">Edit Doctor</a>
+                  </li>
+                </ul>
               </li>
-              <li>
-                <a href="doctors-grid.html">
-                  <i class="ri-stethoscope-line"></i>
-                  <span class="menu-text">Doctors Grid</span>
-                </a>
-              </li>
-              <li>
-                <a href="doctors-cards.html">
-                  <i class="ri-stethoscope-line"></i>
-                  <span class="menu-text">Doctors Cards</span>
-                </a>
-              </li>
-              <li>
-                <a href="doctors-profile.html">
-                  <i class="ri-stethoscope-line"></i>
-                  <span class="menu-text">Doctors Profile</span>
-                </a>
-              </li>
-              <li>
-                <a href="add-doctors.html">
-                  <i class="ri-stethoscope-line"></i>
-                  <span class="menu-text">Add Doctor</span>
-                </a>
-              </li>
-              <li>
-                <a href="edit-doctors.html">
-                  <i class="ri-stethoscope-line"></i>
-                  <span class="menu-text">Edit Doctor</span>
-                </a>
-              </li>
-              <li>
-                <a href="patient-dashboard.html">
+              <li class="treeview">
+                <a href="#!">
                   <i class="ri-heart-pulse-line"></i>
-                  <span class="menu-text">Patients Dashboard</span>
+                  <span class="menu-text">Manage Patients</span>
                 </a>
+                <ul class="treeview-menu">
+                  <li>
+                    <a href="{% url 'patients:list' %}">Patients List</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'patients:register' %}">Add Patient</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'patients:my_patients' %}">My Patients</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'patients:dashboard_no_pk' %}">Patient Dashboard</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'patients:profile_no_pk' %}">Patient Profile</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'patients:edit_no_pk' %}">Edit Patient Details</a>
+                  </li>
+                </ul>
               </li>
-              <li>
-                <a href="patients-list.html">
-                  <i class="ri-heart-pulse-line"></i>
-                  <span class="menu-text">Patients List</span>
+              <li class="treeview">
+                <a href="#!">
+                  <i class="ri-pulse-line"></i>
+                  <span class="menu-text">Laboratory</span>
                 </a>
-              </li>
-              <li>
-                <a href="add-patient.html">
-                  <i class="ri-heart-pulse-line"></i>
-                  <span class="menu-text">Add Patient</span>
-                </a>
-              </li>
-              <li>
-                <a href="edit-patient.html">
-                  <i class="ri-heart-pulse-line"></i>
-                  <span class="menu-text">Edit Patient Details</span>
-                </a>
+                <ul class="treeview-menu">
+                  <li>
+                    <a href="{% url 'laboratory:list' %}">Lab Tests List</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'laboratory:create' %}">Add Test</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'laboratory:edit_no_pk' %}">Edit Test</a>
+                  </li>
+                </ul>
               </li>
               <li class="treeview">
                 <a href="#!">

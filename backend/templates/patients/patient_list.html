@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Patients List{% endblock %}
+
+{% block header_actions %}
+<!-- Search Patient Starts -->
+<div class="search-container d-xl-block d-none me-2">
+  <input type="text" class="form-control bg-white border" id="searchPatient" placeholder="Search Patients">
+  <i class="ri-search-line"></i>
+</div>
+<!-- Search Patient Ends -->
+
+<a href="{% url 'patients:register' %}" class="btn btn-primary">
+  <i class="ri-user-add-line"></i> Add Patient
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  {% if messages %}
+    <div class="row gx-3">
+      <div class="col-sm-12">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Row starts -->
+  <div class="row gx-3">
+    <div class="col-sm-12">
+      <div class="card border-0 bg-transparent">
+        <div class="card-body p-0">
+          
+          <!-- Grid Row starts -->
+          <div class="row gx-3" id="patientCardsContainer">
+            {% for patient in patients %}
+              <div class="col-xxl-3 col-lg-4 col-sm-6 patient-card-item" data-name="{{ patient.first_name }} {{ patient.last_name }}" data-id="{{ patient.national_id }}">
+                <div class="card mb-3 border shadow-sm">
+                  <div class="card-body">
+                    
+                    <a href="{% url 'patients:profile' patient.pk %}" class="text-decoration-none text-dark d-block">
+                      <div class="d-flex flex-wrap gap-3 border-bottom pb-2 mb-2">
+                        {% if patient.gender == 'female' %}
+                          <img src="{% static 'assets/images/patient1.png' %}" class="img-4x rounded-3" alt="Patient Image">
+                        {% else %}
+                          <img src="{% static 'assets/images/patient.png' %}" class="img-4x rounded-3" alt="Patient Image">
+                        {% endif %}
+                        
+                        <div class="d-flex flex-column flex-grow-1">
+                          <div class="d-flex justify-content-between align-items-start">
+                            <div class="text-primary small fw-semibold">
+                              #{{ patient.national_id|default:patient.pk }}
+                            </div>
+                            <div>
+                              {% if patient.status == 'registered' %}
+                                <span class="badge bg-secondary-subtle text-secondary py-1 px-2">Registered</span>
+                              {% elif patient.status == 'screened' %}
+                                <span class="badge bg-info-subtle text-info py-1 px-2">Screened</span>
+                              {% elif patient.status == 'diagnosed' %}
+                                <span class="badge bg-warning-subtle text-warning py-1 px-2">Diagnosed</span>
+                              {% elif patient.status == 'enrolled' %}
+                                <span class="badge bg-success-subtle text-success py-1 px-2">Enrolled</span>
+                              {% elif patient.status == 'ineligible' %}
+                                <span class="badge bg-danger-subtle text-danger py-1 px-2">Ineligible</span>
+                              {% endif %}
+                            </div>
+                          </div>
+                          
+                          <h6 class="fw-semibold mb-1 mt-1 text-truncate" style="max-width: 140px;">{{ patient.first_name }} {{ patient.last_name }}</h6>
+                          <ul class="list-unstyled d-flex mb-0 small text-muted">
+                            <li class="pe-2 border-end">DOB: {{ patient.date_of_birth|date:"d/m/y" }}</li>
+                            <li class="ps-2 text-capitalize">{{ patient.gender }}</li>
+                          </ul>
+                        </div>
+                      </div>
+
+                      <div style="height: 100px; overflow: hidden;" class="mb-3">
+                        <h6 class="text-primary small fw-bold mb-1">Confirmed Diagnosis</h6>
+                        <p class="small text-muted m-0 text-truncate" style="max-height: 40px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; white-space: normal;">
+                          {{ patient.consultation.diagnosis|default:"No diagnosis confirmed yet." }}
+                        </p>
+                        
+                        {% if patient.status == 'enrolled' %}
+                          <p class="small text-success fw-semibold mt-2 m-0">
+                            <i class="ri-checkbox-circle-fill"></i> Enrolled Cohort: <span class="text-uppercase text-primary">{{ patient.enrollment.cohort }}</span>
+                          </p>
+                        {% endif %}
+                      </div>
+                    </a>
+
+                    <!-- Action buttons inside card footer -->
+                    <div class="border-top pt-2 d-flex justify-content-end align-items-center">
+                      {% if patient.status == 'registered' %}
+                        <a href="{% url 'patients:screening' patient.pk %}" class="btn btn-sm btn-outline-info w-100">
+                          Triage & Screen <i class="ri-arrow-right-line"></i>
+                        </a>
+                      {% elif patient.status == 'screened' %}
+                        <a href="{% url 'patients:investigation' patient.pk %}" class="btn btn-sm btn-outline-warning w-100">
+                          Enter Labs <i class="ri-arrow-right-line"></i>
+                        </a>
+                      {% elif patient.status == 'diagnosed' %}
+                        <a href="{% url 'patients:consultation' patient.pk %}" class="btn btn-sm btn-outline-success w-100">
+                          Consult / Enroll <i class="ri-arrow-right-line"></i>
+                        </a>
+                      {% elif patient.status == 'enrolled' %}
+                        <a href="{% url 'patients:profile' patient.pk %}" class="btn btn-sm btn-primary w-100">
+                          View Profile <i class="ri-eye-line"></i>
+                        </a>
+                      {% else %}
+                        <button class="btn btn-sm btn-secondary w-100" disabled>Ineligible</button>
+                      {% endif %}
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="col-12">
+                <div class="card p-5 text-center text-muted">
+                  <h5>No Patients Found</h5>
+                  <p class="mb-0">Click the "Add Patient" button at the top right to register a patient.</p>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+          <!-- Grid Row ends -->
+          
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Row ends -->
+</div>
+
+<script>
+  // Dynamic client-side card filtering
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchPatient');
+    const cards = document.querySelectorAll('.patient-card-item');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase().trim();
+        cards.forEach(card => {
+          const name = card.getAttribute('data-name').toLowerCase();
+          const id = (card.getAttribute('data-id') || '').toLowerCase();
+          
+          if (name.includes(query) || id.includes(query)) {
+            card.style.display = 'block';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      });
+    }
+  });
+</script>
+{% endblock %}
