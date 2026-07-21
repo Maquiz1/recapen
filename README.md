@@ -47,6 +47,6 @@ A comprehensive, role-based management system designed for the PEN-Plus initiati
 
 ## Documentation
 
-- [User Manual](docs/User_Manual.md)
-- [Technical Manual](docs/Technical_Manual.md)
-- [Presentation](docs/User_Presentation.md)
+- [User Manual](documentations/User_Manual.md)
+- [Technical Manual](documentations/Technical_Manual.md)
+- [Presentation](documentations/User_Presentation.md)
