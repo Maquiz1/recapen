@@ -118,7 +118,7 @@ def fill_form(request, encounter_id, form_code):
         })
 
     elif form_code_lower in ['history', 'hist']:
-        if hasattr(encounter, 'history'):
+        if hasattr(encounter, 'clinical_history'):
             messages.info(request, "History form is already completed for this encounter.")
             return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
             

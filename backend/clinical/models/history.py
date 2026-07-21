@@ -3,7 +3,7 @@ from core.models import AuditableModel
 from encounters.models import Encounter
 
 class History(AuditableModel):
-    encounter = models.OneToOneField(Encounter, on_delete=models.CASCADE, related_name='history')
+    encounter = models.OneToOneField(Encounter, on_delete=models.CASCADE, related_name='clinical_history')
     medical_history = models.TextField(blank=True, null=True, help_text="Past medical history details")
     family_history = models.TextField(blank=True, null=True, help_text="Family history details")
     surgical_history = models.TextField(blank=True, null=True, help_text="Past surgical history")

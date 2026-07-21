@@ -339,7 +339,7 @@
                   <div class="card-body py-2 px-3">
                     
                     <!-- Clinical Forms Section -->
-                    {% if encounter.vitals or encounter.hospitalization or encounter.risk or encounter.socioeconomic or encounter.treatment or encounter.history or encounter.symptom or encounter.complications or encounter.school_home_assessment %}
+                    {% if encounter.vitals or encounter.hospitalization or encounter.risk or encounter.socioeconomic or encounter.treatment or encounter.clinical_history or encounter.symptom or encounter.complications or encounter.school_home_assessment %}
                       <div class="mb-2">
                         <h6 class="text-secondary fw-bold border-bottom pb-1 mb-2 small"><i class="ri-survey-line"></i> Completed Forms</h6>
                         
@@ -440,18 +440,18 @@
                         {% endif %}
 
                         <!-- History -->
-                        {% if encounter.history %}
+                        {% if encounter.clinical_history %}
                           <div class="p-2 border rounded bg-light-subtle mb-2 small">
                             <span class="badge bg-secondary-subtle text-secondary mb-1">Medical History</span>
                             <div class="row g-2 text-dark">
-                              {% if encounter.history.medical_history %}
-                                <div class="col-12"><strong>Past Medical History:</strong> {{ encounter.history.medical_history }}</div>
+                              {% if encounter.clinical_history.medical_history %}
+                                <div class="col-12"><strong>Past Medical History:</strong> {{ encounter.clinical_history.medical_history }}</div>
                               {% endif %}
-                              {% if encounter.history.family_history %}
-                                <div class="col-12"><strong>Family History:</strong> {{ encounter.history.family_history }}</div>
+                              {% if encounter.clinical_history.family_history %}
+                                <div class="col-12"><strong>Family History:</strong> {{ encounter.clinical_history.family_history }}</div>
                               {% endif %}
-                              {% if encounter.history.surgical_history %}
-                                <div class="col-12"><strong>Past Surgical History:</strong> {{ encounter.history.surgical_history }}</div>
+                              {% if encounter.clinical_history.surgical_history %}
+                                <div class="col-12"><strong>Past Surgical History:</strong> {{ encounter.clinical_history.surgical_history }}</div>
                               {% endif %}
                             </div>
                           </div>
