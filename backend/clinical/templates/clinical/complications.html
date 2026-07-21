@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Complications Form{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'encounters:encounter_detail' encounter.pk %}" class="btn btn-outline-secondary">
+  Cancel
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title m-0">NCD Complications</h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info py-2">
+            <strong>Patient:</strong> {{ patient.first_name }} {{ patient.last_name }}<br>
+            <strong>Encounter:</strong> {{ encounter.get_encounter_type_display }} ({{ encounter.start_time|date:"Y-m-d H:i" }})
+          </div>
+          
+          <form method="post">
+            {% csrf_token %}
+            <h6 class="fw-bold mb-3 mt-4 text-primary border-bottom pb-2">Complications Checklists</h6>
+            
+            <div class="row mb-3">
+              <div class="col-md-6 mb-2">
+                <div class="form-check">
+                  {{ form.stroke }}
+                  <label class="form-check-label fw-semibold ms-2">Stroke</label>
+                </div>
+              </div>
+              <div class="col-md-6 mb-2">
+                <div class="form-check">
+                  {{ form.kidney_disease }}
+                  <label class="form-check-label fw-semibold ms-2">Kidney Disease</label>
+                </div>
+              </div>
+              <div class="col-md-6 mb-2">
+                <div class="form-check">
+                  {{ form.retinopathy }}
+                  <label class="form-check-label fw-semibold ms-2">Retinopathy</label>
+                </div>
+              </div>
+              <div class="col-md-6 mb-2">
+                <div class="form-check">
+                  {{ form.neuropathy }}
+                  <label class="form-check-label fw-semibold ms-2">Neuropathy</label>
+                </div>
+              </div>
+              <div class="col-md-6 mb-2">
+                <div class="form-check">
+                  {{ form.diabetic_foot }}
+                  <label class="form-check-label fw-semibold ms-2">Diabetic Foot</label>
+                </div>
+              </div>
+              <div class="col-md-6 mb-2">
+                <div class="form-check">
+                  {{ form.cardiovascular_disease }}
+                  <label class="form-check-label fw-semibold ms-2">Cardiovascular Disease</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Other Complications Details</label>
+              {{ form.other_complications }}
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">Submit Complications</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

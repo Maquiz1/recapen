@@ -339,7 +339,7 @@
                   <div class="card-body py-2 px-3">
                     
                     <!-- Clinical Forms Section -->
-                    {% if encounter.vitals or encounter.hospitalization or encounter.risk or encounter.socioeconomic or encounter.treatment %}
+                    {% if encounter.vitals or encounter.hospitalization or encounter.risk or encounter.socioeconomic or encounter.treatment or encounter.history or encounter.symptom or encounter.complications or encounter.school_home_assessment %}
                       <div class="mb-2">
                         <h6 class="text-secondary fw-bold border-bottom pb-1 mb-2 small"><i class="ri-survey-line"></i> Completed Forms</h6>
                         
@@ -434,6 +434,80 @@
                               <div class="col-md-12"><strong>Referrals:</strong> {{ encounter.treatment.get_referrals_provided_display }} {% if encounter.treatment.referrals_type %}({{ encounter.treatment.referrals_type }}){% endif %}</div>
                               {% if encounter.treatment.notes %}
                                 <div class="col-12 mt-1"><small class="text-muted"><strong>Notes:</strong> {{ encounter.treatment.notes }}</small></div>
+                              {% endif %}
+                            </div>
+                          </div>
+                        {% endif %}
+
+                        <!-- History -->
+                        {% if encounter.history %}
+                          <div class="p-2 border rounded bg-light-subtle mb-2 small">
+                            <span class="badge bg-secondary-subtle text-secondary mb-1">Medical History</span>
+                            <div class="row g-2 text-dark">
+                              {% if encounter.history.medical_history %}
+                                <div class="col-12"><strong>Past Medical History:</strong> {{ encounter.history.medical_history }}</div>
+                              {% endif %}
+                              {% if encounter.history.family_history %}
+                                <div class="col-12"><strong>Family History:</strong> {{ encounter.history.family_history }}</div>
+                              {% endif %}
+                              {% if encounter.history.surgical_history %}
+                                <div class="col-12"><strong>Past Surgical History:</strong> {{ encounter.history.surgical_history }}</div>
+                              {% endif %}
+                            </div>
+                          </div>
+                        {% endif %}
+
+                        <!-- Symptoms -->
+                        {% if encounter.symptom %}
+                          <div class="p-2 border rounded bg-light-subtle mb-2 small">
+                            <span class="badge bg-warning-subtle text-dark mb-1">Reported Symptoms</span>
+                            <div class="row g-2 text-dark">
+                              <div class="col-md-6"><strong>Symptoms:</strong> {{ encounter.symptom.reported_symptoms|default:"-" }}</div>
+                              <div class="col-md-3"><strong>Severity:</strong> {{ encounter.symptom.get_severity_display|default:"-" }}</div>
+                              <div class="col-md-3"><strong>Duration:</strong> {{ encounter.symptom.duration_days|default:"-" }} days</div>
+                            </div>
+                          </div>
+                        {% endif %}
+
+                        <!-- Complications -->
+                        {% if encounter.complications %}
+                          <div class="p-2 border rounded bg-light-subtle mb-2 small">
+                            <span class="badge bg-danger-subtle text-danger mb-1">Complications</span>
+                            <div class="row g-2 text-dark">
+                              <div class="col-12">
+                                <strong>Complications Present:</strong>
+                                {% if encounter.complications.stroke %}<span class="badge bg-danger">Stroke</span>{% endif %}
+                                {% if encounter.complications.kidney_disease %}<span class="badge bg-danger">Kidney Disease</span>{% endif %}
+                                {% if encounter.complications.retinopathy %}<span class="badge bg-danger">Retinopathy</span>{% endif %}
+                                {% if encounter.complications.neuropathy %}<span class="badge bg-danger">Neuropathy</span>{% endif %}
+                                {% if encounter.complications.diabetic_foot %}<span class="badge bg-danger">Diabetic Foot</span>{% endif %}
+                                {% if encounter.complications.cardiovascular_disease %}<span class="badge bg-danger">Cardiovascular Disease</span>{% endif %}
+                                {% if not encounter.complications.stroke and not encounter.complications.kidney_disease and not encounter.complications.retinopathy and not encounter.complications.neuropathy and not encounter.complications.diabetic_foot and not encounter.complications.cardiovascular_disease %}
+                                  <span class="text-muted">None checked</span>
+                                {% endif %}
+                              </div>
+                              {% if encounter.complications.other_complications %}
+                                <div class="col-12 mt-1"><strong>Other Complications:</strong> {{ encounter.complications.other_complications }}</div>
+                              {% endif %}
+                            </div>
+                          </div>
+                        {% endif %}
+
+                        <!-- School & Home Assessment -->
+                        {% if encounter.school_home_assessment %}
+                          <div class="p-2 border rounded bg-light-subtle mb-2 small">
+                            <span class="badge bg-warning text-dark mb-1">School & Home Assessment</span>
+                            <div class="row g-2 text-dark">
+                              <div class="col-md-4"><strong>Visit Date:</strong> {{ encounter.school_home_assessment.visit_date|date:"Y-m-d"|default:"N/A" }}</div>
+                              <div class="col-md-4"><strong>Appropriate Grade:</strong> {{ encounter.school_home_assessment.get_appropriate_grade_for_age_display }}</div>
+                              <div class="col-md-4"><strong>NCD Limits School:</strong> {{ encounter.school_home_assessment.get_ncd_limiting_school_display }}</div>
+                              <div class="col-md-4"><strong>Missed School Days:</strong> {{ encounter.school_home_assessment.school_days_missed|default:"0" }} days</div>
+                              <div class="col-md-4"><strong>Household Size:</strong> {{ encounter.school_home_assessment.household_size|default:"N/A" }}</div>
+                              <div class="col-md-4"><strong>Referred From:</strong> {{ encounter.school_home_assessment.get_referred_from_display }}</div>
+                              <div class="col-md-6"><strong>Agrees to Home Visits:</strong> {{ encounter.school_home_assessment.get_agrees_to_home_visits_display }}</div>
+                              <div class="col-md-6"><strong>CHW Available:</strong> {{ encounter.school_home_assessment.get_chw_name_available_display }} {% if encounter.school_home_assessment.chw_name %}({{ encounter.school_home_assessment.chw_name }}){% endif %}</div>
+                              {% if encounter.school_home_assessment.general_comments %}
+                                <div class="col-12 mt-1"><strong>Comments:</strong> {{ encounter.school_home_assessment.general_comments }}</div>
                               {% endif %}
                             </div>
                           </div>

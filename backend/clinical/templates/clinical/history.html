@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Medical History Form{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'encounters:encounter_detail' encounter.pk %}" class="btn btn-outline-secondary">
+  Cancel
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title m-0">Medical History</h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info py-2">
+            <strong>Patient:</strong> {{ patient.first_name }} {{ patient.last_name }}<br>
+            <strong>Encounter:</strong> {{ encounter.get_encounter_type_display }} ({{ encounter.start_time|date:"Y-m-d H:i" }})
+          </div>
+          
+          <form method="post">
+            {% csrf_token %}
+            <h6 class="fw-bold mb-3 mt-4 text-primary border-bottom pb-2">History Details</h6>
+            
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Past Medical History</label>
+              {{ form.medical_history }}
+              <div class="form-text">Chronic illnesses, NCDs, prior diagnoses, etc.</div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-semibold">Family History</label>
+              {{ form.family_history }}
+              <div class="form-text">Inherited diseases, familial conditions, etc.</div>
+            </div>
+
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Past Surgical History</label>
+              {{ form.surgical_history }}
+              <div class="form-text">Details of past surgical procedures.</div>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">Submit History</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

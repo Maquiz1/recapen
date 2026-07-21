@@ -1,0 +1,102 @@
+{% extends 'base.html' %}
+
+{% block page_title %}School & Home Assessment Form{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'encounters:encounter_detail' encounter.pk %}" class="btn btn-outline-secondary">
+  Cancel
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="card shadow-sm border-0">
+        <div class="card-header bg-warning text-dark py-3">
+          <h4 class="card-title m-0 fw-bold">Name :- {{ patient.first_name }} {{ patient.last_name }} ({{ encounter.get_encounter_type_display }})</h4>
+          <div class="row mt-2 small">
+            <div class="col-md-3"><strong>Patient ID /</strong> {{ patient.id_number|default:"N/A" }}</div>
+            <div class="col-md-3"><strong>Age /</strong> {{ patient.age|default:"N/A" }}</div>
+            <div class="col-md-3"><strong>Gender /</strong> {{ patient.get_gender_display|default:"N/A" }}</div>
+            <div class="col-md-3"><strong>Type /</strong> {{ patient.enrollment.get_cohort_display|default:"N/A" }}</div>
+          </div>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            
+            <div class="row mb-3 mt-2">
+              <div class="col-md-3">
+                <label class="form-label fw-bold small">Date of Visit:</label>
+                {{ form.visit_date }}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold small">Appropriate grade for age:</label>
+                {{ form.appropriate_grade_for_age }}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold small">NCD limiting school attendance:</label>
+                {{ form.ncd_limiting_school }}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold small">Days of missed school in past month:</label>
+                {{ form.school_days_missed }}
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="row mb-3">
+              <div class="col-md-3">
+                <label class="form-label fw-bold small">Household Size:</label>
+                {{ form.household_size }}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold small d-block">Patient referred from:</label>
+                <div class="border rounded p-2 bg-light-subtle">
+                  {% for radio in form.referred_from %}
+                    <div class="form-check small mb-1">
+                      {{ radio.tag }}
+                      <label class="form-check-label ms-1" for="{{ radio.id_for_label }}">
+                        {{ radio.choice_label }}
+                      </label>
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold small">Agrees to home visits:</label>
+                {{ form.agrees_to_home_visits }}
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold small d-block">CHW name Available ?</label>
+                <div class="mb-2">
+                  {% for radio in form.chw_name_available %}
+                    <div class="form-check form-check-inline small">
+                      {{ radio.tag }}
+                      <label class="form-check-label ms-1" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                    </div>
+                  {% endfor %}
+                </div>
+                {{ form.chw_name }}
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <div class="mb-4">
+              <label class="form-label fw-bold small">General Comments:</label>
+              {{ form.general_comments }}
+            </div>
+
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-warning btn-lg fw-bold text-dark">Submit Assessment</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

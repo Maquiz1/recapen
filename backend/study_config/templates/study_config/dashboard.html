@@ -44,7 +44,7 @@
           <ul class="list-group list-group-flush">
             {% for form in forms %}
               <li class="list-group-item">
-                <h6 class="mb-0">{{ form.name }}</h6>
+                <h6 class="mb-0">{{ forloop.counter }}. {{ form.name }}</h6>
                 <small class="text-muted">Code: {{ form.code }}</small>
               </li>
             {% empty %}
@@ -70,7 +70,7 @@
              <div class="row gx-3">
               <!-- Column 1: Encounter Type -->
               <div class="col-md-3 mb-3">
-                <label class="form-label d-block fw-semibold text-secondary">Encounter Type</label>
+                <label class="form-label d-block fw-bold text-dark">Encounter Type</label>
                 <div class="border rounded p-2 bg-white">
                   <div class="form-check mb-1">
                     <input class="form-check-input" type="checkbox" name="encounter_types" value="initial" id="et_initial">
@@ -93,7 +93,7 @@
 
               <!-- Column 2: Visit Nature -->
               <div class="col-md-3 mb-3">
-                <label class="form-label d-block fw-semibold text-secondary">Visit Nature</label>
+                <label class="form-label d-block fw-bold text-dark">Visit Nature</label>
                 <div class="border rounded p-2 bg-white">
                   <div class="form-check mb-1">
                     <input class="form-check-input" type="checkbox" name="visit_natures" value="scheduled" id="vn_scheduled">
@@ -108,7 +108,7 @@
 
               <!-- Column 3: Cohort (Disease) -->
               <div class="col-md-3 mb-3">
-                <label class="form-label d-block fw-semibold text-secondary">Cohort (Disease)</label>
+                <label class="form-label d-block fw-bold text-dark">Cohort (Disease)</label>
                 <div class="border rounded p-2 bg-white">
                   <div class="form-check mb-1">
                     <input class="form-check-input" type="checkbox" name="cohorts" value="cardiac" id="co_cardiac">
@@ -127,7 +127,7 @@
 
               <!-- Column 4: Required Forms -->
               <div class="col-md-3 mb-3">
-                <label class="form-label d-block fw-semibold text-secondary">Required Forms</label>
+                <label class="form-label d-block fw-bold text-dark">Required Forms</label>
                 <div class="border rounded p-2 bg-white">
                   {% for form in forms %}
                     <div class="form-check mb-1">

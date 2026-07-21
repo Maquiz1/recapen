@@ -3,3 +3,7 @@ from .hospitalization import HospitalizationForm
 from .risk import RiskForm
 from .socioeconomic import SocioeconomicForm
 from .treatment import TreatmentForm
+from .history import HistoryForm
+from .symptom import SymptomForm
+from .complications import ComplicationsForm
+from .school_home_assessment import SchoolHomeAssessmentForm

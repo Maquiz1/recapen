@@ -15,7 +15,17 @@ def form_has_data_for_rule(rule, form):
         'socioeconomic': 'socioeconomic',
         'se': 'socioeconomic',
         'treatment': 'treatment',
-        'tx': 'treatment'
+        'tx': 'treatment',
+        'history': 'history',
+        'hist': 'history',
+        'symptom': 'symptom',
+        'symptoms': 'symptom',
+        'symp': 'symptom',
+        'complications': 'complications',
+        'comp': 'complications',
+        'school_home_assessment': 'school_home_assessment',
+        'schoolhomeassessment': 'school_home_assessment',
+        'schoolhome': 'school_home_assessment'
     }
     
     relation_name = relation_map.get(form.code.lower())
