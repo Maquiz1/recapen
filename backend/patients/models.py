@@ -1,5 +1,13 @@
 from django.db import models
 from core.models import AuditableModel
+from simple_history.models import HistoricalRecords
+
+MARITAL_STATUS_CHOICES = (
+    ('single', 'Single'),
+    ('married', 'Married'),
+    ('divorced', 'Divorced'),
+    ('widowed', 'Widowed'),
+)
 
 CARDIAC_TYPE_CHOICES = (
     ('rhd', 'RHD (Rheumatic Heart Disease)'),
@@ -28,6 +36,9 @@ class Patient(AuditableModel):
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     national_id = models.CharField(max_length=50, blank=True, null=True, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='registered')
+    id_number = models.CharField(max_length=50, blank=True, null=True)
+    marital_status = models.CharField(max_length=20, choices=MARITAL_STATUS_CHOICES, default='single')
+    history = HistoricalRecords()
 
     def __str__(self):
         return f"{self.first_name} {self.last_name}"

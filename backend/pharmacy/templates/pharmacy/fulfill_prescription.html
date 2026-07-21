@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Fulfill Prescription #{{ order.pk }}{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row gx-3 justify-content-center">
+    <div class="col-md-6 col-sm-12">
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="card-title">Dispense Medication</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-4 p-3 bg-light-subtle rounded border">
+            <p class="mb-1"><strong>Patient:</strong> {{ order.patient.first_name }} {{ order.patient.last_name }}</p>
+            <p class="mb-1"><strong>Prescribed Medication:</strong> <span class="badge bg-primary">{{ order.medication.name }} ({{ order.medication.strength }})</span></p>
+            <p class="mb-1"><strong>Instructions:</strong> {{ order.dosage_instructions }}</p>
+            <p class="mb-1"><strong>Ordering Doctor:</strong> {{ order.ordering_doctor|default:"System" }}</p>
+            {% if order.clinical_notes %}
+            <p class="mb-1"><strong>Clinical Notes:</strong> {{ order.clinical_notes }}</p>
+            {% endif %}
+            <p class="mb-0 text-success"><i class="ri-stock-line"></i> <strong>Current Stock:</strong> {{ order.medication.stock_quantity }}</p>
+          </div>
+          
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="{{ form.quantity_dispensed.id_for_label }}" class="form-label">Quantity Dispensed (e.g. number of pills, bottles) *</label>
+              {{ form.quantity_dispensed }}
+              {% if form.quantity_dispensed.errors %}
+                <div class="text-danger small mt-1">{{ form.quantity_dispensed.errors }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="mb-3">
+              <label for="{{ form.notes.id_for_label }}" class="form-label">Pharmacist Notes</label>
+              {{ form.notes }}
+              {% if form.notes.errors %}
+                <div class="text-danger small mt-1">{{ form.notes.errors }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <a href="{% url 'pharmacy:pending_prescriptions' %}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-success">Dispense & Complete Order</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

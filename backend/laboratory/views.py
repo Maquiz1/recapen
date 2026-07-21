@@ -66,3 +66,38 @@ def patient_results_detail(request, pk):
         'patient': patient,
         'results': results
     })
+
+def pending_orders(request):
+    from orders.models import Order
+    orders = Order.objects.filter(order_type='lab', status='pending').order_by('order_date')
+    return render(request, 'laboratory/pending_orders.html', {'orders': orders})
+
+def fulfill_order(request, pk):
+    from orders.models import Order
+    from .forms_order import FulfillOrderForm
+    order = get_object_or_404(Order, pk=pk, order_type='lab')
+    
+    if request.method == 'POST':
+        form = FulfillOrderForm(request.POST)
+        if form.is_valid():
+            result = form.save(commit=False)
+            result.patient = order.patient
+            result.test = order.test
+            result.order = order
+            if request.user.is_authenticated:
+                result.created_by = request.user
+                result.updated_by = request.user
+            result.save()
+            
+            order.status = 'completed'
+            order.save()
+            
+            messages.success(request, f"Order fulfilled for {order.patient}.")
+            return redirect('laboratory:pending_orders')
+    else:
+        form = FulfillOrderForm()
+        
+    return render(request, 'laboratory/fulfill_order.html', {
+        'form': form,
+        'order': order
+    })

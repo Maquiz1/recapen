@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Study Configuration Dashboard{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row gx-3">
+    <!-- Existing Forms -->
+    <div class="col-md-4">
+      <div class="card mb-3">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="card-title m-0">Predefined Forms</h5>
+          <a href="{% url 'study_config:manage_forms' %}" class="btn btn-sm btn-primary">Manage</a>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            {% for form in forms %}
+              <li class="list-group-item">
+                <h6 class="mb-0">{{ form.name }}</h6>
+                <small class="text-muted">Code: {{ form.code }}</small>
+              </li>
+            {% empty %}
+              <li class="list-group-item text-center text-muted p-4">No forms registered yet.</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mapping Configuration -->
+    <div class="col-md-8">
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="card-title m-0">Dynamic Follow-up Form Rules</h5>
+        </div>
+        <div class="card-body">
+          <p class="text-muted small mb-4">Map specific predefined forms to be required based on the Patient's Cohort and whether the Visit is Scheduled or Unscheduled.</p>
+          
+          <form method="post" action="{% url 'study_config:manage_rules' %}" class="mb-4 border p-3 bg-light-subtle rounded">
+            {% csrf_token %}
+            <h6 class="fw-bold mb-3">Configure New Rule</h6>
+            <div class="row gx-3">
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Cohort (Disease)</label>
+                <select name="cohort" class="form-select" required>
+                  <option value="cardiac">Cardiac</option>
+                  <option value="scd">Sickle Cell (SCD)</option>
+                  <option value="dm">Diabetes (DM)</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Visit Nature</label>
+                <select name="visit_nature" class="form-select" required>
+                  <option value="scheduled">Scheduled</option>
+                  <option value="unscheduled">Unscheduled</option>
+                </select>
+              </div>
+              <div class="col-md-4 mb-3">
+                <label class="form-label">Required Forms</label>
+                <select name="forms" class="form-select" multiple required style="height: 100px;">
+                  {% for form in forms %}
+                    <option value="{{ form.pk }}">{{ form.name }}</option>
+                  {% endfor %}
+                </select>
+                <small class="text-muted">Hold Ctrl/Cmd to select multiple.</small>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Mapping Rule</button>
+          </form>
+
+          <hr>
+
+          <h6 class="fw-bold mb-3">Existing Mapping Rules</h6>
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead class="table-light">
+                <tr>
+                  <th>Cohort</th>
+                  <th>Visit Nature</th>
+                  <th>Mapped Forms</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for rule in rules %}
+                <tr>
+                  <td><span class="badge bg-primary">{{ rule.get_cohort_display }}</span></td>
+                  <td>
+                    {% if rule.visit_nature == 'scheduled' %}
+                      <span class="badge bg-success">Scheduled</span>
+                    {% else %}
+                      <span class="badge bg-warning text-dark">Unscheduled</span>
+                    {% endif %}
+                  </td>
+                  <td>
+                    <ul class="mb-0 ps-3">
+                      {% for form in rule.required_forms.all %}
+                        <li>{{ form.name }} <small class="text-muted">({{ form.code }})</small></li>
+                      {% empty %}
+                        <li class="text-muted">No forms mapped.</li>
+                      {% endfor %}
+                    </ul>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="3" class="text-center text-muted">No mapping rules configured.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -2,10 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from laboratory.models import LabTest
 from .forms import RadiologyTestForm
-from patients.models import Patient
 
 def test_list(request):
-    tests = LabTest.objects.filter(is_active=True, category='radiology').order_by('name')
+    tests = LabTest.objects.filter(is_active=True).order_by('category', 'name')
     return render(request, 'radiology/test_list.html', {'tests': tests})
 
 def test_create(request):
@@ -18,14 +17,14 @@ def test_create(request):
                 test.updated_by = request.user
             test.save()
             form.save_m2m() # Saves diseases relation
-            messages.success(request, f"Radiology/Imaging test '{test.name}' registered successfully.")
+            messages.success(request, f"Lab test '{test.name}' registered successfully.")
             return redirect('radiology:list')
     else:
         form = RadiologyTestForm()
-    return render(request, 'radiology/test_form.html', {'form': form, 'title': 'Add Radiology Test'})
+    return render(request, 'radiology/test_form.html', {'form': form, 'title': 'Add Lab Test'})
 
 def test_edit(request, pk):
-    test = get_object_or_404(LabTest, pk=pk, category='radiology')
+    test = get_object_or_404(LabTest, pk=pk)
     if request.method == 'POST':
         form = RadiologyTestForm(request.POST, instance=test)
         if form.is_valid():
@@ -34,34 +33,71 @@ def test_edit(request, pk):
                 t.updated_by = request.user
             t.save()
             form.save_m2m()
-            messages.success(request, f"Radiology test '{t.name}' updated successfully.")
+            messages.success(request, f"Lab test '{t.name}' updated successfully.")
             return redirect('radiology:list')
     else:
         form = RadiologyTestForm(instance=test)
-    return render(request, 'radiology/test_form.html', {'form': form, 'title': 'Edit Radiology Test', 'test': test})
+    return render(request, 'radiology/test_form.html', {'form': form, 'title': 'Edit Lab Test', 'test': test})
 
 def test_edit_redirect(request):
-    first_test = LabTest.objects.filter(is_active=True, category='radiology').first()
+    first_test = LabTest.objects.filter(is_active=True).first()
     if first_test:
         return redirect('radiology:edit', pk=first_test.pk)
-    messages.warning(request, "No radiology tests registered yet. Please create a test first.")
+    messages.warning(request, "No radiology tests registered yet. Please create a radiology test first.")
     return redirect('radiology:list')
 
 def patient_results_list(request):
+    from patients.models import Patient
     # Show patients that have been screened (i.e. tests ordered) or diagnosed
-    # Note: A real app might check if they specifically ordered radiology tests.
     patients = Patient.objects.filter(status__in=['screened', 'diagnosed', 'enrolled'], is_deleted=False).order_by('-created_at')
     return render(request, 'radiology/patient_results_list.html', {'patients': patients})
 
 def patients_with_results(request):
-    # Patients who have radiology test results
-    patients = Patient.objects.filter(test_results__test__category='radiology', is_deleted=False).distinct().order_by('-created_at')
+    from patients.models import Patient
+    # Patients who have test results
+    patients = Patient.objects.filter(test_results__isnull=False, is_deleted=False).distinct().order_by('-created_at')
     return render(request, 'radiology/patients_results_list.html', {'patients': patients})
 
 def patient_results_detail(request, pk):
+    from patients.models import Patient
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
-    results = patient.test_results.filter(test__category='radiology').select_related('test').order_by('-performed_date', 'test__name')
+    results = patient.test_results.select_related('test').order_by('-performed_date', 'test__name')
     return render(request, 'radiology/patient_results_detail.html', {
         'patient': patient,
         'results': results
+    })
+
+def pending_orders(request):
+    from orders.models import Order
+    orders = Order.objects.filter(order_type='radiology', status='pending').order_by('order_date')
+    return render(request, 'radiology/pending_orders.html', {'orders': orders})
+
+def fulfill_order(request, pk):
+    from orders.models import Order
+    from .forms_order import FulfillOrderForm
+    order = get_object_or_404(Order, pk=pk, order_type='radiology')
+    
+    if request.method == 'POST':
+        form = FulfillOrderForm(request.POST)
+        if form.is_valid():
+            result = form.save(commit=False)
+            result.patient = order.patient
+            result.test = order.test
+            result.order = order
+            if request.user.is_authenticated:
+                result.created_by = request.user
+                result.updated_by = request.user
+            result.save()
+            
+            order.status = 'completed'
+            order.save()
+            
+            messages.success(request, f"Order fulfilled for {order.patient}.")
+            return redirect('radiology:pending_orders')
+    else:
+        form = FulfillOrderForm()
+        
+    return render(request, 'radiology/fulfill_order.html', {
+        'form': form,
+        'order': order
     })

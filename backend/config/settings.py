@@ -55,6 +55,16 @@ INSTALLED_APPS = [
     'laboratory',
     'radiology',
     'cardiology',
+    'encounters',
+    'orders',
+    'medications',
+    'pharmacy',
+    'appointments',
+    'documents',
+    'simple_history',
+    'audit',
+    'study_config',
+    'clinical',
 ]
 
 MIDDLEWARE = [
@@ -65,6 +75,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -134,6 +145,10 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+
+# Media files (Uploaded by users)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field

@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Prescribe Medication{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row gx-3 justify-content-center">
+    <div class="col-md-8 col-sm-12">
+      <div class="card mb-3">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="card-title m-0">Prescribe Medication for {{ patient.first_name }} {{ patient.last_name }}</h5>
+          <a href="{% url 'patients:profile' patient.pk %}" class="btn btn-sm btn-outline-secondary">Cancel</a>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label for="{{ form.medication.id_for_label }}" class="form-label">Medication *</label>
+                {{ form.medication }}
+                {% if form.medication.errors %}<div class="text-danger small mt-1">{{ form.medication.errors }}</div>{% endif %}
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="{{ form.urgency.id_for_label }}" class="form-label">Urgency</label>
+                {{ form.urgency }}
+                {% if form.urgency.errors %}<div class="text-danger small mt-1">{{ form.urgency.errors }}</div>{% endif %}
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label for="{{ form.dosage_instructions.id_for_label }}" class="form-label">Dosage Instructions *</label>
+              {{ form.dosage_instructions }}
+              <div class="form-text">Provide exact instructions for the pharmacist and patient (e.g., "1 tablet PO BID for 7 days").</div>
+              {% if form.dosage_instructions.errors %}<div class="text-danger small mt-1">{{ form.dosage_instructions.errors }}</div>{% endif %}
+            </div>
+            
+            <div class="mb-4">
+              <label for="{{ form.clinical_notes.id_for_label }}" class="form-label">Clinical Notes (Optional)</label>
+              {{ form.clinical_notes }}
+              <div class="form-text">Reason for prescribing, or note to pharmacist (e.g. "Patient is allergic to Penicillin").</div>
+              {% if form.clinical_notes.errors %}<div class="text-danger small mt-1">{{ form.clinical_notes.errors }}</div>{% endif %}
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2">
+              <button type="submit" class="btn btn-primary">Generate Prescription</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

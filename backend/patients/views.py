@@ -41,12 +41,40 @@ def patient_screening(request, pk):
             if request.user.is_authenticated:
                 screening.created_by = request.user
                 screening.updated_by = request.user
-            screening.save()
+            # The custom form save method handles M2M saving even when commit=False,
+            # but we explicitly save it here just to be safe.
+            screening = form.save(commit=True)
+            
+            # Generate Encounter
+            from encounters.models import Encounter
+            from orders.models import Order
+            
+            encounter, enc_created = Encounter.objects.get_or_create(
+                patient=patient,
+                status='in_progress',
+                defaults={
+                    'doctor': request.user if request.user.is_authenticated else None,
+                    'encounter_type': 'initial' if patient.status == 'registered' else 'followup'
+                }
+            )
+            
+            # Generate Orders
+            for test in screening.ordered_tests.all():
+                Order.objects.get_or_create(
+                    encounter=encounter,
+                    patient=patient,
+                    test=test,
+                    defaults={
+                        'ordering_doctor': request.user if request.user.is_authenticated else None,
+                        'order_type': test.category,
+                        'status': 'pending'
+                    }
+                )
             
             patient.status = 'screened'
             patient.save()
             
-            messages.success(request, f"Screening results saved for {patient}.")
+            messages.success(request, f"Screening results saved and Orders generated for {patient}.")
             return redirect('patients:investigation', pk=patient.pk)
     else:
         form = ScreeningForm(instance=screening)
@@ -126,11 +154,31 @@ def patient_diagnosis(request, pk):
             if e.is_eligible:
                 patient.status = 'diagnosed'
                 patient.save()
+                
+                # Finish the encounter
+                from encounters.models import Encounter
+                from django.utils import timezone
+                encounter = Encounter.objects.filter(patient=patient, status='in_progress').first()
+                if encounter:
+                    encounter.status = 'finished'
+                    encounter.end_time = timezone.now()
+                    encounter.save()
+                    
                 messages.success(request, f"Diagnosis recorded. {patient} is eligible for enrollment.")
                 return redirect('patients:diagnosis_list')
             else:
                 patient.status = 'ineligible'
                 patient.save()
+                
+                # Finish the encounter
+                from encounters.models import Encounter
+                from django.utils import timezone
+                encounter = Encounter.objects.filter(patient=patient, status='in_progress').first()
+                if encounter:
+                    encounter.status = 'finished'
+                    encounter.end_time = timezone.now()
+                    encounter.save()
+                    
                 messages.warning(request, f"Patient {patient} marked as ineligible for program.")
                 return redirect('patients:diagnosis_list')
     else:

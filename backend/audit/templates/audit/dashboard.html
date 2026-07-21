@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row gx-3">
+    <div class="col-sm-12">
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="card-title m-0">Recent System Changes</h5>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle m-0">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Model</th>
+                  <th>Record</th>
+                  <th>Action</th>
+                  <th>User</th>
+                  <th>Changes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for record in history_records %}
+                <tr>
+                  <td>{{ record.history_date|date:"Y-m-d H:i:s" }}</td>
+                  <td><span class="badge bg-secondary">{{ record.instance_type.model }}</span></td>
+                  <td>{{ record.instance }}</td>
+                  <td>
+                    {% if record.history_type == '+' %}
+                      <span class="badge bg-success">Created</span>
+                    {% elif record.history_type == '~' %}
+                      <span class="badge bg-warning">Updated</span>
+                    {% elif record.history_type == '-' %}
+                      <span class="badge bg-danger">Deleted</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ record.history_user|default:"System" }}</td>
+                  <td>
+                    {% if record.prev_record %}
+                      <small>
+                        {% for field, val in record.diff_against(record.prev_record).changes %}
+                          <strong>{{ field }}:</strong> {{ val.old }} ➡️ {{ val.new }}<br>
+                        {% empty %}
+                          No changes tracked.
+                        {% endfor %}
+                      </small>
+                    {% else %}
+                      <small class="text-muted">Initial record</small>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center text-muted">No audit history found.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Manage Predefined Forms{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'study_config:dashboard' %}" class="btn btn-outline-primary">
+  <i class="ri-arrow-left-line"></i> Back to Config
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row gx-3 justify-content-center">
+    <div class="col-md-8">
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="card-title m-0">Register New Clinical Form</h5>
+        </div>
+        <div class="card-body">
+          <p class="text-muted small">Register a predefined form that exists in the system code so it can be mapped to study workflows.</p>
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">Form Name</label>
+              <input type="text" name="name" class="form-control" placeholder="e.g. Adult Vitals Form" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Internal Code (Unique)</label>
+              <input type="text" name="code" class="form-control" placeholder="e.g. adult_vitals" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea name="description" class="form-control" rows="2"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Register Form</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="card-title m-0">Registered Forms</h5>
+        </div>
+        <div class="card-body p-0">
+          <table class="table table-bordered table-striped m-0">
+            <thead>
+              <tr>
+                <th>Form Name</th>
+                <th>Internal Code</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for form in forms %}
+              <tr>
+                <td>{{ form.name }}</td>
+                <td><code>{{ form.code }}</code></td>
+                <td>{{ form.description|default:"-" }}</td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="3" class="text-center text-muted p-4">No forms registered yet.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Fulfill Order #{{ order.pk }}{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row gx-3 justify-content-center">
+    <div class="col-md-6 col-sm-12">
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="card-title">Fulfill Radiology Order</h5>
+        </div>
+        <div class="card-body">
+          <div class="mb-4 p-3 bg-light-subtle rounded border">
+            <p class="mb-1"><strong>Patient:</strong> {{ order.patient.first_name }} {{ order.patient.last_name }}</p>
+            <p class="mb-1"><strong>Test Ordered:</strong> <span class="badge bg-primary">{{ order.test.name }}</span></p>
+            <p class="mb-1"><strong>Ordering Doctor:</strong> {{ order.ordering_doctor|default:"System" }}</p>
+            {% if order.clinical_notes %}
+            <p class="mb-0"><strong>Clinical Notes:</strong> {{ order.clinical_notes }}</p>
+            {% endif %}
+          </div>
+          
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="{{ form.result_value.id_for_label }}" class="form-label">Test Result Value</label>
+              {{ form.result_value }}
+              {% if form.result_value.errors %}
+                <div class="text-danger small mt-1">{{ form.result_value.errors }}</div>
+              {% endif %}
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2 mt-4">
+              <a href="{% url 'radiology:pending_orders' %}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-success">Save Result & Complete Order</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

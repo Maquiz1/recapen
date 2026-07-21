@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Patient Audit Trail - {{ patient }}{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row gx-3 justify-content-center">
+    <div class="col-md-10 col-sm-12">
+      <div class="card mb-3">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="card-title m-0"><i class="ri-history-line"></i> Audit Trail: {{ patient }}</h5>
+          <a href="{% url 'patients:profile' patient.pk %}" class="btn btn-sm btn-outline-secondary">Back to Profile</a>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-bordered table-striped align-middle m-0">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Action</th>
+                  <th>User</th>
+                  <th>Changes</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for record in history_records %}
+                <tr>
+                  <td>{{ record.history_date|date:"Y-m-d H:i:s" }}</td>
+                  <td>
+                    {% if record.history_type == '+' %}
+                      <span class="badge bg-success">Created</span>
+                    {% elif record.history_type == '~' %}
+                      <span class="badge bg-warning">Updated</span>
+                    {% elif record.history_type == '-' %}
+                      <span class="badge bg-danger">Deleted</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ record.history_user|default:"System" }}</td>
+                  <td>
+                    {% if record.prev_record %}
+                      <ul class="mb-0 ps-3">
+                        {% for field, val in record.diff_against(record.prev_record).changes %}
+                          <li><strong>{{ field }}:</strong> <del>{{ val.old }}</del> <i class="ri-arrow-right-line"></i> <span>{{ val.new }}</span></li>
+                        {% empty %}
+                          <li class="text-muted">No tracked changes.</li>
+                        {% endfor %}
+                      </ul>
+                    {% else %}
+                      <small class="text-muted">Initial patient creation</small>
+                    {% endif %}
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center text-muted">No audit history found.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+from django import forms
+from .models import Appointment
+
+class AppointmentForm(forms.ModelForm):
+    class Meta:
+        model = Appointment
+        fields = ['doctor', 'scheduled_time', 'reason']
+        widgets = {
+            'scheduled_time': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'doctor': forms.Select(attrs={'class': 'form-select'}),
+            'reason': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., Annual Checkup'}),
+        }
