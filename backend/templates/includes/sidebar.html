@@ -140,6 +140,52 @@
               </li>
               <li class="treeview">
                 <a href="#!">
+                  <i class="ri-infrared-thermometer-line"></i>
+                  <span class="menu-text">Radiology & Imaging</span>
+                </a>
+                <ul class="treeview-menu">
+                  <li>
+                    <a href="{% url 'radiology:list' %}">Imaging Tests List</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'radiology:results_list' %}">Enter Results</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'radiology:patients_results' %}">Patients Results</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'radiology:create' %}">Add Test</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'radiology:edit_no_pk' %}">Edit Test</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="treeview">
+                <a href="#!">
+                  <i class="ri-heart-pulse-fill"></i>
+                  <span class="menu-text">Cardiology</span>
+                </a>
+                <ul class="treeview-menu">
+                  <li>
+                    <a href="{% url 'cardiology:list' %}">Cardiology Tests List</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'cardiology:results_list' %}">Enter Results</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'cardiology:patients_results' %}">Patients Results</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'cardiology:create' %}">Add Test</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'cardiology:edit_no_pk' %}">Edit Test</a>
+                  </li>
+                </ul>
+              </li>
+              <li class="treeview">
+                <a href="#!">
                   <i class="ri-nurse-line"></i>
                   <span class="menu-text">Staff</span>
                 </a>

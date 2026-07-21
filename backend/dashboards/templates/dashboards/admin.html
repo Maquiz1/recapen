@@ -32,12 +32,12 @@
                             </div>
                           </div>
                           <div class="d-flex flex-column">
-                            <h1 class="lh-1">980</h1>
+                            <h1 class="lh-1">{{ patients_count }}</h1>
                             <p class="m-0">Patients</p>
                           </div>
                         </div>
                         <div class="d-flex align-items-end justify-content-between mt-1">
-                          <a class="text-primary" href="javascript:void(0);">
+                          <a class="text-primary" href="{% url 'patients:list' %}">
                             <span>View All</span>
                             <i class="ri-arrow-right-line text-primary ms-1"></i>
                           </a>
@@ -293,161 +293,44 @@
                           </tr>
                         </thead>
                         <tbody>
+                          {% for enrollment in enrollments %}
                           <tr>
-                            <td>001</td>
+                            <td>{{ forloop.counter|stringformat:"03d" }}</td>
                             <td>
                               <img src="{% static 'assets/images/patient.png' %}" class="img-2x rounded-5 me-1"
-                                alt="Doctors Admin Template">
-                              Willian Mathews
+                                alt="Patient Avatar">
+                              {{ enrollment.patient.first_name }} {{ enrollment.patient.last_name }}
                             </td>
-                            <td>21</td>
+                            <td>{{ enrollment.patient.age }}</td>
+                            <td>{{ enrollment.patient.date_of_birth|date:"d/m/Y" }}</td>
                             <td>
-                              20/06/2010
+                              {% if enrollment.patient.diagnosis %}
+                                {{ enrollment.patient.diagnosis.diagnosis|truncatechars:30 }}
+                              {% else %}
+                                N/A
+                              {% endif %}
                             </td>
-                            <td>Heart Attack</td>
                             <td>
-                              <span class="badge bg-danger-subtle text-danger fs-6">Emergency</span>
+                              {% if enrollment.is_eligible %}
+                                <span class="badge bg-success-subtle text-success fs-6">Enrolled - {{ enrollment.get_cohort_display }}</span>
+                              {% else %}
+                                <span class="badge bg-danger-subtle text-danger fs-6">Ineligible</span>
+                              {% endif %}
                             </td>
                             <td>
                               <div class="d-inline-flex gap-1">
-                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="modal"
-                                  data-bs-target="#delRow">
-                                  <span data-bs-toggle="tooltip" data-bs-placement="top"
-                                    data-bs-title="Delete Patient Details">
-                                    <i class="ri-delete-bin-line"></i>
-                                  </span>
-                                </button>
-                                <a href="edit-patient.html" class="btn btn-hover btn-sm rounded-5"
-                                  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Patient Details">
-                                  <i class="ri-edit-box-line"></i>
+                                <a href="{% url 'patients:profile' enrollment.patient.pk %}" class="btn btn-hover btn-sm rounded-5"
+                                  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="View Patient Profile">
+                                  <i class="ri-eye-line"></i>
                                 </a>
                               </div>
                             </td>
                           </tr>
+                          {% empty %}
                           <tr>
-                            <td>002</td>
-                            <td>
-                              <img src="{% static 'assets/images/patient1.png' %}" class="img-2x rounded-5 me-1"
-                                alt="Doctors Admin Template">
-                              Adam Bradley
-                            </td>
-                            <td>36</td>
-                            <td>
-                              24/09/2002
-                            </td>
-                            <td>Diabetes</td>
-                            <td>
-                              <span class="badge bg-primary-subtle text-primary fs-6">Non Urgent</span>
-                            </td>
-                            <td>
-                              <div class="d-inline-flex gap-1">
-                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="modal"
-                                  data-bs-target="#delRow">
-                                  <span data-bs-toggle="tooltip" data-bs-placement="top"
-                                    data-bs-title="Delete Patient Details">
-                                    <i class="ri-delete-bin-line"></i>
-                                  </span>
-                                </button>
-                                <a href="edit-patient.html" class="btn btn-hover btn-sm rounded-5"
-                                  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Patient Details">
-                                  <i class="ri-edit-box-line"></i>
-                                </a>
-                              </div>
-                            </td>
+                            <td colspan="7" class="text-center">No enrolled patients found.</td>
                           </tr>
-                          <tr>
-                            <td>003</td>
-                            <td>
-                              <img src="{% static 'assets/images/patient2.png' %}" class="img-2x rounded-5 me-1"
-                                alt="Doctors Admin Template">
-                              Merle Daniel
-                            </td>
-                            <td>82</td>
-                            <td>
-                              22/02/2007
-                            </td>
-                            <td>Chancroid</td>
-                            <td>
-                              <span class="badge bg-warning-subtle text-warning fs-6">Out Patient</span>
-                            </td>
-                            <td>
-                              <div class="d-inline-flex gap-1">
-                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="modal"
-                                  data-bs-target="#delRow">
-                                  <span data-bs-toggle="tooltip" data-bs-placement="top"
-                                    data-bs-title="Delete Patient Details">
-                                    <i class="ri-delete-bin-line"></i>
-                                  </span>
-                                </button>
-                                <a href="edit-patient.html" class="btn btn-hover btn-sm rounded-5"
-                                  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Patient Details">
-                                  <i class="ri-edit-box-line"></i>
-                                </a>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>004</td>
-                            <td>
-                              <img src="{% static 'assets/images/patient3.png' %}" class="img-2x rounded-5 me-1"
-                                alt="Doctors Admin Template">
-                              Nicole Sellers
-                            </td>
-                            <td>29</td>
-                            <td>
-                              28/09/1996
-                            </td>
-                            <td>Pediatric</td>
-                            <td>
-                              <span class="badge bg-info-subtle text-info fs-6">Discharge</span>
-                            </td>
-                            <td>
-                              <div class="d-inline-flex gap-1">
-                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="modal"
-                                  data-bs-target="#delRow">
-                                  <span data-bs-toggle="tooltip" data-bs-placement="top"
-                                    data-bs-title="Delete Patient Details">
-                                    <i class="ri-delete-bin-line"></i>
-                                  </span>
-                                </button>
-                                <a href="edit-patient.html" class="btn btn-hover btn-sm rounded-5"
-                                  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Patient Details">
-                                  <i class="ri-edit-box-line"></i>
-                                </a>
-                              </div>
-                            </td>
-                          </tr>
-                          <tr>
-                            <td>005</td>
-                            <td>
-                              <img src="{% static 'assets/images/patient4.png' %}" class="img-2x rounded-5 me-1"
-                                alt="Doctors Admin Template">
-                              Kathy Atkinson
-                            </td>
-                            <td>58</td>
-                            <td>
-                              30/03/1989
-                            </td>
-                            <td>Alphaviruses</td>
-                            <td>
-                              <span class="badge bg-danger-subtle text-danger fs-6">Urgent</span>
-                            </td>
-                            <td>
-                              <div class="d-inline-flex gap-1">
-                                <button type="button" class="btn btn-hover btn-sm rounded-5" data-bs-toggle="modal"
-                                  data-bs-target="#delRow">
-                                  <span data-bs-toggle="tooltip" data-bs-placement="top"
-                                    data-bs-title="Delete Patient Details">
-                                    <i class="ri-delete-bin-line"></i>
-                                  </span>
-                                </button>
-                                <a href="edit-patient.html" class="btn btn-hover btn-sm rounded-5"
-                                  data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Patient Details">
-                                  <i class="ri-edit-box-line"></i>
-                                </a>
-                              </div>
-                            </td>
-                          </tr>
+                          {% endfor %}
                         </tbody>
                       </table>
                     </div>
