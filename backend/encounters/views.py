@@ -43,6 +43,9 @@ def encounter_detail(request, encounter_id):
                     
     has_vitals = hasattr(encounter, 'vitals')
     has_hospitalization = hasattr(encounter, 'hospitalization')
+    has_risk = hasattr(encounter, 'risk')
+    has_socioeconomic = hasattr(encounter, 'socioeconomic')
+    has_treatment = hasattr(encounter, 'treatment')
                     
     return render(request, 'encounters/encounter_detail.html', {
         'encounter': encounter,
@@ -50,4 +53,7 @@ def encounter_detail(request, encounter_id):
         'required_forms': list(required_forms),
         'has_vitals': has_vitals,
         'has_hospitalization': has_hospitalization,
+        'has_risk': has_risk,
+        'has_socioeconomic': has_socioeconomic,
+        'has_treatment': has_treatment,
     })

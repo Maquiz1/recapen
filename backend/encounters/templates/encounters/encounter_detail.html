@@ -65,6 +65,30 @@
                         Fill Form
                       </a>
                     {% endif %}
+                  {% elif form.code == 'risk' %}
+                    {% if has_risk %}
+                      <span class="badge bg-success"><i class="ri-check-line"></i> Completed</span>
+                    {% else %}
+                      <a href="{% url 'clinical:fill_form' encounter.pk form.code %}" class="btn btn-sm btn-primary">
+                        Fill Form
+                      </a>
+                    {% endif %}
+                  {% elif form.code == 'socioeconomic' %}
+                    {% if has_socioeconomic %}
+                      <span class="badge bg-success"><i class="ri-check-line"></i> Completed</span>
+                    {% else %}
+                      <a href="{% url 'clinical:fill_form' encounter.pk form.code %}" class="btn btn-sm btn-primary">
+                        Fill Form
+                      </a>
+                    {% endif %}
+                  {% elif form.code == 'treatment' %}
+                    {% if has_treatment %}
+                      <span class="badge bg-success"><i class="ri-check-line"></i> Completed</span>
+                    {% else %}
+                      <a href="{% url 'clinical:fill_form' encounter.pk form.code %}" class="btn btn-sm btn-primary">
+                        Fill Form
+                      </a>
+                    {% endif %}
                   {% else %}
                     <button class="btn btn-sm btn-outline-secondary" disabled>Not Implemented</button>
                   {% endif %}

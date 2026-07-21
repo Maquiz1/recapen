@@ -51,6 +51,75 @@ def fill_form(request, encounter_id, form_code):
             'patient': encounter.patient,
         })
         
+    elif form_code == 'risk':
+        if hasattr(encounter, 'risk'):
+            messages.info(request, "Risk Factors form is already completed for this encounter.")
+            return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+            
+        from .forms import RiskForm
+        if request.method == 'POST':
+            form = RiskForm(request.POST)
+            if form.is_valid():
+                risk = form.save(commit=False)
+                risk.encounter = encounter
+                risk.save()
+                messages.success(request, "Risk Factors recorded successfully.")
+                return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+        else:
+            form = RiskForm()
+            
+        return render(request, 'clinical/risk.html', {
+            'form': form,
+            'encounter': encounter,
+            'patient': encounter.patient,
+        })
+        
+    elif form_code == 'socioeconomic':
+        if hasattr(encounter, 'socioeconomic'):
+            messages.info(request, "Socioeconomic form is already completed for this encounter.")
+            return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+            
+        from .forms import SocioeconomicForm
+        if request.method == 'POST':
+            form = SocioeconomicForm(request.POST)
+            if form.is_valid():
+                se = form.save(commit=False)
+                se.encounter = encounter
+                se.save()
+                messages.success(request, "Socioeconomic profile recorded successfully.")
+                return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+        else:
+            form = SocioeconomicForm()
+            
+        return render(request, 'clinical/socioeconomic.html', {
+            'form': form,
+            'encounter': encounter,
+            'patient': encounter.patient,
+        })
+        
+    elif form_code == 'treatment':
+        if hasattr(encounter, 'treatment'):
+            messages.info(request, "Treatment plan form is already completed for this encounter.")
+            return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+            
+        from .forms import TreatmentForm
+        if request.method == 'POST':
+            form = TreatmentForm(request.POST)
+            if form.is_valid():
+                tx = form.save(commit=False)
+                tx.encounter = encounter
+                tx.save()
+                messages.success(request, "Treatment plan recorded successfully.")
+                return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+        else:
+            form = TreatmentForm()
+            
+        return render(request, 'clinical/treatment.html', {
+            'form': form,
+            'encounter': encounter,
+            'patient': encounter.patient,
+        })
+        
     else:
         messages.error(request, f"Form logic for {form_code} is not yet implemented.")
         return redirect('encounters:encounter_detail', encounter_id=encounter.pk)

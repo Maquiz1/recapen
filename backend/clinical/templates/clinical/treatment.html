@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Treatment Plan Form{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'encounters:encounter_detail' encounter.pk %}" class="btn btn-outline-secondary">
+  Cancel
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row justify-content-center">
+    <div class="col-md-10">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title m-0">Treatment & Support Form</h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info py-2 mb-4">
+            <strong>Patient:</strong> {{ patient.first_name }} {{ patient.last_name }}<br>
+            <strong>Encounter:</strong> {{ encounter.get_encounter_type_display }} ({{ encounter.start_time|date:"Y-m-d H:i" }})
+          </div>
+          
+          <form method="post">
+            {% csrf_token %}
+            
+            <!-- Vaccination -->
+            <div class="bg-warning bg-opacity-25 p-2 mb-3 fw-bold border-start border-warning border-3 text-dark">
+              Vaccination
+            </div>
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Vaccination needed?:</label>
+                <div class="d-flex gap-4">
+                  {% for radio in form.vaccination_needed %}
+                    <div class="form-check">
+                      {{ radio }}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Which::</label>
+                {{ form.vaccination_which }}
+              </div>
+            </div>
+
+            <!-- Transfusions -->
+            <div class="bg-warning bg-opacity-25 p-2 mb-3 fw-bold border-start border-warning border-3 text-dark">
+              Transfusions
+            </div>
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Transfusion needed today?:</label>
+                <div class="d-flex gap-4">
+                  {% for radio in form.transfusion_needed %}
+                    <div class="form-check">
+                      {{ radio }}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold"># units::</label>
+                {{ form.transfusion_units }}
+              </div>
+            </div>
+
+            <!-- Family Education and counselling -->
+            <div class="bg-warning bg-opacity-25 p-2 mb-3 fw-bold border-start border-warning border-3 text-dark">
+              Family Education and counselling
+            </div>
+            <div class="row mb-4 g-3">
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Diet::</label>
+                {{ form.education_diet }}
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Hydration?:</label>
+                {{ form.education_hydration }}
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Acute Symptoms?:</label>
+                {{ form.education_acute_symptoms }}
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Fever?:</label>
+                {{ form.education_fever }}
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Life style:</label>
+                {{ form.education_lifestyle }}
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Misconception:</label>
+                {{ form.education_misconception }}
+              </div>
+            </div>
+
+            <!-- Support -->
+            <div class="bg-warning bg-opacity-25 p-2 mb-3 fw-bold border-start border-warning border-3 text-dark">
+              Support
+            </div>
+            <div class="row mb-3 g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Social support provided?:</label>
+                <div class="d-flex gap-4">
+                  {% for radio in form.social_support_provided %}
+                    <div class="form-check">
+                      {{ radio }}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Type:</label>
+                {{ form.social_support_type }}
+              </div>
+            </div>
+            
+            <div class="row mb-3 g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Any Other Support?:</label>
+                <div class="d-flex gap-4">
+                  {% for radio in form.other_support_provided %}
+                    <div class="form-check">
+                      {{ radio }}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Specify:</label>
+                {{ form.other_support_specify }}
+              </div>
+            </div>
+
+            <div class="row mb-4 g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Any new referrals provided?:</label>
+                <div class="d-flex gap-4">
+                  {% for radio in form.referrals_provided %}
+                    <div class="form-check">
+                      {{ radio }}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Type:</label>
+                {{ form.referrals_type }}
+              </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="mb-4">
+              <label class="form-label fw-bold">Notes:</label>
+              {{ form.notes }}
+            </div>
+
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-primary btn-lg">Submit Treatment Plan</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
