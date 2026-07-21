@@ -3,6 +3,34 @@
 {% block page_title %}Study Configuration Dashboard{% endblock %}
 
 {% block content %}
+<style>
+  .pivot-table th {
+    background-color: #1e293b !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    vertical-align: middle;
+    border-color: #334155 !important;
+    font-size: 0.8rem;
+  }
+  .pivot-table td {
+    border-color: #e2e8f0 !important;
+  }
+  .pivot-table .cohort-cell {
+    background-color: #f8fafc !important;
+    font-weight: bold;
+    border-right: 2px solid #cbd5e1 !important;
+  }
+  .form-item-badge {
+    background-color: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+  }
+  .form-item-badge:hover {
+    background-color: #f8fafc;
+    border-color: #cbd5e1;
+  }
+</style>
+
 <div class="app-body">
   <div class="row gx-3">
     <!-- Existing Forms -->
@@ -116,65 +144,133 @@
             </div>
             <button type="submit" class="btn btn-primary">Save Mapping Rule</button>
           </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
-          <hr>
-
-          <h6 class="fw-bold mb-3">Existing Mapping Rules</h6>
+  <!-- Full-Width Pivot Table Row -->
+  <div class="row gx-3 mt-3">
+    <div class="col-12">
+      <div class="card mb-3 shadow-sm border-light-subtle">
+        <div class="card-header bg-light">
+          <h5 class="card-title m-0">Existing Mapping Rules (Pivot View)</h5>
+        </div>
+        <div class="card-body p-0">
           <div class="table-responsive">
-            <table class="table table-bordered align-middle">
+            <table class="table table-bordered table-hover align-middle text-center pivot-table mb-0" style="font-size: 0.85rem;">
               <thead class="table-light">
                 <tr>
-                  <th>Encounter Type</th>
-                  <th>Visit Nature</th>
-                  <th>Cohort</th>
-                  <th>Mapped Forms</th>
-                  <th style="width: 120px;">Actions</th>
+                  <th class="text-start" style="min-width: 150px;">Cohort</th>
+                  {% for col in columns %}
+                    <th style="min-width: 140px;">{{ col.label }}</th>
+                  {% endfor %}
                 </tr>
               </thead>
               <tbody>
-                {% for rule in rules %}
+                {% for row in pivot_rows %}
                 <tr>
-                  <td><span class="badge bg-info-subtle text-info">{{ rule.get_encounter_type_display }}</span></td>
-                  <td>
-                    {% if rule.visit_nature == 'scheduled' %}
-                      <span class="badge bg-success">Scheduled</span>
-                    {% else %}
-                      <span class="badge bg-warning text-dark">Unscheduled</span>
-                    {% endif %}
+                  <td class="text-start fw-bold cohort-cell">
+                    <span class="text-primary fs-6">{{ row.cohort_name }}</span>
                   </td>
-                  <td><span class="badge bg-primary">{{ rule.get_cohort_display }}</span></td>
-                  <td>
-                    <ul class="mb-0 ps-3">
-                      {% for form in rule.required_forms.all|dictsort:"name" %}
-                        <li class="mb-1">
-                          {{ form.name }}
-                          <a href="{% url 'study_config:remove_form_from_rule' rule.pk form.pk %}" class="text-danger p-0 ms-1 text-decoration-none fw-bold" style="font-size: 1.1rem; line-height: 1;" title="Remove this form" onclick="return confirm('Are you sure you want to remove {{ form.name }} from this rule?');">
-                            &times;
-                          </a>
-                        </li>
-                      {% empty %}
-                        <li class="text-muted">No forms mapped.</li>
-                      {% endfor %}
-                    </ul>
-                  </td>
-                  <td>
-                    <a href="{% url 'study_config:delete_rule' rule.pk %}" class="btn btn-xs btn-outline-danger" onclick="return confirm('Are you sure you want to delete this mapping rule?');">
-                      <i class="ri-delete-bin-line"></i> Delete
-                    </a>
-                  </td>
+                  {% for cell in row.cells %}
+                    <td class="align-top text-start">
+                      {% if cell.rule %}
+                        <ul class="list-unstyled mb-0 ps-0">
+                          {% for item in cell.forms_data %}
+                            <li class="mb-1 d-flex justify-content-between align-items-center form-item-badge border rounded px-2 py-1">
+                              <span class="text-dark" style="font-size: 0.75rem;">{{ item.form.name }}</span>
+                              {% if item.has_data %}
+                                <span class="text-muted ms-1" title="Locked: Patient data has already been recorded using this form under this rule.">
+                                  <i class="ri-lock-2-fill text-secondary fs-6" style="vertical-align: middle;"></i>
+                                </span>
+                              {% else %}
+                                <a href="#" class="text-danger p-0 ms-1 text-decoration-none" 
+                                   data-bs-toggle="modal" 
+                                   data-bs-target="#deleteConfirmModal" 
+                                   data-message="Are you sure you want to remove the form '{{ item.form.name }}' from {{ row.cohort_name }} - {{ cell.column.label }}?" 
+                                   data-url="{% url 'study_config:remove_form_from_rule' cell.rule.pk item.form.pk %}"
+                                   title="Remove this form">
+                                  <i class="ri-close-circle-fill fs-5" style="vertical-align: middle;"></i>
+                                </a>
+                              {% endif %}
+                            </li>
+                          {% empty %}
+                            <li class="text-muted small text-center py-2">No forms mapped</li>
+                          {% endfor %}
+                        </ul>
+                        <div class="mt-2 border-top pt-2 text-center">
+                          {% if cell.has_any_data %}
+                            <span class="text-muted small fw-semibold" title="Locked: Associated forms already contain submitted patient data.">
+                              <i class="ri-lock-2-line"></i> Locked
+                            </span>
+                          {% else %}
+                            <a href="#" class="text-danger small text-decoration-none fw-semibold" 
+                               data-bs-toggle="modal" 
+                               data-bs-target="#deleteConfirmModal" 
+                               data-message="Are you sure you want to delete the mapping rule for {{ row.cohort_name }} - {{ cell.column.label }}?" 
+                               data-url="{% url 'study_config:delete_rule' cell.rule.pk %}"
+                               title="Delete this mapping rule">
+                              <i class="ri-delete-bin-line"></i> Delete Rule
+                            </a>
+                          {% endif %}
+                        </div>
+                      {% else %}
+                        <span class="text-muted small d-block text-center py-2">-</span>
+                      {% endif %}
+                    </td>
+                  {% endfor %}
                 </tr>
                 {% empty %}
                 <tr>
-                  <td colspan="5" class="text-center text-muted">No mapping rules configured.</td>
+                  <td colspan="9" class="text-center text-muted py-4">No mapping rules configured.</td>
                 </tr>
                 {% endfor %}
               </tbody>
             </table>
           </div>
-
         </div>
       </div>
     </div>
   </div>
+
 </div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title"><i class="ri-error-warning-line"></i> Confirm Deletion</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body py-3">
+        <p class="mb-0 text-dark" id="deleteModalMessage">Are you sure you want to perform this deletion?</p>
+      </div>
+      <div class="modal-footer bg-light py-2">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <a id="deleteModalConfirmBtn" href="#" class="btn btn-danger btn-sm fw-semibold">Confirm Delete</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    var deleteModal = document.getElementById('deleteConfirmModal');
+    if (deleteModal) {
+      deleteModal.addEventListener('show.bs.modal', function(event) {
+        var button = event.relatedTarget;
+        var message = button.getAttribute('data-message');
+        var url = button.getAttribute('data-url');
+        
+        var modalMessage = deleteModal.querySelector('#deleteModalMessage');
+        var modalConfirmBtn = deleteModal.querySelector('#deleteModalConfirmBtn');
+        
+        modalMessage.textContent = message;
+        modalConfirmBtn.setAttribute('href', url);
+      });
+    }
+  });
+</script>
 {% endblock %}

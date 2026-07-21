@@ -4,6 +4,35 @@ from .models import ClinicalForm, FollowUpRule
 
 from django.apps import apps
 
+def form_has_data_for_rule(rule, form):
+    relation_map = {
+        'vitals': 'vitals',
+        'vt': 'vitals',
+        'hospitalization': 'hospitalization',
+        'hosp': 'hospitalization',
+        'risk': 'risk',
+        'risks': 'risk',
+        'socioeconomic': 'socioeconomic',
+        'se': 'socioeconomic',
+        'treatment': 'treatment',
+        'tx': 'treatment'
+    }
+    
+    relation_name = relation_map.get(form.code.lower())
+    if not relation_name:
+        return False
+        
+    from encounters.models import Encounter
+    
+    query_kwargs = {
+        'patient__enrollment__cohort__iexact': rule.cohort,
+        'encounter_type': rule.encounter_type,
+        'visit_nature': rule.visit_nature,
+    }
+    query_kwargs[f"{relation_name}__isnull"] = False
+    
+    return Encounter.objects.filter(**query_kwargs).exists()
+
 def config_dashboard(request):
     # Auto-sync models from clinical app to ClinicalForm registry
     try:
@@ -63,10 +92,24 @@ def config_dashboard(request):
         row_cells = []
         for col in columns:
             rule = next((r for r in rules if r.cohort == cohort_code and r.encounter_type == col['et_code'] and r.visit_nature == col['vn_code']), None)
+            
+            forms_data = []
+            has_any_data = False
+            if rule:
+                for form in rule.required_forms.all().order_by('name'):
+                    has_data = form_has_data_for_rule(rule, form)
+                    if has_data:
+                        has_any_data = True
+                    forms_data.append({
+                        'form': form,
+                        'has_data': has_data
+                    })
+            
             row_cells.append({
                 'column': col,
                 'rule': rule,
-                'forms': rule.required_forms.all().order_by('name') if rule else []
+                'forms_data': forms_data,
+                'has_any_data': has_any_data
             })
         pivot_rows.append({
             'cohort_code': cohort_code,
@@ -146,12 +189,24 @@ def manage_rules(request):
 def remove_form_from_rule(request, rule_id, form_id):
     rule = get_object_or_404(FollowUpRule, pk=rule_id)
     form = get_object_or_404(ClinicalForm, pk=form_id)
+    
+    if form_has_data_for_rule(rule, form):
+        messages.error(request, f"Cannot remove form '{form.name}' because patient data has already been recorded under this rule.")
+        return redirect('study_config:dashboard')
+        
     rule.required_forms.remove(form)
     messages.success(request, f"Removed form '{form.name}' from rule.")
     return redirect('study_config:dashboard')
 
 def delete_rule(request, rule_id):
     rule = get_object_or_404(FollowUpRule, pk=rule_id)
+    
+    # Check if any associated form has data
+    for form in rule.required_forms.all():
+        if form_has_data_for_rule(rule, form):
+            messages.error(request, f"Cannot delete this rule because form '{form.name}' already has patient records submitted under this rule.")
+            return redirect('study_config:dashboard')
+            
     rule.delete()
     messages.success(request, "Mapping rule deleted successfully.")
     return redirect('study_config:dashboard')
