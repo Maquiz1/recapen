@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Pending Lab Results{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  {% if messages %}
+    <div class="row gx-3">
+      <div class="col-sm-12">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Row starts -->
+  <div class="row gx-3">
+    <div class="col-sm-12">
+      <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title">Patients Awaiting Lab Results</h5>
+          <div class="search-container d-md-block d-none">
+            <input type="text" class="form-control" id="searchPatients" placeholder="Search Patient Name...">
+            <i class="ri-search-line" style="position: absolute; right: 15px; top: 12px; color: #aaa;"></i>
+          </div>
+        </div>
+        <div class="card-body">
+          <div class="table-outer">
+            <div class="table-responsive">
+              <table class="table align-middle truncate m-0 table-hover">
+                <thead>
+                  <tr>
+                    <th>Patient Name</th>
+                    <th>National ID</th>
+                    <th>Gender</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="patientTableBody">
+                  {% for patient in patients %}
+                    <tr class="patient-row-item" data-name="{{ patient.first_name }} {{ patient.last_name }}">
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <img src="{% static 'images/user.png' %}" class="img-3x rounded-5 me-3" alt="Patient Avatar">
+                          <span class="fw-semibold text-dark">{{ patient.first_name }} {{ patient.last_name }}</span>
+                        </div>
+                      </td>
+                      <td>{{ patient.national_id|default:"N/A" }}</td>
+                      <td class="text-capitalize">{{ patient.gender }}</td>
+                      <td>
+                        {% if patient.status == 'screened' %}
+                          <span class="badge bg-warning text-dark">Awaiting Results</span>
+                        {% else %}
+                          <span class="badge bg-success">Results Entered</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <a href="{% url 'patients:investigation' patient.pk %}" class="btn btn-outline-primary btn-sm">
+                          <i class="ri-flask-line"></i> {% if patient.status == 'screened' %}Enter Results{% else %}Edit Results{% endif %}
+                        </a>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="5" class="text-center p-5 text-muted">
+                        <h5>No patients currently require lab results.</h5>
+                        <p class="mb-0">Patients will appear here once they have been screened.</p>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Row ends -->
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchPatients');
+    const tableRows = document.querySelectorAll('.patient-row-item');
+
+    if (searchInput) {
+      searchInput.addEventListener('input', function(e) {
+        const query = e.target.value.toLowerCase().trim();
+        tableRows.forEach(row => {
+          const name = row.getAttribute('data-name').toLowerCase();
+          if (name.includes(query)) {
+            row.style.display = '';
+          } else {
+            row.style.display = 'none';
+          }
+        });
+      });
+    }
+  });
+</script>
+{% endblock %}

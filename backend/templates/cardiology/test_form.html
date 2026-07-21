@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'cardiology:list' %}" class="btn btn-outline-secondary">
+  <i class="ri-arrow-left-line"></i> Cancel
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+
+  <!-- Row starts -->
+  <div class="row gx-3">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">{{ title }}</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div class="row gx-3">
+              <!-- Name -->
+              <div class="col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label" for="id_name">Test Name <span class="text-danger">*</span></label>
+                  {{ form.name }}
+                  {% if form.name.errors %}
+                    <div class="text-danger mt-1 small">{{ form.name.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Code -->
+              <div class="col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label" for="id_code">Unique Code (slug) <span class="text-danger">*</span></label>
+                  {{ form.code }}
+                  <small class="text-muted">An internal slug format, e.g., <code>hba1c</code>, <code>ecg</code></small>
+                  {% if form.code.errors %}
+                    <div class="text-danger mt-1 small">{{ form.code.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Category -->
+              <div class="col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label" for="id_category">Category <span class="text-danger">*</span></label>
+                  {{ form.category }}
+                  {% if form.category.errors %}
+                    <div class="text-danger mt-1 small">{{ form.category.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Mapped Diseases -->
+              <div class="col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label" for="id_diseases">Mapped Diseases</label>
+                  {{ form.diseases }}
+                  <small class="text-muted">Hold Control/Command to select multiple diseases mapped to this test</small>
+                  {% if form.diseases.errors %}
+                    <div class="text-danger mt-1 small">{{ form.diseases.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div class="col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label" for="id_description">Description / Reference range</label>
+                  {{ form.description }}
+                </div>
+              </div>
+
+              <!-- Status (Active) -->
+              <div class="col-sm-12 mb-3">
+                <div class="form-check">
+                  {{ form.is_active }}
+                  <label class="form-check-label" for="id_is_active">
+                    Test is active and visible in clinic orders
+                  </label>
+                </div>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="col-sm-12">
+                <div class="d-flex gap-2 justify-content-end mt-4">
+                  <a href="{% url 'cardiology:list' %}" class="btn btn-outline-secondary">
+                    Cancel
+                  </a>
+                  <button type="submit" class="btn btn-primary">
+                    Save Test Settings
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Row ends -->
+
+</div>
+{% endblock %}
