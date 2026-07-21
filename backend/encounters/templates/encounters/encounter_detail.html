@@ -3,7 +3,7 @@
 {% block page_title %}Encounter Dashboard{% endblock %}
 
 {% block header_actions %}
-<a href="{% url 'patients:patient_profile' patient.pk %}" class="btn btn-outline-primary">
+<a href="{% url 'patients:profile' patient.pk %}" class="btn btn-outline-primary">
   <i class="ri-arrow-left-line"></i> Back to Patient
 </a>
 {% endblock %}
@@ -48,9 +48,17 @@
                   <small class="text-muted">{{ form.description|default:"No description" }}</small>
                 </div>
                 <div>
-                  <!-- Check if it is the scd_vitals form -->
-                  {% if form.code == 'scd_vitals' %}
-                    {% if has_scd_vitals %}
+                  <!-- Check if it is the vitals form -->
+                  {% if form.code == 'vitals' %}
+                    {% if has_vitals %}
+                      <span class="badge bg-success"><i class="ri-check-line"></i> Completed</span>
+                    {% else %}
+                      <a href="{% url 'clinical:fill_form' encounter.pk form.code %}" class="btn btn-sm btn-primary">
+                        Fill Form
+                      </a>
+                    {% endif %}
+                  {% elif form.code == 'hospitalization' %}
+                    {% if has_hospitalization %}
                       <span class="badge bg-success"><i class="ri-check-line"></i> Completed</span>
                     {% else %}
                       <a href="{% url 'clinical:fill_form' encounter.pk form.code %}" class="btn btn-sm btn-primary">

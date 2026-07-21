@@ -2,7 +2,29 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from .models import ClinicalForm, FollowUpRule
 
+from django.apps import apps
+
 def config_dashboard(request):
+    # Auto-sync models from clinical app to ClinicalForm registry
+    try:
+        clinical_config = apps.get_app_config('clinical')
+        for model in clinical_config.get_models():
+            if model._meta.object_name.startswith('Historical') or model._meta.proxy:
+                continue
+            code = model._meta.model_name
+            name = model._meta.verbose_name.title()
+            
+            # Create or update name
+            ClinicalForm.objects.get_or_create(
+                code=code,
+                defaults={
+                    'name': name,
+                    'description': f"Form data model for {name}."
+                }
+            )
+    except LookupError:
+        pass
+
     rules = FollowUpRule.objects.all().prefetch_related('required_forms')
     forms = ClinicalForm.objects.all()
     
@@ -12,6 +34,24 @@ def config_dashboard(request):
     })
 
 def manage_forms(request):
+    # Auto-sync models from clinical app to ClinicalForm registry
+    try:
+        clinical_config = apps.get_app_config('clinical')
+        for model in clinical_config.get_models():
+            if model._meta.object_name.startswith('Historical') or model._meta.proxy:
+                continue
+            code = model._meta.model_name
+            name = model._meta.verbose_name.title()
+            ClinicalForm.objects.get_or_create(
+                code=code,
+                defaults={
+                    'name': name,
+                    'description': f"Form data model for {name}."
+                }
+            )
+    except LookupError:
+        pass
+
     if request.method == 'POST':
         name = request.POST.get('name')
         code = request.POST.get('code')

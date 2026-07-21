@@ -30,9 +30,9 @@ def encounter_detail(request, encounter_id):
     
     required_forms = set()
     if patient.status == 'enrolled' and encounter.visit_nature:
-        patient_cohorts = patient.confirmed_diseases.values_list('code', flat=True)
-        for cohort_code in patient_cohorts:
-            # Match the cohort code (e.g. 'SCD', 'DM') to the FollowUpRule choices ('scd', 'dm')
+        if hasattr(patient, 'enrollment') and patient.enrollment.cohort:
+            cohort_code = patient.enrollment.cohort
+            # Match the cohort code to the FollowUpRule choices
             rules = FollowUpRule.objects.filter(
                 cohort=cohort_code.lower(), 
                 visit_nature=encounter.visit_nature
@@ -41,11 +41,13 @@ def encounter_detail(request, encounter_id):
                 for form in rule.required_forms.all():
                     required_forms.add(form)
                     
-    has_scd_vitals = hasattr(encounter, 'scd_vitals')
+    has_vitals = hasattr(encounter, 'vitals')
+    has_hospitalization = hasattr(encounter, 'hospitalization')
                     
     return render(request, 'encounters/encounter_detail.html', {
         'encounter': encounter,
         'patient': patient,
         'required_forms': list(required_forms),
-        'has_scd_vitals': has_scd_vitals,
+        'has_vitals': has_vitals,
+        'has_hospitalization': has_hospitalization,
     })

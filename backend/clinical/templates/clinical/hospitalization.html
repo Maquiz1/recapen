@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Hospitalization Form{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'encounters:encounter_detail' encounter.pk %}" class="btn btn-outline-secondary">
+  Cancel
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title m-0">Hospitalization Details</h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info py-2">
+            <strong>Patient:</strong> {{ patient.first_name }} {{ patient.last_name }}<br>
+            <strong>Encounter:</strong> {{ encounter.get_encounter_type_display }} ({{ encounter.start_time|date:"Y-m-d H:i" }})
+          </div>
+          
+          <form method="post">
+            {% csrf_token %}
+            <div class="row mb-3 mt-4">
+              <div class="col-md-6">
+                <label class="form-label">Admission Date</label>
+                {{ form.admission_date }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Discharge Date</label>
+                {{ form.discharge_date }}
+              </div>
+            </div>
+            
+            <div class="row mb-3">
+              <div class="col-md-6">
+                <label class="form-label">Reason for Admission</label>
+                {{ form.reason_for_admission }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Ward</label>
+                {{ form.ward }}
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label">Outcome</label>
+              {{ form.outcome }}
+            </div>
+            
+            <div class="mb-4">
+              <label class="form-label">Discharge Summary</label>
+              {{ form.discharge_summary }}
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">Submit Form</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

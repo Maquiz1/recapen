@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Risk Factors Form{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'encounters:encounter_detail' encounter.pk %}" class="btn btn-outline-secondary">
+  Cancel
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title m-0">Risk Factors Assessment</h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info py-2">
+            <strong>Patient:</strong> {{ patient.first_name }} {{ patient.last_name }}<br>
+            <strong>Encounter:</strong> {{ encounter.get_encounter_type_display }} ({{ encounter.start_time|date:"Y-m-d H:i" }})
+          </div>
+          
+          <form method="post">
+            {% csrf_token %}
+            <div class="mb-3 mt-4">
+              <label class="form-label fw-bold">Smoking Status</label>
+              {{ form.smoking_status }}
+            </div>
+            
+            <div class="mb-3 form-check">
+              {{ form.alcohol_use }}
+              <label class="form-check-label fw-bold ms-2">Alcohol Use</label>
+              <div class="form-text">Check if the patient regularly consumes alcohol.</div>
+            </div>
+            
+            <div class="mb-3 form-check">
+              {{ form.physical_inactivity }}
+              <label class="form-check-label fw-bold ms-2">Physical Inactivity</label>
+              <div class="form-text">Less than 150 minutes of moderate activity per week.</div>
+            </div>
+            
+            <div class="mb-3 form-check">
+              {{ form.family_history_ncd }}
+              <label class="form-check-label fw-bold ms-2">Family History of NCDs</label>
+              <div class="form-text">Hypertension, Diabetes, or Heart Disease in immediate family members.</div>
+            </div>
+
+            <div class="mb-4 form-check">
+              {{ form.unhealthy_diet }}
+              <label class="form-check-label fw-bold ms-2">Unhealthy Diet</label>
+              <div class="form-text">High salt, high sugar, low fruit and vegetable intake.</div>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">Submit Risk Factors</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

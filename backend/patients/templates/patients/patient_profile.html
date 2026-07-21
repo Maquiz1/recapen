@@ -451,6 +451,15 @@
                       </a>
                     </td>
                     <td>
+                      {% if encounter.visit_nature == 'scheduled' %}
+                        <span class="badge bg-success">Scheduled</span>
+                      {% elif encounter.visit_nature == 'unscheduled' %}
+                        <span class="badge bg-warning text-dark">Unscheduled</span>
+                      {% else %}
+                        <span class="text-muted">-</span>
+                      {% endif %}
+                    </td>
+                    <td>
                       {% if encounter.status == 'finished' %}
                         <span class="badge bg-success">Finished</span>
                       {% else %}
@@ -462,7 +471,14 @@
                         <ul class="list-unstyled mb-0 small">
                         {% for order in encounter.orders.all %}
                           <li>
-                            - {{ order.test.name|default:order.medication_name }} 
+                            - 
+                            {% if order.test %}
+                              {{ order.test.name }}
+                            {% elif order.medication %}
+                              {{ order.medication.name }}
+                            {% else %}
+                              Unknown Order
+                            {% endif %}
                             <span class="text-muted">({{ order.get_order_type_display }})</span>
                           </li>
                         {% endfor %}

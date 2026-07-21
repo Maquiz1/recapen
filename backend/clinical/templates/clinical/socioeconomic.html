@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Socioeconomic Factors Form{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'encounters:encounter_detail' encounter.pk %}" class="btn btn-outline-secondary">
+  Cancel
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header bg-primary text-white">
+          <h5 class="card-title m-0">Socioeconomic Profile</h5>
+        </div>
+        <div class="card-body">
+          <div class="alert alert-info py-2">
+            <strong>Patient:</strong> {{ patient.first_name }} {{ patient.last_name }}<br>
+            <strong>Encounter:</strong> {{ encounter.get_encounter_type_display }} ({{ encounter.start_time|date:"Y-m-d H:i" }})
+          </div>
+          
+          <form method="post">
+            {% csrf_token %}
+            <div class="row mb-3 mt-4">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Education Level</label>
+                {{ form.education_level }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Employment Status</label>
+                {{ form.employment_status }}
+              </div>
+            </div>
+            
+            <div class="mb-3">
+              <label class="form-label fw-bold">Estimated Monthly Income</label>
+              {{ form.monthly_income }}
+            </div>
+            
+            <div class="mb-3 form-check">
+              {{ form.access_clean_water }}
+              <label class="form-check-label fw-bold ms-2">Access to Clean Drinking Water</label>
+            </div>
+
+            <div class="mb-4 form-check">
+              {{ form.has_health_insurance }}
+              <label class="form-check-label fw-bold ms-2">Has Health Insurance Coverage</label>
+            </div>
+
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">Submit Profile</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
