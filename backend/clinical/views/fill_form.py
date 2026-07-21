@@ -1,7 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from encounters.models import Encounter
-from .forms import VitalsForm
+from clinical.forms import VitalsForm, HospitalizationForm, RiskForm, SocioeconomicForm, TreatmentForm
 
 def fill_form(request, encounter_id, form_code):
     encounter = get_object_or_404(Encounter, pk=encounter_id)
@@ -33,7 +33,6 @@ def fill_form(request, encounter_id, form_code):
             messages.info(request, "Hospitalization form is already completed for this encounter.")
             return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
             
-        from .forms import HospitalizationForm
         if request.method == 'POST':
             form = HospitalizationForm(request.POST)
             if form.is_valid():
@@ -56,7 +55,6 @@ def fill_form(request, encounter_id, form_code):
             messages.info(request, "Risk Factors form is already completed for this encounter.")
             return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
             
-        from .forms import RiskForm
         if request.method == 'POST':
             form = RiskForm(request.POST)
             if form.is_valid():
@@ -79,7 +77,6 @@ def fill_form(request, encounter_id, form_code):
             messages.info(request, "Socioeconomic form is already completed for this encounter.")
             return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
             
-        from .forms import SocioeconomicForm
         if request.method == 'POST':
             form = SocioeconomicForm(request.POST)
             if form.is_valid():
@@ -102,7 +99,6 @@ def fill_form(request, encounter_id, form_code):
             messages.info(request, "Treatment plan form is already completed for this encounter.")
             return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
             
-        from .forms import TreatmentForm
         if request.method == 'POST':
             form = TreatmentForm(request.POST)
             if form.is_valid():

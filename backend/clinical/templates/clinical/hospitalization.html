@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block page_title %}Hospitalization Form{% endblock %}
+{% block page_title %}Hospitalizations, School and Management at Home{% endblock %}
 
 {% block header_actions %}
 <a href="{% url 'encounters:encounter_detail' encounter.pk %}" class="btn btn-outline-secondary">
@@ -11,52 +11,150 @@
 {% block content %}
 <div class="app-body">
   <div class="row justify-content-center">
-    <div class="col-md-8">
+    <div class="col-md-10">
       <div class="card">
         <div class="card-header bg-primary text-white">
-          <h5 class="card-title m-0">Hospitalization Details</h5>
+          <h5 class="card-title m-0">Hospitalizations, School and Management at Home</h5>
         </div>
         <div class="card-body">
-          <div class="alert alert-info py-2">
-            <strong>Patient:</strong> {{ patient.first_name }} {{ patient.last_name }}<br>
-            <strong>Encounter:</strong> {{ encounter.get_encounter_type_display }} ({{ encounter.start_time|date:"Y-m-d H:i" }})
+          <div class="alert alert-info py-2 mb-4">
+            <strong>Patient:</strong> {{ patient.first_name }} {{ patient.last_name }} &nbsp;|&nbsp; 
+            <strong>Age:</strong> {{ patient.date_of_birth|timesince }} &nbsp;|&nbsp; 
+            <strong>Gender:</strong> {{ patient.get_gender_display }}
           </div>
           
           <form method="post">
             {% csrf_token %}
-            <div class="row mb-3 mt-4">
-              <div class="col-md-6">
-                <label class="form-label">Admission Date</label>
-                {{ form.admission_date }}
-              </div>
-              <div class="col-md-6">
-                <label class="form-label">Discharge Date</label>
-                {{ form.discharge_date }}
-              </div>
-            </div>
             
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <label class="form-label">Reason for Admission</label>
-                {{ form.reason_for_admission }}
+            <!-- Hospitalizations -->
+            <div class="row mb-3 g-3">
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Visit Date:</label>
+                <input type="text" class="form-control" value="{{ encounter.start_time|date:'Y-m-d' }}" readonly disabled>
               </div>
-              <div class="col-md-6">
-                <label class="form-label">Ward</label>
-                {{ form.ward }}
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Any recent hospitalizations not yet recorded?:</label>
+                <div class="d-flex gap-4">
+                  {% for radio in form.recent_hospitalizations %}
+                    <div class="form-check">
+                      {{ radio }}
+                    </div>
+                  {% endfor %}
+                </div>
               </div>
-            </div>
-            
-            <div class="mb-3">
-              <label class="form-label">Outcome</label>
-              {{ form.outcome }}
-            </div>
-            
-            <div class="mb-4">
-              <label class="form-label">Discharge Summary</label>
-              {{ form.discharge_summary }}
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Number of hospitalization in last 12 months:</label>
+                {{ form.num_hospitalizations_12m }}
+                <div class="form-text small text-muted">Record on hospitalization record<br>(N/A = 98), (Missing = 99)</div>
+              </div>
             </div>
 
-            <div class="d-grid">
+            <div class="row mb-4 g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">If yes, for NCD?:</label>
+                <div class="d-flex gap-4">
+                  {% for radio in form.for_ncd %}
+                    <div class="form-check">
+                      {{ radio }}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Number of hospitalization from NCD in last 12 months:</label>
+                {{ form.num_hospitalizations_ncd_12m }}
+                <div class="form-text small text-muted">Record on hospitalization record<br>(N/A = 98), (Missing = 99)</div>
+              </div>
+            </div>
+
+            <!-- School -->
+            <div class="bg-warning bg-opacity-25 p-2 mb-3 fw-bold border-start border-warning border-3 text-dark">
+              School
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-bold">Number of missed days of school in the last month?:</label>
+              {{ form.school_days_missed_last_month }}
+              <div class="form-text small text-muted">(N/A = 98), (Missing = 99)</div>
+            </div>
+
+            <!-- Transfusion -->
+            <div class="bg-warning bg-opacity-25 p-2 mb-3 fw-bold border-start border-warning border-3 text-dark">
+              Transfusion
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-bold">Number of Transfusion in the past month?:</label>
+              {{ form.transfusions_past_month }}
+              <div class="form-text small text-muted">(N/A = 98), (Missing = 99)</div>
+            </div>
+
+            <!-- Management at Home -->
+            <div class="bg-warning bg-opacity-25 p-2 mb-3 fw-bold border-start border-warning border-3 text-dark">
+              Management at Home
+            </div>
+            <div class="row mb-3 g-3">
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Taking at home (Malaria prophylaxis)?:</label>
+                {{ form.taking_malaria_prophylaxis }}
+                <div class="form-text small text-muted">(Medication)</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Taking at home (Insecticide treated bed net)?:</label>
+                {{ form.taking_insecticide_net }}
+                <div class="form-text small text-muted">(Medication)</div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Taking at home (Folic acid)?:</label>
+                {{ form.taking_folic_acid }}
+                <div class="form-text small text-muted">(Medication)</div>
+              </div>
+            </div>
+
+            <div class="row mb-3 g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Taking at home (Penicillin prophylaxis)?:</label>
+                {{ form.taking_penicillin_prophylaxis }}
+                <div class="form-text small text-muted">(Medication)</div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Pneumococcal vaccination up to date?:</label>
+                {{ form.pneumococcal_vaccination_up_to_date }}
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label fw-bold">On chronic opioid therapy?:</label>
+              <div class="d-flex gap-4">
+                {% for radio in form.on_chronic_opioid_therapy %}
+                  <div class="form-check">
+                    {{ radio }}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <div class="row mb-4 g-3">
+              <div class="col-md-4">
+                <label class="form-label fw-bold">On hydroxyurea?:</label>
+                <div class="d-flex gap-4">
+                  {% for radio in form.on_hydroxyurea %}
+                    <div class="form-check">
+                      {{ radio }}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Start Date:</label>
+                {{ form.hydroxyurea_start_date }}
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Dose:</label>
+                {{ form.hydroxyurea_dose }}
+                <div class="form-text small text-muted">(N/A = 98), (Missing = 99)</div>
+              </div>
+            </div>
+
+            <div class="d-grid mt-4">
               <button type="submit" class="btn btn-primary btn-lg">Submit Form</button>
             </div>
           </form>

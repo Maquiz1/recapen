@@ -11,50 +11,88 @@
 {% block content %}
 <div class="app-body">
   <div class="row justify-content-center">
-    <div class="col-md-8">
+    <div class="col-md-10">
       <div class="card">
         <div class="card-header bg-primary text-white">
           <h5 class="card-title m-0">Risk Factors Assessment</h5>
         </div>
         <div class="card-body">
-          <div class="alert alert-info py-2">
-            <strong>Patient:</strong> {{ patient.first_name }} {{ patient.last_name }}<br>
-            <strong>Encounter:</strong> {{ encounter.get_encounter_type_display }} ({{ encounter.start_time|date:"Y-m-d H:i" }})
+          <div class="alert alert-info py-2 mb-4">
+            <strong>Patient:</strong> {{ patient.first_name }} {{ patient.last_name }} &nbsp;|&nbsp; 
+            <strong>Age:</strong> {{ patient.date_of_birth|timesince }} &nbsp;|&nbsp; 
+            <strong>Gender:</strong> {{ patient.get_gender_display }}
           </div>
           
           <form method="post">
             {% csrf_token %}
-            <div class="mb-3 mt-4">
-              <label class="form-label fw-bold">Smoking Status</label>
-              {{ form.smoking_status }}
-            </div>
             
-            <div class="mb-3 form-check">
-              {{ form.alcohol_use }}
-              <label class="form-check-label fw-bold ms-2">Alcohol Use</label>
-              <div class="form-text">Check if the patient regularly consumes alcohol.</div>
-            </div>
-            
-            <div class="mb-3 form-check">
-              {{ form.physical_inactivity }}
-              <label class="form-check-label fw-bold ms-2">Physical Inactivity</label>
-              <div class="form-text">Less than 150 minutes of moderate activity per week.</div>
-            </div>
-            
-            <div class="mb-3 form-check">
-              {{ form.family_history_ncd }}
-              <label class="form-check-label fw-bold ms-2">Family History of NCDs</label>
-              <div class="form-text">Hypertension, Diabetes, or Heart Disease in immediate family members.</div>
+            <div class="row mb-3 g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Visit Date:</label>
+                <input type="text" class="form-control" value="{{ encounter.start_time|date:'Y-m-d' }}" readonly disabled>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Tobacco:</label>
+                {{ form.tobacco }}
+              </div>
             </div>
 
-            <div class="mb-4 form-check">
-              {{ form.unhealthy_diet }}
-              <label class="form-check-label fw-bold ms-2">Unhealthy Diet</label>
-              <div class="form-text">High salt, high sugar, low fruit and vegetable intake.</div>
+            <div class="row mb-3 g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Alcohol:</label>
+                {{ form.alcohol }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Employment status:</label>
+                {{ form.employment_status }}
+              </div>
             </div>
 
-            <div class="d-grid">
-              <button type="submit" class="btn btn-primary btn-lg">Submit Risk Factors</button>
+            <div class="row mb-4">
+              <div class="col-md-6">
+                <label class="form-label fw-bold">NCD limiting school?:</label>
+                {{ form.ncd_limiting_school }}
+              </div>
+            </div>
+
+            <!-- Last HIV test -->
+            <div class="bg-warning bg-opacity-25 p-2 mb-3 fw-bold border-start border-warning border-3 text-dark">
+              Last HIV test
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-bold d-block">HIV:</label>
+              <div class="d-flex flex-column gap-2 mt-2">
+                {% for radio in form.hiv_status %}
+                  <div class="form-check">
+                    {{ radio }}
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Last TB screening -->
+            <div class="bg-warning bg-opacity-25 p-2 mb-3 fw-bold border-start border-warning border-3 text-dark">
+              Last TB screening
+            </div>
+            <div class="row mb-4 g-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold d-block">TB:</label>
+                <div class="d-flex flex-column gap-2 mt-2">
+                  {% for radio in form.tb_status %}
+                    <div class="form-check">
+                      {{ radio }}
+                    </div>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label fw-bold">Date Screened:</label>
+                {{ form.tb_screening_date }}
+              </div>
+            </div>
+
+            <div class="d-grid mt-4">
+              <button type="submit" class="btn btn-primary btn-lg">Submit Risks</button>
             </div>
           </form>
         </div>
