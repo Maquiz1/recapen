@@ -28,16 +28,21 @@ def encounter_detail(request, encounter_id):
     encounter = get_object_or_404(Encounter, pk=encounter_id)
     patient = encounter.patient
     
-    required_forms = []
+    required_forms = set()
     if patient.status == 'enrolled' and encounter.visit_nature:
-        # Determine cohort from patient's latest disease assignment if necessary, 
-        # For simplicity, assuming the patient's primary disease maps to the cohort.
-        # Recap: Patient disease is captured in Patient.disease or similar?
-        # Wait, how did we link patient to disease?
-        pass
-        
+        patient_cohorts = patient.confirmed_diseases.values_list('code', flat=True)
+        for cohort_code in patient_cohorts:
+            # Match the cohort code (e.g. 'SCD', 'DM') to the FollowUpRule choices ('scd', 'dm')
+            rules = FollowUpRule.objects.filter(
+                cohort=cohort_code.lower(), 
+                visit_nature=encounter.visit_nature
+            )
+            for rule in rules:
+                for form in rule.required_forms.all():
+                    required_forms.add(form)
+                    
     return render(request, 'encounters/encounter_detail.html', {
         'encounter': encounter,
         'patient': patient,
-        'required_forms': required_forms,
+        'required_forms': list(required_forms),
     })
