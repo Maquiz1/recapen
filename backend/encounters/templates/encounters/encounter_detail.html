@@ -50,7 +50,7 @@
                 <div>
                   <!-- Check if it is the scd_vitals form -->
                   {% if form.code == 'scd_vitals' %}
-                    {% if hasattr encounter 'scd_vitals' %}
+                    {% if has_scd_vitals %}
                       <span class="badge bg-success"><i class="ri-check-line"></i> Completed</span>
                     {% else %}
                       <a href="{% url 'clinical:fill_form' encounter.pk form.code %}" class="btn btn-sm btn-primary">

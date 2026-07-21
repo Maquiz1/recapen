@@ -443,8 +443,12 @@
                 <tbody>
                   {% for encounter in patient.encounters.all %}
                   <tr>
-                    <td>{{ encounter.start_time|date:"d/m/Y H:i" }}</td>
-                    <td><span class="badge bg-secondary">{{ encounter.get_encounter_type_display }}</span></td>
+                    <td>{{ encounter.start_time|date:"Y-m-d H:i" }}</td>
+                    <td>
+                      <a href="{% url 'encounters:encounter_detail' encounter.pk %}" class="text-decoration-none fw-bold">
+                        {{ encounter.get_encounter_type_display }}
+                      </a>
+                    </td>
                     <td>
                       {% if encounter.status == 'finished' %}
                         <span class="badge bg-success">Finished</span>

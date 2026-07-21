@@ -41,8 +41,11 @@ def encounter_detail(request, encounter_id):
                 for form in rule.required_forms.all():
                     required_forms.add(form)
                     
+    has_scd_vitals = hasattr(encounter, 'scd_vitals')
+                    
     return render(request, 'encounters/encounter_detail.html', {
         'encounter': encounter,
         'patient': patient,
         'required_forms': list(required_forms),
+        'has_scd_vitals': has_scd_vitals,
     })
