@@ -189,8 +189,8 @@ def manage_rules(request):
                             encounter_type=et,
                             visit_nature=vn
                         )
-                        # Update forms
-                        rule.required_forms.set(form_ids)
+                        # Update forms by appending
+                        rule.required_forms.add(*form_ids)
                         count += 1
             messages.success(request, f"Successfully updated {count} mapping rules.")
             
