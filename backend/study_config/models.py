@@ -19,13 +19,20 @@ class FollowUpRule(AuditableModel):
         ('scheduled', 'Scheduled'),
         ('unscheduled', 'Unscheduled'),
     )
+    ENCOUNTER_TYPE_CHOICES = (
+        ('initial', 'Baseline'),
+        ('followup', 'Follow-up'),
+        ('emergency', 'Emergency'),
+        ('routine', 'Routine Checkup'),
+    )
     
     cohort = models.CharField(max_length=20, choices=COHORT_CHOICES)
+    encounter_type = models.CharField(max_length=20, choices=ENCOUNTER_TYPE_CHOICES, default='followup')
     visit_nature = models.CharField(max_length=20, choices=VISIT_NATURE_CHOICES)
     required_forms = models.ManyToManyField(ClinicalForm, related_name='rules', blank=True)
     
     class Meta:
-        unique_together = ('cohort', 'visit_nature')
+        unique_together = ('cohort', 'encounter_type', 'visit_nature')
 
     def __str__(self):
-        return f"{self.get_cohort_display()} - {self.get_visit_nature_display()} Rule"
+        return f"{self.get_cohort_display()} - {self.get_encounter_type_display()} - {self.get_visit_nature_display()} Rule"

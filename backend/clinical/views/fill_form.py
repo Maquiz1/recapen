@@ -5,8 +5,9 @@ from clinical.forms import VitalsForm, HospitalizationForm, RiskForm, Socioecono
 
 def fill_form(request, encounter_id, form_code):
     encounter = get_object_or_404(Encounter, pk=encounter_id)
+    form_code_lower = form_code.lower()
     
-    if form_code == 'vitals':
+    if form_code_lower in ['vitals', 'vt']:
         if hasattr(encounter, 'vitals'):
             messages.info(request, "Vitals form is already completed for this encounter.")
             return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
@@ -28,7 +29,7 @@ def fill_form(request, encounter_id, form_code):
             'patient': encounter.patient,
         })
         
-    elif form_code == 'hospitalization':
+    elif form_code_lower in ['hospitalization', 'hosp']:
         if hasattr(encounter, 'hospitalization'):
             messages.info(request, "Hospitalization form is already completed for this encounter.")
             return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
@@ -50,7 +51,7 @@ def fill_form(request, encounter_id, form_code):
             'patient': encounter.patient,
         })
         
-    elif form_code == 'risk':
+    elif form_code_lower in ['risk', 'risks']:
         if hasattr(encounter, 'risk'):
             messages.info(request, "Risk Factors form is already completed for this encounter.")
             return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
@@ -72,7 +73,7 @@ def fill_form(request, encounter_id, form_code):
             'patient': encounter.patient,
         })
         
-    elif form_code == 'socioeconomic':
+    elif form_code_lower in ['socioeconomic', 'se']:
         if hasattr(encounter, 'socioeconomic'):
             messages.info(request, "Socioeconomic form is already completed for this encounter.")
             return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
@@ -94,7 +95,7 @@ def fill_form(request, encounter_id, form_code):
             'patient': encounter.patient,
         })
         
-    elif form_code == 'treatment':
+    elif form_code_lower in ['treatment', 'tx']:
         if hasattr(encounter, 'treatment'):
             messages.info(request, "Treatment plan form is already completed for this encounter.")
             return redirect('encounters:encounter_detail', encounter_id=encounter.pk)

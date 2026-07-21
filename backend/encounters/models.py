@@ -6,7 +6,7 @@ from patients.models import Patient
 
 class Encounter(AuditableModel):
     ENCOUNTER_TYPE_CHOICES = (
-        ('initial', 'Initial Screening'),
+        ('initial', 'Baseline'),
         ('followup', 'Follow-up'),
         ('emergency', 'Emergency'),
         ('routine', 'Routine Checkup'),

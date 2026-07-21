@@ -35,6 +35,7 @@ def encounter_detail(request, encounter_id):
             # Match the cohort code to the FollowUpRule choices
             rules = FollowUpRule.objects.filter(
                 cohort=cohort_code.lower(), 
+                encounter_type=encounter.encounter_type,
                 visit_nature=encounter.visit_nature
             )
             for rule in rules:

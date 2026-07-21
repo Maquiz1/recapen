@@ -142,7 +142,7 @@
   <!-- Row starts -->
   <div class="row gx-3">
     <!-- Clinical Flow Progress Panel -->
-    <div class="col-md-4 col-sm-12">
+    <div class="col-md-3 col-sm-12">
       <div class="card mb-3">
         <div class="card-header">
           <h5 class="card-title">Clinical Pathway Progress</h5>
@@ -299,198 +299,238 @@
             {% endfor %}
           </ul>
         </div>
-      </div>
     </div>
 
-    <!-- Timeline / Lab Results History -->
-    <div class="col-md-8 col-sm-12">
-      <div class="card mb-3">
-        <div class="card-header bg-light">
-          <h5 class="card-title">Laboratory & Diagnostic Records</h5>
-        </div>
-        <div class="card-body">
-          
-          {% if not patient.screening %}
-            <div class="p-4 text-center text-muted">
-              <i class="ri-pulse-line fs-1 text-secondary"></i>
-              <p class="mt-2">No screening orders created. Complete Step 2 to record laboratory test orders.</p>
-            </div>
-          {% else %}
-            <!-- Screening Info -->
-            <div class="mb-4">
-              <h6 class="text-primary fw-bold"><i class="ri-list-check"></i> 1. Ordered Tests & Triage Notes</h6>
-              <div class="p-3 border rounded bg-light-subtle small mt-2">
-                <p class="mb-1"><strong>Suspected Path:</strong> 
-                  {% if patient.screening.suspect_scd %}<span class="badge bg-primary-subtle text-primary">SCD</span>{% endif %}
-                  {% if patient.screening.suspect_dm %}<span class="badge bg-success-subtle text-success">Diabetes</span>{% endif %}
-                  {% if patient.screening.suspect_cardiac %}<span class="badge bg-danger-subtle text-danger">Cardiac</span>{% endif %}
-                </p>
-                <p class="mb-1"><strong>Ordered Tests:</strong>
-                  {% if patient.screening.order_scd_lab %}Lab (Electrophoresis), {% endif %}
-                  {% if patient.screening.order_scd_screening %}SCD Screen, {% endif %}
-                  {% if patient.screening.order_scd_echo %}SCD ECHO, {% endif %}
-                  {% if patient.screening.order_scd_radiology %}Bone X-Ray, {% endif %}
-                  {% if patient.screening.order_dm_hba1c %}HbA1c, {% endif %}
-                  {% if patient.screening.order_dm_c_peptide %}C-Peptide, {% endif %}
-                  {% if patient.screening.order_dm_creatinine %}Creatinine, {% endif %}
-                  {% if patient.screening.order_dm_urea %}Urea, {% endif %}
-                  {% if patient.screening.order_dm_rbg %}RBG, {% endif %}
-                  {% if patient.screening.order_dm_fbg %}FBG, {% endif %}
-                  {% if patient.screening.order_cardiac_lab %}Cardiac Lab Panel, {% endif %}
-                  {% if patient.screening.order_cardiac_echo %}Cardiac ECHO, {% endif %}
-                  {% if patient.screening.order_cardiac_ecg %}ECG, {% endif %}
-                  {% if patient.screening.order_cardiac_xray %}Chest X-Ray, {% endif %}
-                </p>
-                <p class="mb-0"><strong>Triage Notes:</strong> {{ patient.screening.screening_notes|default:"None" }}</p>
-              </div>
-            </div>
-
-            <!-- Lab Metrics -->
-            {% if patient.scd_investigation or patient.dm_investigation or patient.cardiac_investigation %}
-              <div class="mb-4">
-                <h6 class="text-primary fw-bold"><i class="ri-health-book-line"></i> 2. Investigation Outcomes</h6>
-                <div class="row gx-3 mt-2">
-                  
-                  <!-- SCD Panel -->
-                  {% if patient.screening.suspect_scd %}
-                    <div class="col-md-6 mb-3">
-                      <div class="border rounded p-3 h-100 bg-primary-lighten border-primary-subtle">
-                        <h6 class="text-primary fw-bold small"><i class="ri-pulse-line"></i> SCD Results</h6>
-                        <ul class="list-unstyled mb-0 small">
-                          <li class="mb-1"><strong>Lab Electrophoresis:</strong> {{ patient.scd_investigation.lab_results|default:"-" }}</li>
-                          <li class="mb-1"><strong>Screening Test:</strong> {{ patient.scd_investigation.scd_screening_results|default:"-" }}</li>
-                          <li class="mb-1"><strong>ECHO:</strong> {{ patient.scd_investigation.echo_results|default:"-" }}</li>
-                          <li class="mb-0"><strong>Radiology X-Ray:</strong> {{ patient.scd_investigation.radiology_results|default:"-" }}</li>
-                        </ul>
-                      </div>
-                    </div>
-                  {% endif %}
-
-                  <!-- DM Panel -->
-                  {% if patient.screening.suspect_dm %}
-                    <div class="col-md-6 mb-3">
-                      <div class="border rounded p-3 h-100 bg-success-lighten border-success-subtle">
-                        <h6 class="text-success fw-bold small"><i class="ri-health-book-line"></i> Diabetes Results</h6>
-                        <ul class="list-unstyled mb-0 small">
-                          <li class="mb-1"><strong>HbA1c (%):</strong> {{ patient.dm_investigation.hba1c|default:"-" }}</li>
-                          <li class="mb-1"><strong>C-Peptide (nmol/L):</strong> {{ patient.dm_investigation.c_peptide|default:"-" }}</li>
-                          <li class="mb-1"><strong>Creatinine (µmol/L):</strong> {{ patient.dm_investigation.creatinine|default:"-" }}</li>
-                          <li class="mb-1"><strong>Urea (mmol/L):</strong> {{ patient.dm_investigation.urea|default:"-" }}</li>
-                          <li class="mb-1"><strong>RBG (mmol/L):</strong> {{ patient.dm_investigation.rbg|default:"-" }}</li>
-                          <li class="mb-0"><strong>FBG (mmol/L):</strong> {{ patient.dm_investigation.fbg|default:"-" }}</li>
-                        </ul>
-                      </div>
-                    </div>
-                  {% endif %}
-
-                  <!-- Cardiac Panel -->
-                  {% if patient.screening.suspect_cardiac %}
-                    <div class="col-md-6 mb-3">
-                      <div class="border rounded p-3 h-100 bg-danger-lighten border-danger-subtle">
-                        <h6 class="text-danger fw-bold small"><i class="ri-heart-pulse-line"></i> Cardiac Results</h6>
-                        <ul class="list-unstyled mb-0 small">
-                          <li class="mb-1"><strong>Cardiac Type:</strong> {{ patient.cardiac_investigation.get_cardiac_type_display|default:"-" }}</li>
-                          <li class="mb-1"><strong>Lab Panel:</strong> {{ patient.cardiac_investigation.lab_results|default:"-" }}</li>
-                          <li class="mb-1"><strong>ECHO Scan:</strong> {{ patient.cardiac_investigation.echo_results|default:"-" }}</li>
-                          <li class="mb-1"><strong>ECG:</strong> {{ patient.cardiac_investigation.ecg_results|default:"-" }}</li>
-                          <li class="mb-0"><strong>X-Ray:</strong> {{ patient.cardiac_investigation.xray_results|default:"-" }}</li>
-                        </ul>
-                      </div>
-                    </div>
-                  {% endif %}
-
-                </div>
-              </div>
-            {% endif %}
-
-            <!-- Consultation / Diagnosis -->
-            {% if patient.diagnosis %}
-              <div class="mb-4">
-                <h6 class="text-primary fw-bold"><i class="ri-stethoscope-line"></i> 3. Clinical Consultation & Diagnosis</h6>
-                <div class="p-3 border rounded bg-warning-lighten border-warning-subtle small mt-2">
-                  <p class="mb-1"><strong>Doctor Diagnosis:</strong> {{ patient.diagnosis.diagnosis }}</p>
-                  <p class="mb-1"><strong>Confirmed Diseases:</strong>
-                    {% if patient.diagnosis.confirmed_scd %}<span class="badge bg-primary">SCD</span> {% endif %}
-                    {% if patient.diagnosis.confirmed_dm %}<span class="badge bg-success">Diabetes</span> {% endif %}
-                    {% if patient.diagnosis.confirmed_cardiac %}<span class="badge bg-danger">Cardiac ({{ patient.diagnosis.get_confirmed_cardiac_type_display }})</span> {% endif %}
-                  </p>
-                  <p class="mb-0"><strong>Comments / Plan:</strong> {{ patient.diagnosis.comments|default:"None" }}</p>
-                </div>
-              </div>
-            {% endif %}
-
-          {% endif %}
-        </div>
-      </div>
+    <!-- Timeline / Encounter History (Middle Column) -->
+    <div class="col-md-6 col-sm-12">
       
-      <!-- New Encounters & Orders Section -->
-      <div class="card mb-3">
+      <!-- Detailed Clinical Timeline Card -->
+      <div class="card mb-3 shadow-sm border-light-subtle">
         <div class="card-header bg-light">
-          <h5 class="card-title">Encounters & Orders</h5>
+          <h5 class="card-title m-0">Detailed Clinical History</h5>
         </div>
         <div class="card-body">
           {% if patient.encounters.all %}
-            <div class="table-responsive">
-              <table class="table table-sm">
-                <thead>
-                  <tr>
-                  <th>Date</th>
-                  <th>Encounter Type</th>
-                  <th>Visit Nature</th>
-                  <th>Status</th>
-                  <th>Orders Fulfilled</th>
-                </tr>
-                </thead>
-                <tbody>
-                  {% for encounter in patient.encounters.all %}
-                  <tr>
-                    <td>{{ encounter.start_time|date:"Y-m-d H:i" }}</td>
-                    <td>
-                      <a href="{% url 'encounters:encounter_detail' encounter.pk %}" class="text-decoration-none fw-bold">
-                        {{ encounter.get_encounter_type_display }}
-                      </a>
-                    </td>
-                    <td>
+            <div class="timeline-container">
+              {% for encounter in patient.encounters.all|dictsortreversed:"start_time" %}
+                <div class="card border border-light-subtle shadow-sm mb-4">
+                  <!-- Card Header -->
+                  <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
+                    <div>
+                      <span class="fw-bold text-primary">{{ encounter.get_encounter_type_display }}</span>
+                      <span class="text-muted ms-2 small">{{ encounter.start_time|date:"Y-m-d H:i" }}</span>
+                    </div>
+                    <div>
                       {% if encounter.visit_nature == 'scheduled' %}
                         <span class="badge bg-success">Scheduled</span>
                       {% elif encounter.visit_nature == 'unscheduled' %}
                         <span class="badge bg-warning text-dark">Unscheduled</span>
-                      {% else %}
-                        <span class="text-muted">-</span>
                       {% endif %}
-                    </td>
-                    <td>
+                      
                       {% if encounter.status == 'finished' %}
-                        <span class="badge bg-success">Finished</span>
+                        <span class="badge bg-success-subtle text-success ms-1">Finished</span>
                       {% else %}
-                        <span class="badge bg-warning text-dark">{{ encounter.get_status_display }}</span>
+                        <span class="badge bg-warning-subtle text-dark ms-1">{{ encounter.get_status_display }}</span>
                       {% endif %}
-                    </td>
-                    <td>
-                      {% if encounter.orders.all %}
-                        <ul class="list-unstyled mb-0 small">
+                    </div>
+                  </div>
+                  
+                  <!-- Card Body -->
+                  <div class="card-body py-2 px-3">
+                    
+                    <!-- Clinical Forms Section -->
+                    {% if encounter.vitals or encounter.hospitalization or encounter.risk or encounter.socioeconomic or encounter.treatment %}
+                      <div class="mb-2">
+                        <h6 class="text-secondary fw-bold border-bottom pb-1 mb-2 small"><i class="ri-survey-line"></i> Completed Forms</h6>
+                        
+                        <!-- Vitals -->
+                        {% if encounter.vitals %}
+                          <div class="p-2 border rounded bg-light-subtle mb-2 small">
+                            <span class="badge bg-primary-subtle text-primary mb-1">Clinical Vitals</span>
+                            <div class="row g-2 text-dark">
+                              <div class="col-md-3"><strong>BP:</strong> {{ encounter.vitals.blood_pressure_systolic|default:"-" }}/{{ encounter.vitals.blood_pressure_diastolic|default:"-" }} mmHg</div>
+                              <div class="col-md-3"><strong>Heart Rate:</strong> {{ encounter.vitals.heart_rate|default:"-" }} bpm</div>
+                              <div class="col-md-3"><strong>SpO2:</strong> {{ encounter.vitals.oxygen_saturation|default:"-" }}%</div>
+                              <div class="col-md-3"><strong>Pain Score:</strong> {{ encounter.vitals.pain_score|default:"-" }}/10</div>
+                              {% if encounter.vitals.notes %}
+                                <div class="col-12 mt-1"><small class="text-muted"><strong>Notes:</strong> {{ encounter.vitals.notes }}</small></div>
+                              {% endif %}
+                            </div>
+                          </div>
+                        {% endif %}
+
+                        <!-- Hospitalization -->
+                        {% if encounter.hospitalization %}
+                          <div class="p-2 border rounded bg-light-subtle mb-2 small">
+                            <span class="badge bg-success-subtle text-success mb-1">Hospitalization, School & Home Management</span>
+                            <div class="row g-2 text-dark">
+                              <div class="col-md-6"><strong>Recent Hospitalization:</strong> {{ encounter.hospitalization.get_recent_hospitalizations_display }} ({{ encounter.hospitalization.num_hospitalizations_12m }} in last 12m)</div>
+                              <div class="col-md-6"><strong>For NCD:</strong> {{ encounter.hospitalization.get_for_ncd_display }} ({{ encounter.hospitalization.num_hospitalizations_ncd_12m }} in last 12m)</div>
+                              <div class="col-md-6"><strong>Missed School Days:</strong> {{ encounter.hospitalization.school_days_missed_last_month }} days</div>
+                              <div class="col-md-6"><strong>Transfusions (past month):</strong> {{ encounter.hospitalization.transfusions_past_month }} units</div>
+                              <div class="col-md-4"><strong>Malaria Proph:</strong> {{ encounter.hospitalization.get_taking_malaria_prophylaxis_display }}</div>
+                              <div class="col-md-4"><strong>Bed Net:</strong> {{ encounter.hospitalization.get_taking_insecticide_net_display }}</div>
+                              <div class="col-md-4"><strong>Folic Acid:</strong> {{ encounter.hospitalization.get_taking_folic_acid_display }}</div>
+                              <div class="col-md-4"><strong>Penicillin Proph:</strong> {{ encounter.hospitalization.get_taking_penicillin_prophylaxis_display }}</div>
+                              <div class="col-md-4"><strong>Pneumococcal:</strong> {{ encounter.hospitalization.get_pneumococcal_vaccination_up_to_date_display }}</div>
+                              <div class="col-md-4"><strong>Chronic Opioids:</strong> {{ encounter.hospitalization.get_on_chronic_opioid_therapy_display }}</div>
+                              <div class="col-md-12">
+                                <strong>Hydroxyurea:</strong> {{ encounter.hospitalization.get_on_hydroxyurea_display }}
+                                {% if encounter.hospitalization.on_hydroxyurea == 'yes' %}
+                                  (Started: {{ encounter.hospitalization.hydroxyurea_start_date|date:"Y-m-d" }}, Dose: {{ encounter.hospitalization.hydroxyurea_dose }})
+                                {% endif %}
+                              </div>
+                            </div>
+                          </div>
+                        {% endif %}
+
+                        <!-- Risk -->
+                        {% if encounter.risk %}
+                          <div class="p-2 border rounded bg-light-subtle mb-2 small">
+                            <span class="badge bg-danger-subtle text-danger mb-1">Risk Factors</span>
+                            <div class="row g-2 text-dark">
+                              <div class="col-md-4"><strong>Tobacco:</strong> {{ encounter.risk.get_tobacco_display }}</div>
+                              <div class="col-md-4"><strong>Alcohol:</strong> {{ encounter.risk.get_alcohol_display }}</div>
+                              <div class="col-md-4"><strong>Employment:</strong> {{ encounter.risk.get_employment_status_display }}</div>
+                              <div class="col-md-4"><strong>Limiting School:</strong> {{ encounter.risk.get_ncd_limiting_school_display }}</div>
+                              <div class="col-md-4"><strong>HIV Status:</strong> {{ encounter.risk.get_hiv_status_display }}</div>
+                              <div class="col-md-4"><strong>TB Screen:</strong> {{ encounter.risk.get_tb_status_display }} ({{ encounter.risk.tb_screening_date|date:"Y-m-d"|default:"No Date" }})</div>
+                            </div>
+                          </div>
+                        {% endif %}
+
+                        <!-- Socioeconomic -->
+                        {% if encounter.socioeconomic %}
+                          <div class="p-2 border rounded bg-light-subtle mb-2 small">
+                            <span class="badge bg-info-subtle text-info mb-1">Socioeconomic Factors</span>
+                            <div class="row g-2 text-dark">
+                              <div class="col-md-4"><strong>Education:</strong> {{ encounter.socioeconomic.get_education_level_display }}</div>
+                              <div class="col-md-4"><strong>Employment:</strong> {{ encounter.socioeconomic.get_employment_status_display }}</div>
+                              <div class="col-md-4"><strong>Monthly Income:</strong> {{ encounter.socioeconomic.monthly_income|default:"N/A" }}</div>
+                              <div class="col-md-6"><strong>Clean Water:</strong> {{ encounter.socioeconomic.access_clean_water|yesno:"Yes,No" }}</div>
+                              <div class="col-md-6"><strong>Health Insurance:</strong> {{ encounter.socioeconomic.has_health_insurance|yesno:"Yes,No" }}</div>
+                            </div>
+                          </div>
+                        {% endif %}
+
+                        <!-- Treatment -->
+                        {% if encounter.treatment %}
+                          <div class="p-2 border rounded bg-light-subtle mb-2 small">
+                            <span class="badge bg-warning-subtle text-dark mb-1">Treatment & Support Plan</span>
+                            <div class="row g-2 text-dark">
+                              <div class="col-md-6"><strong>Vaccination Needed:</strong> {{ encounter.treatment.get_vaccination_needed_display }} {% if encounter.treatment.vaccination_which %}({{ encounter.treatment.vaccination_which }}){% endif %}</div>
+                              <div class="col-md-6"><strong>Transfusion Needed:</strong> {{ encounter.treatment.get_transfusion_needed_display }} {% if encounter.treatment.transfusion_units %}({{ encounter.treatment.transfusion_units }} units){% endif %}</div>
+                              <div class="col-md-12">
+                                <strong>Education Topics:</strong> 
+                                Diet: {{ encounter.treatment.get_education_diet_display }}, 
+                                Hydration: {{ encounter.treatment.get_education_hydration_display }}, 
+                                Symptoms: {{ encounter.treatment.get_education_acute_symptoms_display }}, 
+                                Fever: {{ encounter.treatment.get_education_fever_display }}, 
+                                Lifestyle: {{ encounter.treatment.get_education_lifestyle_display }}, 
+                                Misconception: {{ encounter.treatment.get_education_misconception_display }}
+                              </div>
+                              <div class="col-md-6"><strong>Social Support:</strong> {{ encounter.treatment.get_social_support_provided_display }} {% if encounter.treatment.social_support_type %}({{ encounter.treatment.social_support_type }}){% endif %}</div>
+                              <div class="col-md-6"><strong>Other Support:</strong> {{ encounter.treatment.get_other_support_provided_display }} {% if encounter.treatment.other_support_specify %}({{ encounter.treatment.other_support_specify }}){% endif %}</div>
+                              <div class="col-md-12"><strong>Referrals:</strong> {{ encounter.treatment.get_referrals_provided_display }} {% if encounter.treatment.referrals_type %}({{ encounter.treatment.referrals_type }}){% endif %}</div>
+                              {% if encounter.treatment.notes %}
+                                <div class="col-12 mt-1"><small class="text-muted"><strong>Notes:</strong> {{ encounter.treatment.notes }}</small></div>
+                              {% endif %}
+                            </div>
+                          </div>
+                        {% endif %}
+                      </div>
+                    {% endif %}
+
+                    <!-- Prescriptions Section -->
+                    <div class="mb-2 mt-2">
+                      <h6 class="text-secondary fw-bold border-bottom pb-1 mb-2 small"><i class="ri-prescription-line"></i> Prescriptions</h6>
+                      <ul class="list-group list-group-flush mb-0 small">
                         {% for order in encounter.orders.all %}
-                          <li>
-                            - 
-                            {% if order.test %}
-                              {{ order.test.name }}
-                            {% elif order.medication %}
-                              {{ order.medication.name }}
-                            {% else %}
-                              Unknown Order
-                            {% endif %}
-                            <span class="text-muted">({{ order.get_order_type_display }})</span>
-                          </li>
+                          {% if order.order_type == 'pharmacy' %}
+                            <li class="list-group-item py-1 px-0 border-0 bg-transparent text-dark">
+                              <i class="ri-checkbox-blank-circle-fill text-success" style="font-size: 0.5rem; vertical-align: middle;"></i> 
+                              <strong>{{ order.medication.name }}</strong> 
+                              {% if order.dosage_instructions %}
+                                - <small class="text-muted">{{ order.dosage_instructions }}</small>
+                              {% endif %}
+                              <span class="badge bg-secondary-subtle text-secondary float-end">{{ order.get_status_display }}</span>
+                            </li>
+                          {% endif %}
+                        {% empty %}
+                          <li class="text-muted small">No medications prescribed.</li>
                         {% endfor %}
-                        </ul>
-                      {% else %}
-                        <span class="text-muted small">No orders</span>
-                      {% endif %}
-                    </td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
+                      </ul>
+                    </div>
+
+                    <!-- Diagnostics & Outcomes Section -->
+                    <div class="mb-1 mt-2">
+                      <h6 class="text-secondary fw-bold border-bottom pb-1 mb-2 small"><i class="ri-flask-line"></i> Diagnostics & Outcomes</h6>
+                      <ul class="list-group list-group-flush mb-0 small">
+                        {% for order in encounter.orders.all %}
+                          {% if order.order_type != 'pharmacy' %}
+                            <li class="list-group-item py-1 px-0 border-0 bg-transparent text-dark">
+                              <i class="ri-flask-line text-primary"></i> 
+                              <strong>{{ order.test.name }}</strong> 
+                              <span class="badge bg-secondary-subtle text-secondary">{{ order.get_order_type_display }}</span>
+                              
+                              <!-- Results -->
+                              <div class="mt-1 ps-3">
+                                {% for res in order.results.all %}
+                                  <div class="text-success fw-bold small">Result: {{ res.result_value }} <small class="text-muted">({{ res.performed_date|date:"Y-m-d" }})</small></div>
+                                {% empty %}
+                                  <span class="text-muted small">Status: {{ order.get_status_display }}</span>
+                                {% endfor %}
+                              </div>
+                            </li>
+                          {% endif %}
+                        {% empty %}
+                          <li class="text-muted small">No laboratory or diagnostic orders placed.</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="p-4 text-center text-muted">
+              <i class="ri-pulse-line fs-1 text-secondary"></i>
+              <p class="mt-2">No encounters recorded yet.</p>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+      
+    </div>
+
+    <!-- Encounters & Visits List Column (Right Column) -->
+    <div class="col-md-3 col-sm-12">
+      <div class="card mb-3 shadow-sm border-light-subtle">
+        <div class="card-header bg-light">
+          <h5 class="card-title m-0">Encounters & Visits</h5>
+        </div>
+        <div class="card-body p-0">
+          {% if patient.encounters.all %}
+            <div class="list-group list-group-flush" style="font-size: 0.85rem;">
+              {% for encounter in patient.encounters.all|dictsortreversed:"start_time" %}
+                <div class="list-group-item p-3">
+                  <div class="d-flex justify-content-between align-items-center mb-1">
+                    <span class="fw-bold text-dark">{{ encounter.start_time|date:"Y-m-d H:i" }}</span>
+                    {% if encounter.visit_nature == 'scheduled' %}
+                      <span class="badge bg-success-subtle text-success">Scheduled</span>
+                    {% elif encounter.visit_nature == 'unscheduled' %}
+                      <span class="badge bg-warning-subtle text-dark">Unscheduled</span>
+                    {% endif %}
+                  </div>
+                  <div class="d-flex justify-content-between align-items-center">
+                    <span class="text-primary fw-semibold">{{ encounter.get_encounter_type_display }}</span>
+                    <a href="{% url 'encounters:encounter_detail' encounter.pk %}" class="btn btn-xs btn-outline-primary py-0 px-2" style="font-size: 0.75rem;">
+                      Dashboard
+                    </a>
+                  </div>
+                </div>
+              {% endfor %}
             </div>
           {% else %}
             <div class="p-3 text-center text-muted small">
@@ -499,7 +539,7 @@
           {% endif %}
         </div>
       </div>
-      <!-- End Encounters & Orders Section -->
+    </div>
 
     </div>
   </div>

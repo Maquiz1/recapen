@@ -49,7 +49,7 @@
                 </div>
                 <div>
                   <!-- Check if it is the vitals form -->
-                  {% if form.code == 'vitals' %}
+                   {% if form.code|lower == 'vitals' or form.code|lower == 'vt' %}
                     {% if has_vitals %}
                       <span class="badge bg-success"><i class="ri-check-line"></i> Completed</span>
                     {% else %}
@@ -57,7 +57,7 @@
                         Fill Form
                       </a>
                     {% endif %}
-                  {% elif form.code == 'hospitalization' %}
+                  {% elif form.code|lower == 'hospitalization' or form.code|lower == 'hosp' %}
                     {% if has_hospitalization %}
                       <span class="badge bg-success"><i class="ri-check-line"></i> Completed</span>
                     {% else %}
@@ -65,7 +65,7 @@
                         Fill Form
                       </a>
                     {% endif %}
-                  {% elif form.code == 'risk' %}
+                  {% elif form.code|lower == 'risk' or form.code|lower == 'risks' %}
                     {% if has_risk %}
                       <span class="badge bg-success"><i class="ri-check-line"></i> Completed</span>
                     {% else %}
@@ -73,7 +73,7 @@
                         Fill Form
                       </a>
                     {% endif %}
-                  {% elif form.code == 'socioeconomic' %}
+                  {% elif form.code|lower == 'socioeconomic' or form.code|lower == 'se' %}
                     {% if has_socioeconomic %}
                       <span class="badge bg-success"><i class="ri-check-line"></i> Completed</span>
                     {% else %}
@@ -81,7 +81,7 @@
                         Fill Form
                       </a>
                     {% endif %}
-                  {% elif form.code == 'treatment' %}
+                  {% elif form.code|lower == 'treatment' or form.code|lower == 'tx' %}
                     {% if has_treatment %}
                       <span class="badge bg-success"><i class="ri-check-line"></i> Completed</span>
                     {% else %}
