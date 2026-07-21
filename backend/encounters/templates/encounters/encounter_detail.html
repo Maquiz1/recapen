@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Encounter Dashboard{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'patients:patient_profile' patient.pk %}" class="btn btn-outline-primary">
+  <i class="ri-arrow-left-line"></i> Back to Patient
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row gx-3">
+    <!-- Patient Info -->
+    <div class="col-md-4">
+      <div class="card mb-3">
+        <div class="card-header bg-light">
+          <h5 class="card-title m-0">Encounter Info</h5>
+        </div>
+        <div class="card-body">
+          <p class="mb-1"><strong>Patient:</strong> {{ patient.first_name }} {{ patient.last_name }}</p>
+          <p class="mb-1"><strong>Type:</strong> {{ encounter.get_encounter_type_display }}</p>
+          <p class="mb-1">
+            <strong>Nature:</strong> 
+            {% if encounter.visit_nature == 'scheduled' %}
+              <span class="badge bg-success">Scheduled</span>
+            {% else %}
+              <span class="badge bg-warning text-dark">Unscheduled</span>
+            {% endif %}
+          </p>
+          <p class="mb-0"><strong>Status:</strong> {{ encounter.get_status_display }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Required Forms -->
+    <div class="col-md-8">
+      <div class="card mb-3">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="card-title m-0">Required Study Forms</h5>
+        </div>
+        <div class="card-body p-0">
+          <ul class="list-group list-group-flush">
+            {% for form in required_forms %}
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 class="mb-0">{{ form.name }}</h6>
+                  <small class="text-muted">{{ form.description|default:"No description" }}</small>
+                </div>
+                <div>
+                  <!-- Check if it is the scd_vitals form -->
+                  {% if form.code == 'scd_vitals' %}
+                    {% if hasattr encounter 'scd_vitals' %}
+                      <span class="badge bg-success"><i class="ri-check-line"></i> Completed</span>
+                    {% else %}
+                      <a href="{% url 'clinical:fill_form' encounter.pk form.code %}" class="btn btn-sm btn-primary">
+                        Fill Form
+                      </a>
+                    {% endif %}
+                  {% else %}
+                    <button class="btn btn-sm btn-outline-secondary" disabled>Not Implemented</button>
+                  {% endif %}
+                </div>
+              </li>
+            {% empty %}
+              <li class="list-group-item text-center text-muted p-4">
+                No specific study forms are required for this visit based on the current configuration.
+              </li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
