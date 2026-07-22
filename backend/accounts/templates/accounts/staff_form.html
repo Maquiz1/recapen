@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="app-hero-header d-flex align-items-center">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'admin' %}">
+        <i class="ri-home-3-line"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item">
+      <a href="{% url 'accounts:staff_list' %}">Staff</a>
+    </li>
+    <li class="breadcrumb-item text-primary" aria-current="page">{{ title }}</li>
+  </ol>
+</div>
+
+<div class="app-body">
+  <div class="row gx-3">
+    <div class="col-sm-12">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">{{ title }}</h5>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            <div class="row gx-3">
+              <div class="col-sm-12">
+                <div class="bg-light rounded-2 px-3 py-2 mb-3">
+                  <h6 class="m-0">Account Details</h6>
+                </div>
+              </div>
+              
+              <!-- Non-field errors -->
+              {% if form.non_field_errors %}
+              <div class="col-sm-12">
+                <div class="alert alert-danger">
+                  {% for error in form.non_field_errors %}
+                    {{ error }}
+                  {% endfor %}
+                </div>
+              </div>
+              {% endif %}
+
+              {% for field in form %}
+              <div class="col-xxl-3 col-lg-4 col-sm-6">
+                <div class="mb-3">
+                  <label class="form-label" for="{{ field.id_for_label }}">
+                    {{ field.label }} 
+                    {% if field.field.required %}<span class="text-danger">*</span>{% endif %}
+                  </label>
+                  {{ field }}
+                  {% if field.errors %}
+                    <div class="text-danger small mt-1">
+                      {% for error in field.errors %}
+                        {{ error }}
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+              {% endfor %}
+
+              <div class="col-sm-12">
+                <div class="d-flex gap-2 justify-content-end">
+                  <a href="{% url 'accounts:staff_list' %}" class="btn btn-outline-secondary">
+                    Cancel
+                  </a>
+                  <button type="submit" class="btn btn-primary">
+                    {% if staff %}Update Details{% else %}Add Staff Member{% endif %}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

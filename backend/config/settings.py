@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'audit',
     'study_config',
     'clinical',
+    'departments',
 ]
 
 MIDDLEWARE = [
@@ -156,3 +157,9 @@ MEDIA_ROOT = BASE_DIR / 'media'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
+LOGIN_REDIRECT_URL = 'login_redirect'
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'login'
+
+if DEBUG:
+    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

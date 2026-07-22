@@ -27,9 +27,13 @@
 
           <!-- Sidebar profile starts -->
           <div class="sidebar-profile">
-            <img src="{% static 'assets/images/doctor6.png' %}" class="rounded-5" alt="Hospital Admin Templates">
-            <h6 class="mb-1 profile-name text-nowrap text-truncate text-primary">Ema Wilson</h6>
-            <small class="profile-name text-nowrap text-truncate">Department Admin</small>
+            <img src="{% static 'assets/images/doctor6.png' %}" class="rounded-5" alt="Profile Image">
+            <h6 class="mb-1 profile-name text-nowrap text-truncate text-primary">
+              {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}
+            </h6>
+            <small class="profile-name text-nowrap text-truncate">
+              {% if request.user.is_superuser %}Super Admin{% elif request.user.role_type %}{{ request.user.get_role_type_display }}{% else %}Staff{% endif %}
+            </small>
           </div>
           <!-- Sidebar profile ends -->
 
@@ -59,6 +63,20 @@
                   <i class="ri-calendar-2-line"></i>
                   <span class="menu-text">Appointments</span>
                 </a>
+              </li>
+              <li class="treeview">
+                <a href="#!">
+                  <i class="ri-nurse-line"></i>
+                  <span class="menu-text">Staff</span>
+                </a>
+                <ul class="treeview-menu">
+                  <li>
+                    <a href="{% url 'accounts:staff_list' %}">Staff List</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'accounts:staff_create' %}">Add Staff</a>
+                  </li>
+                </ul>
               </li>
               <li class="treeview">
                 <a href="#!">
@@ -184,23 +202,7 @@
                   </li>
                 </ul>
               </li>
-              <li class="treeview">
-                <a href="#!">
-                  <i class="ri-nurse-line"></i>
-                  <span class="menu-text">Staff</span>
-                </a>
-                <ul class="treeview-menu">
-                  <li>
-                    <a href="staff.html">Staff List</a>
-                  </li>
-                  <li>
-                    <a href="add-staff.html">Add Staff</a>
-                  </li>
-                  <li>
-                    <a href="edit-staff.html">Edit Staff Details</a>
-                  </li>
-                </ul>
-              </li>
+
               <li class="treeview">
                 <a href="#!">
                   <i class="ri-dossier-line"></i>
@@ -208,19 +210,13 @@
                 </a>
                 <ul class="treeview-menu">
                   <li>
-                    <a href="appointments.html">Appointments</a>
+                    <a href="{% url 'appointments:dashboard' %}">Appointments Dashboard</a>
                   </li>
                   <li>
-                    <a href="appointments-list.html">Appointments List</a>
+                    <a href="{% url 'appointments:list' %}">Appointments List</a>
                   </li>
                   <li>
-                    <a href="book-appointment.html">Book Appointment</a>
-                  </li>
-                  <li>
-                    <a href="appointment-success.html">Appointment Success</a>
-                  </li>
-                  <li>
-                    <a href="edit-appointment.html">Edit Appointment</a>
+                    <a href="{% url 'appointments:book' %}">Book Appointment</a>
                   </li>
                 </ul>
               </li>
@@ -231,13 +227,10 @@
                 </a>
                 <ul class="treeview-menu">
                   <li>
-                    <a href="departments-list.html">Departments List</a>
+                    <a href="{% url 'departments:list' %}">Departments List</a>
                   </li>
                   <li>
-                    <a href="add-department.html">Add Department</a>
-                  </li>
-                  <li>
-                    <a href="edit-department.html">Edit Department</a>
+                    <a href="{% url 'departments:create' %}">Add Department</a>
                   </li>
                 </ul>
               </li>

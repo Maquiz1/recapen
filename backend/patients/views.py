@@ -214,15 +214,23 @@ def patient_enrollment(request, pk):
 
 def patient_profile(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
+    pending_orders = patient.orders.filter(status='pending')
+    pending_orders_exist = pending_orders.exists()
     return render(request, 'patients/patient_profile.html', {
-        'patient': patient
+        'patient': patient,
+        'pending_orders': pending_orders,
+        'pending_orders_exist': pending_orders_exist,
     })
 
 def patient_dashboard(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
+    pending_orders = patient.orders.filter(status='pending')
+    pending_orders_exist = pending_orders.exists()
     return render(request, 'patients/patient_profile.html', {
         'patient': patient,
-        'is_dashboard': True
+        'is_dashboard': True,
+        'pending_orders': pending_orders,
+        'pending_orders_exist': pending_orders_exist,
     })
 
 def patient_edit(request, pk):

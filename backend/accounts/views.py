@@ -79,3 +79,62 @@ def doctor_dashboard_redirect(request):
         return redirect('accounts:dashboard', pk=first_doctor.pk)
     messages.warning(request, "No doctors registered yet. Please add a doctor first.")
     return redirect('accounts:grid')
+
+from django.contrib.admin.views.decorators import staff_member_required
+from .forms import StaffSignupForm
+
+@staff_member_required
+def register_staff(request):
+    if request.method == 'POST':
+        form = StaffSignupForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_staff = True
+            user.save()
+            messages.success(request, f"Staff account for {user.username} created successfully.")
+            return redirect('admin')
+    else:
+        form = StaffSignupForm()
+    return render(request, 'registration/signup.html', {'form': form})
+
+from .forms import StaffCreationForm, StaffEditForm
+
+@staff_member_required
+def staff_list(request):
+    staff_members = CustomUser.objects.filter(is_active=True).order_by('last_name', 'first_name')
+    return render(request, 'accounts/staff_list.html', {'staff_members': staff_members})
+
+@staff_member_required
+def staff_create(request):
+    if request.method == 'POST':
+        form = StaffCreationForm(request.POST)
+        if form.is_valid():
+            staff = form.save()
+            messages.success(request, f"Staff '{staff.username}' added successfully.")
+            return redirect('accounts:staff_list')
+    else:
+        form = StaffCreationForm()
+    return render(request, 'accounts/staff_form.html', {'form': form, 'title': 'Add Staff Member'})
+
+@staff_member_required
+def staff_edit(request, pk):
+    staff = get_object_or_404(CustomUser, pk=pk)
+    if request.method == 'POST':
+        form = StaffEditForm(request.POST, instance=staff)
+        if form.is_valid():
+            staff = form.save()
+            messages.success(request, f"Staff '{staff.username}' details updated.")
+            return redirect('accounts:staff_list')
+    else:
+        form = StaffEditForm(instance=staff)
+    return render(request, 'accounts/staff_form.html', {'form': form, 'title': 'Edit Staff Member', 'staff': staff})
+
+@staff_member_required
+def staff_deactivate(request, pk):
+    staff = get_object_or_404(CustomUser, pk=pk)
+    if request.method == 'POST':
+        staff.is_active = False
+        staff.save()
+        messages.success(request, f"Staff member '{staff.username}' has been deactivated.")
+    return redirect('accounts:staff_list')
+

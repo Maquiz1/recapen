@@ -185,21 +185,43 @@
                   <small class="text-muted small">Locked until screened</small>
                 </div>
               {% else %}
-                <div class="icon-box sm bg-info text-white rounded-circle"><i class="ri-flask-line"></i></div>
-                <div>
-                  <h6 class="mb-0 fw-semibold">3. Orders Fulfillment</h6>
-                  <small class="text-muted">Awaiting departmental fulfillment</small>
-                </div>
+                {% if pending_orders_exist %}
+                  <div class="icon-box sm bg-info text-white rounded-circle"><i class="ri-flask-line"></i></div>
+                  <div class="w-100">
+                    <h6 class="mb-0 fw-semibold">3. Orders Fulfillment</h6>
+                    <small class="text-muted d-block mb-1">Awaiting lab fulfillment:</small>
+                    <div class="pe-2">
+                      {% for order in pending_orders %}
+                        <div class="d-flex justify-content-between align-items-center mb-1 bg-light p-1 rounded border" style="font-size: 0.75rem;">
+                          <span class="text-dark text-truncate" style="max-width: 110px;" title="{{ order.test.name }}">{{ order.test.name }}</span>
+                          <a href="{% url 'laboratory:fulfill_order' order.pk %}" class="btn btn-outline-primary py-0 px-1 fw-semibold" style="font-size: 0.7rem;">Fulfill</a>
+                        </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                {% else %}
+                  <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
+                  <div>
+                    <h6 class="mb-0 fw-semibold">3. Orders Fulfillment</h6>
+                    <small class="text-success small fw-semibold"><i class="ri-checkbox-circle-fill"></i> Labs completed</small>
+                  </div>
+                {% endif %}
               {% endif %}
             </div>
 
             <!-- Step 4 -->
             <div class="d-flex align-items-start gap-2 border-bottom pb-2">
-              {% if patient.status == 'registered' or patient.status == 'screened' %}
+              {% if patient.status == 'registered' or not patient.screening %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
                   <h6 class="mb-0 text-muted">4. Clinical Evaluation</h6>
-                  <small class="text-muted">Locked until labs submitted</small>
+                  <small class="text-muted">Locked until screened</small>
+                </div>
+              {% elif pending_orders_exist %}
+                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
+                <div>
+                  <h6 class="mb-0 text-muted">4. Clinical Evaluation</h6>
+                  <small class="text-muted">Locked: awaiting lab results</small>
                 </div>
               {% elif patient.diagnosis %}
                 <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
@@ -208,10 +230,10 @@
                   <small class="text-muted">Diagnoses confirmed</small>
                 </div>
               {% else %}
-                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-checkbox-blank-circle-line"></i></div>
+                <div class="icon-box sm bg-primary text-white rounded-circle"><i class="ri-stethoscope-line"></i></div>
                 <div>
-                  <h6 class="mb-0 text-muted">4. Clinical Evaluation</h6>
-                  <a href="{% url 'patients:diagnosis' patient.pk %}" class="btn btn-xs btn-primary mt-1">Consultation</a>
+                  <h6 class="mb-0 fw-semibold">4. Clinical Evaluation</h6>
+                  <a href="{% url 'patients:diagnosis' patient.pk %}" class="btn btn-xs btn-primary mt-1 fw-semibold">Consultation</a>
                 </div>
               {% endif %}
             </div>

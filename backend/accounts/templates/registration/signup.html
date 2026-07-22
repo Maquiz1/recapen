@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register Staff - Hospital Admin</title>
+
+    <link rel="shortcut icon" href="{% static 'assets/images/favicon.svg' %}">
+
+    <link rel="stylesheet" href="{% static 'assets/fonts/remix/remixicon.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/main.min.css' %}">
+</head>
+
+<body class="login-bg">
+    <!-- Container starts -->
+    <div class="container">
+      <!-- Auth wrapper starts -->
+      <div class="auth-wrapper">
+        <!-- Form starts -->
+        <form method="post" action="{% url 'accounts:register_staff' %}">
+          {% csrf_token %}
+          <div class="auth-box">
+            <div class="auth-logo mb-4 d-flex justify-content-center">
+              <a href="{% url 'admin' %}" class="d-flex align-items-center text-decoration-none">
+                <div class="d-flex align-items-center justify-content-center bg-primary text-white rounded" style="width: 35px; height: 35px; font-weight: bold; font-size: 20px;">
+                  R
+                </div>
+                <h4 class="mb-0 ms-2 text-primary" style="font-weight: 700; letter-spacing: 1px; line-height: 1;">RECAPEN</h4>
+              </a>
+            </div>
+
+            <h4 class="mb-4">Register New Staff</h4>
+
+            {% if form.errors %}
+              <div class="alert alert-danger p-2 mb-3">
+                <small>Please correct the errors below.</small>
+                <ul class="mb-0">
+                  {% for field in form %}
+                    {% for error in field.errors %}
+                      <li>{{ field.label }}: {{ error }}</li>
+                    {% endfor %}
+                  {% endfor %}
+                  {% for error in form.non_field_errors %}
+                    <li>{{ error }}</li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+
+            <div class="mb-3">
+              <label class="form-label" for="id_username">Username <span class="text-danger">*</span></label>
+              <input type="text" id="id_username" name="username" class="form-control" placeholder="Enter username" value="{{ form.username.value|default:'' }}" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="id_first_name">First Name</label>
+              <input type="text" id="id_first_name" name="first_name" class="form-control" placeholder="Enter first name" value="{{ form.first_name.value|default:'' }}">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="id_last_name">Last Name</label>
+              <input type="text" id="id_last_name" name="last_name" class="form-control" placeholder="Enter last name" value="{{ form.last_name.value|default:'' }}">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="id_email">Email</label>
+              <input type="email" id="id_email" name="email" class="form-control" placeholder="Enter email" value="{{ form.email.value|default:'' }}">
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="id_password1">Password <span class="text-danger">*</span></label>
+              <input type="password" id="id_password1" name="password1" class="form-control" placeholder="Enter password" required>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label" for="id_password2">Confirm Password <span class="text-danger">*</span></label>
+              <input type="password" id="id_password2" name="password2" class="form-control" placeholder="Confirm password" required>
+            </div>
+
+            <div class="mb-3 d-grid gap-2">
+              <button type="submit" class="btn btn-primary">Register Staff</button>
+              <a href="{% url 'admin' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+
+          </div>
+        </form>
+        <!-- Form ends -->
+      </div>
+      <!-- Auth wrapper ends -->
+    </div>
+    <!-- Container ends -->
+</body>
+</html>

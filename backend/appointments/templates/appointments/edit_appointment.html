@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- App body starts -->
+<div class="app-body">
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="card-title">Edit Appointment</h5>
+          </div>
+          <div class="card-body">
+            <form method="post">
+              {% csrf_token %}
+              <div class="row gx-3">
+                <div class="col-lg-4 col-sm-6">
+                  <div class="mb-3">
+                    <label class="form-label" for="id_patient">Patient <span class="text-danger">*</span></label>
+                    {{ form.patient }}
+                    {% if form.patient.errors %}
+                      <div class="text-danger small mt-1">{{ form.patient.errors }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                  <div class="mb-3">
+                    <label class="form-label" for="id_doctor">Doctor</label>
+                    {{ form.doctor }}
+                    {% if form.doctor.errors %}
+                      <div class="text-danger small mt-1">{{ form.doctor.errors }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                  <div class="mb-3">
+                    <label class="form-label" for="id_scheduled_time">Scheduled Time <span class="text-danger">*</span></label>
+                    {{ form.scheduled_time }}
+                    {% if form.scheduled_time.errors %}
+                      <div class="text-danger small mt-1">{{ form.scheduled_time.errors }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                  <div class="mb-3">
+                    <label class="form-label" for="id_status">Status</label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                      <div class="text-danger small mt-1">{{ form.status.errors }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+                <div class="col-sm-12">
+                  <div class="mb-3">
+                    <label class="form-label" for="id_reason">Problem / Reason</label>
+                    {{ form.reason }}
+                    {% if form.reason.errors %}
+                      <div class="text-danger small mt-1">{{ form.reason.errors }}</div>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex gap-2 justify-content-end mt-4">
+                <a href="{% url 'appointments:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                <button type="submit" class="btn btn-primary">Update Appointment</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- App body ends -->
+{% endblock %}

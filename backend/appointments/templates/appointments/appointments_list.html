@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- App body starts -->
+<div class="app-body">
+  <!-- Container starts -->
+  <div class="container-fluid">
+    <!-- Row starts -->
+    <div class="row">
+      <div class="col-sm-12">
+        <div class="card">
+          <div class="card-header d-flex align-items-center justify-content-between">
+            <h5 class="card-title">Appointments List</h5>
+            <a href="{% url 'appointments:book' %}" class="btn btn-primary ms-auto">Book Appointment</a>
+          </div>
+          <div class="card-body">
+            <!-- Table starts -->
+            <div class="table-responsive">
+              <table id="basicExample" class="table m-0 align-middle">
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>Patient Name</th>
+                    <th>Doctor Name</th>
+                    <th>Date & Time</th>
+                    <th>Problem/Reason</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for appointment in appointments %}
+                  <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ appointment.patient.first_name }} {{ appointment.patient.last_name }}</td>
+                    <td>
+                      {% if appointment.doctor %}
+                        {{ appointment.doctor.get_full_name|default:appointment.doctor.username }}
+                      {% else %}
+                        -
+                      {% endif %}
+                    </td>
+                    <td>{{ appointment.scheduled_time|date:"Y-m-d H:i" }}</td>
+                    <td>{{ appointment.reason|truncatechars:30 }}</td>
+                    <td>
+                      {% if appointment.status == 'scheduled' %}
+                        <span class="badge bg-primary">Scheduled</span>
+                      {% elif appointment.status == 'arrived' %}
+                        <span class="badge bg-success">Arrived</span>
+                      {% elif appointment.status == 'cancelled' %}
+                        <span class="badge bg-danger">Cancelled</span>
+                      {% else %}
+                        <span class="badge bg-secondary">{{ appointment.get_status_display }}</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      <div class="d-inline-flex gap-1">
+                        <a href="{% url 'appointments:edit' appointment.pk %}" class="btn btn-outline-success btn-sm rounded-5" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Appointment">
+                          <i class="ri-edit-box-line"></i>
+                        </a>
+                        {% if appointment.status == 'scheduled' %}
+                        <form method="post" action="{% url 'appointments:check_in' appointment.pk %}" class="d-inline">
+                          {% csrf_token %}
+                          <button type="submit" class="btn btn-outline-primary btn-sm rounded-5" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Check-In Patient">
+                            <i class="ri-check-line"></i>
+                          </button>
+                        </form>
+                        {% endif %}
+                      </div>
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="7" class="text-center">No appointments found.</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <!-- Table ends -->
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Row ends -->
+  </div>
+  <!-- Container ends -->
+</div>
+<!-- App body ends -->
+{% endblock %}

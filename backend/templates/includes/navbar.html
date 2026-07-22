@@ -359,11 +359,18 @@
                 </a>
                 <div class="dropdown-menu dropdown-menu-end shadow-lg">
                   <div class="px-3 py-2">
-                    <span class="small">Admin</span>
-                    <h6 class="m-0">Max Goodwin</h6>
+                    <span class="small">
+                      {% if request.user.is_superuser %}Super Admin{% elif request.user.role_type %}{{ request.user.get_role_type_display }}{% else %}Staff{% endif %}
+                    </span>
+                    <h6 class="m-0">
+                      {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}
+                    </h6>
                   </div>
                   <div class="mx-3 my-2 d-grid">
-                    <a href="login.html" class="btn btn-danger">Logout</a>
+                    <form method="post" action="{% url 'logout' %}">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-danger w-100">Logout</button>
+                    </form>
                   </div>
                 </div>
               </div>

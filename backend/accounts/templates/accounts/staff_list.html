@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Staff List{% endblock %}
+
+{% block content %}
+<div class="app-hero-header d-flex align-items-center">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item">
+      <a href="{% url 'admin' %}">
+        <i class="ri-home-3-line"></i>
+      </a>
+    </li>
+    <li class="breadcrumb-item">Staff</li>
+    <li class="breadcrumb-item text-primary" aria-current="page">Staff List</li>
+  </ol>
+</div>
+
+<div class="app-body">
+  <div class="row gx-3">
+    <div class="col-sm-12">
+      {% if messages %}
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      {% endif %}
+      <div class="card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <h5 class="card-title">Staff List</h5>
+          <a href="{% url 'accounts:staff_create' %}" class="btn btn-primary ms-auto">Add Staff Member</a>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table id="scrollVertical" class="table m-0 align-middle">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Mobile</th>
+                  <th>Email</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for staff in staff_members %}
+                <tr>
+                  <td>{{ forloop.counter|stringformat:"03d" }}</td>
+                  <td>
+                    <img src="{% static 'assets/images/doctor.png' %}" class="img-2x rounded-5 me-1" alt="Staff">
+                    {{ staff.get_full_name|default:staff.username }}
+                  </td>
+                  <td>{{ staff.get_role_type_display|default:"Staff" }}</td>
+                  <td>{{ staff.phone_number|default:"-" }}</td>
+                  <td>{{ staff.email }}</td>
+                  <td>
+                    <div class="d-inline-flex gap-1">
+                      <a href="{% url 'accounts:staff_edit' staff.pk %}" class="btn btn-outline-success btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Staff Member">
+                        <i class="ri-edit-box-line"></i>
+                      </a>
+                      <button type="button" class="btn btn-outline-danger btn-sm" data-bs-toggle="modal" data-bs-target="#delRow{{ staff.pk }}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Deactivate Staff Member">
+                        <i class="ri-delete-bin-line"></i>
+                      </button>
+
+                      <!-- Modal Delete Row -->
+                      <div class="modal fade" id="delRow{{ staff.pk }}" tabindex="-1" aria-labelledby="delRowLabel{{ staff.pk }}" aria-hidden="true">
+                        <div class="modal-dialog modal-sm">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="delRowLabel{{ staff.pk }}">
+                                Confirm Deactivation
+                              </h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body text-start">
+                              Are you sure you want to deactivate {{ staff.get_full_name|default:staff.username }}?
+                            </div>
+                            <div class="modal-footer">
+                              <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">No</button>
+                                <form method="post" action="{% url 'accounts:staff_deactivate' staff.pk %}">
+                                  {% csrf_token %}
+                                  <button type="submit" class="btn btn-danger">Yes, Deactivate</button>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="6" class="text-center">No staff members found.</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

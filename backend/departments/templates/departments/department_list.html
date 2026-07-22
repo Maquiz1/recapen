@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- App body starts -->
+<div class="app-body">
+    <!-- Container starts -->
+    <div class="container-fluid">
+        <!-- Row starts -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center justify-content-between">
+                        <h5 class="card-title">Department List</h5>
+                        <a href="{% url 'departments:create' %}" class="btn btn-primary ms-auto">Add Department</a>
+                    </div>
+                    <div class="card-body">
+                        <!-- Table starts -->
+                        <div class="table-responsive">
+                            <table id="basicExample" class="table m-0 align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Department Name</th>
+                                        <th>Department Head</th>
+                                        <th>Email</th>
+                                        <th>Phone Number</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for dept in departments %}
+                                    <tr>
+                                        <td>{{ forloop.counter }}</td>
+                                        <td>{{ dept.name }}</td>
+                                        <td>
+                                            <img src="{% static 'assets/images/doctor.png' %}" class="img-2x rounded-5 me-1" alt="Head">
+                                            {{ dept.head|default:"-" }}
+                                        </td>
+                                        <td>{{ dept.email|default:"-" }}</td>
+                                        <td>{{ dept.phone_number|default:"-" }}</td>
+                                        <td>
+                                            {% if dept.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                            {% else %}
+                                            <span class="badge bg-danger">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <div class="d-inline-flex gap-1">
+                                                <a href="{% url 'departments:edit' dept.pk %}" class="btn btn-outline-success btn-sm rounded-5" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Edit Department">
+                                                    <i class="ri-edit-box-line"></i>
+                                                </a>
+                                                {% if dept.is_active %}
+                                                <button type="button" class="btn btn-outline-danger btn-sm rounded-5" data-bs-toggle="modal" data-bs-target="#delRow{{ dept.pk }}" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Deactivate Department">
+                                                    <i class="ri-delete-bin-line"></i>
+                                                </button>
+                                                {% endif %}
+                                                <!-- Modal Delete Row -->
+                                                <div class="modal fade" id="delRow{{ dept.pk }}" tabindex="-1" aria-labelledby="delRowLabel{{ dept.pk }}" aria-hidden="true">
+                                                    <div class="modal-dialog modal-sm">
+                                                        <div class="modal-content">
+                                                            <div class="modal-header">
+                                                                <h5 class="modal-title" id="delRowLabel{{ dept.pk }}">
+                                                                    Confirm Deactivation
+                                                                </h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <div class="modal-body text-start">
+                                                                Are you sure you want to deactivate {{ dept.name }}?
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <div class="d-flex justify-content-end gap-2">
+                                                                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">No</button>
+                                                                    <form method="post" action="{% url 'departments:deactivate' dept.pk %}">
+                                                                        {% csrf_token %}
+                                                                        <button type="submit" class="btn btn-danger">Yes, Deactivate</button>
+                                                                    </form>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="7" class="text-center">No departments found.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <!-- Table ends -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Row ends -->
+    </div>
+    <!-- Container ends -->
+</div>
+<!-- App body ends -->
+{% endblock %}

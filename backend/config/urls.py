@@ -19,8 +19,11 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 
+from core.views import login_redirect
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('login-redirect/', login_redirect, name='login_redirect'),
+    path('django-admin/', admin.site.urls),
     path('', include('dashboards.urls')),
     path('patients/', include('patients.urls')),
     path('laboratory/', include('laboratory.urls')),
@@ -35,7 +38,9 @@ urlpatterns = [
     path('audit/', include('audit.urls')),
     path('study-config/', include('study_config.urls')),
     path('clinical/', include('clinical.urls')),
+    path('departments/', include('departments.urls')),
     path('accounts/', include('accounts.urls')),
+    path('accounts/', include('django.contrib.auth.urls')),
 ]
 
 if settings.DEBUG:

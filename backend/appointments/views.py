@@ -1,38 +1,74 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.utils import timezone
+from django.urls import reverse
 from .models import Appointment
 from .forms import AppointmentForm
 from patients.models import Patient
 from encounters.models import Encounter
 
-def daily_calendar(request):
-    # Default to today
-    today = timezone.now().date()
-    # In a real app, you might filter by the requested date via query params.
-    appointments = Appointment.objects.filter(scheduled_time__date=today).select_related('patient', 'doctor')
-    return render(request, 'appointments/calendar.html', {'appointments': appointments, 'date': today})
+def appointment_dashboard(request):
+    """
+    Renders the dashboard/calendar overview of appointments.
+    """
+    appointments = Appointment.objects.all().select_related('patient', 'doctor').order_by('scheduled_time')
+    return render(request, 'appointments/appointments_dashboard.html', {'appointments': appointments})
 
-def book_appointment(request, patient_id):
-    patient = get_object_or_404(Patient, pk=patient_id, is_deleted=False)
-    
+def appointment_list(request):
+    """
+    Renders a tabular list of all appointments.
+    """
+    appointments = Appointment.objects.all().select_related('patient', 'doctor').order_by('-scheduled_time')
+    return render(request, 'appointments/appointments_list.html', {'appointments': appointments})
+
+def book_appointment(request):
+    """
+    Allows staff to book a new appointment.
+    """
     if request.method == 'POST':
         form = AppointmentForm(request.POST)
         if form.is_valid():
             appointment = form.save(commit=False)
-            appointment.patient = patient
             if request.user.is_authenticated:
                 appointment.created_by = request.user
                 appointment.updated_by = request.user
             appointment.save()
             messages.success(request, "Appointment scheduled successfully.")
-            return redirect('patients:profile', pk=patient.pk)
+            return redirect('appointments:success')
     else:
         form = AppointmentForm()
         
-    return render(request, 'appointments/book.html', {'form': form, 'patient': patient})
+    return render(request, 'appointments/book_appointment.html', {'form': form})
+
+def appointment_success(request):
+    """
+    Shows a success page after booking an appointment.
+    """
+    return render(request, 'appointments/appointment_success.html')
+
+def edit_appointment(request, pk):
+    """
+    Edit an existing appointment.
+    """
+    appointment = get_object_or_404(Appointment, pk=pk)
+    if request.method == 'POST':
+        form = AppointmentForm(request.POST, instance=appointment)
+        if form.is_valid():
+            appointment = form.save(commit=False)
+            if request.user.is_authenticated:
+                appointment.updated_by = request.user
+            appointment.save()
+            messages.success(request, "Appointment updated successfully.")
+            return redirect('appointments:list')
+    else:
+        form = AppointmentForm(instance=appointment)
+        
+    return render(request, 'appointments/edit_appointment.html', {'form': form, 'appointment': appointment})
 
 def check_in(request, pk):
+    """
+    Check-in an existing appointment and auto-generate an encounter.
+    """
     appointment = get_object_or_404(Appointment, pk=pk)
     
     if request.method == 'POST':
@@ -53,7 +89,7 @@ def check_in(request, pk):
             appointment.save()
             
             messages.success(request, f"{appointment.patient} has been checked in. An encounter was automatically created.")
-        return redirect('appointments:calendar')
+        return redirect('appointments:dashboard')
     
     # Should not GET this view, redirect back
-    return redirect('appointments:calendar')
+    return redirect('appointments:dashboard')

@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login - Hospital Admin</title>
+
+    <link rel="shortcut icon" href="{% static 'assets/images/favicon.svg' %}">
+
+    <link rel="stylesheet" href="{% static 'assets/fonts/remix/remixicon.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/main.min.css' %}">
+</head>
+
+<body class="login-bg">
+    <!-- Container starts -->
+    <div class="container">
+      <!-- Auth wrapper starts -->
+      <div class="auth-wrapper">
+        <!-- Form starts -->
+        <form method="post" action="{% url 'login' %}">
+          {% csrf_token %}
+          <div class="auth-box">
+            <div class="auth-logo mb-4 d-flex justify-content-center">
+              <a href="#" class="d-flex align-items-center text-decoration-none">
+                <div class="d-flex align-items-center justify-content-center bg-primary text-white rounded" style="width: 35px; height: 35px; font-weight: bold; font-size: 20px;">
+                  R
+                </div>
+                <h4 class="mb-0 ms-2 text-primary" style="font-weight: 700; letter-spacing: 1px; line-height: 1;">RECAPEN</h4>
+              </a>
+            </div>
+
+            <h4 class="mb-4">Login</h4>
+
+            {% if form.errors %}
+              <div class="alert alert-danger p-2 mb-3">
+                <small>Your username and password didn't match. Please try again.</small>
+              </div>
+            {% endif %}
+
+            <div class="mb-3">
+              <label class="form-label" for="username">Your username <span class="text-danger">*</span></label>
+              <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required autofocus>
+            </div>
+
+            <div class="mb-2">
+              <label class="form-label" for="pwd">Your password <span class="text-danger">*</span></label>
+              <div class="input-group">
+                <input type="password" id="pwd" name="password" class="form-control" placeholder="Enter password" required>
+                <button class="btn btn-outline-secondary" type="button" onclick="const pwd = document.getElementById('pwd'); if(pwd.type === 'password') { pwd.type = 'text'; } else { pwd.type = 'password'; }">
+                  <i class="ri-eye-line text-primary"></i>
+                </button>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-end mb-3">
+              <a href="{% url 'password_reset' %}" class="text-decoration-underline">Forgot password?</a>
+            </div>
+
+            <div class="mb-3 d-grid gap-2">
+              <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+
+            <input type="hidden" name="next" value="{{ next|default:'' }}">
+          </div>
+        </form>
+        <!-- Form ends -->
+      </div>
+      <!-- Auth wrapper ends -->
+    </div>
+    <!-- Container ends -->
+</body>
+</html>

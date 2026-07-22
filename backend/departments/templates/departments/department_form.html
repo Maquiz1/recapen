@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- App body starts -->
+<div class="app-body">
+    <!-- Container starts -->
+    <div class="container-fluid">
+        <!-- Row starts -->
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title">{{ title }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <div class="row gx-3">
+                                <div class="col-xxl-3 col-lg-4 col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="id_name">Department Name <span class="text-danger">*</span></label>
+                                        {{ form.name }}
+                                        {% if form.name.errors %}
+                                        <div class="text-danger small mt-1">{{ form.name.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-xxl-3 col-lg-4 col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="id_email">Email</label>
+                                        {{ form.email }}
+                                        {% if form.email.errors %}
+                                        <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-xxl-3 col-lg-4 col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="id_head">Department Head</label>
+                                        {{ form.head }}
+                                        {% if form.head.errors %}
+                                        <div class="text-danger small mt-1">{{ form.head.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-xxl-3 col-lg-4 col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label" for="id_phone_number">Phone Number</label>
+                                        {{ form.phone_number }}
+                                        {% if form.phone_number.errors %}
+                                        <div class="text-danger small mt-1">{{ form.phone_number.errors }}</div>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="mb-3">
+                                        <label class="form-label">Department Status</label>
+                                        <div class="m-0">
+                                            {% for radio in form.is_active %}
+                                            <div class="form-check form-check-inline">
+                                                {{ radio.tag }}
+                                                <label class="form-check-label" for="{{ radio.id_for_label }}">{{ radio.choice_label }}</label>
+                                            </div>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Row ends -->
+                            <div class="d-flex gap-2 justify-content-end mt-4">
+                                <a href="{% url 'departments:list' %}" class="btn btn-outline-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Row ends -->
+    </div>
+    <!-- Container ends -->
+</div>
+<!-- App body ends -->
+{% endblock %}
