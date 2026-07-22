@@ -28,6 +28,11 @@ class Patient(AuditableModel):
         ('diagnosed', 'Diagnosed'),
         ('enrolled', 'Enrolled'),
         ('ineligible', 'Ineligible'),
+        ('died', 'Deceased'),
+        ('ltfu', 'Loss to Follow-Up'),
+        ('withdrawn', 'Withdrawn Consent'),
+        ('transferred', 'Transferred Out'),
+        ('defaulted', 'Defaulted'),
     )
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
@@ -36,8 +41,10 @@ class Patient(AuditableModel):
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     national_id = models.CharField(max_length=50, blank=True, null=True, unique=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='registered')
+    status_date = models.DateField(null=True, blank=True, help_text="Date of death, LTFU, or transfer")
     id_number = models.CharField(max_length=50, blank=True, null=True)
     marital_status = models.CharField(max_length=20, choices=MARITAL_STATUS_CHOICES, default='single')
+    follow_up_interval_months = models.IntegerField(default=1, help_text="Follow-up interval in months")
     history = HistoricalRecords()
 
     def __str__(self):

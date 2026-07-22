@@ -7,7 +7,14 @@ class Appointment(AuditableModel):
         ('scheduled', 'Scheduled'),
         ('arrived', 'Arrived / Checked-In'),
         ('cancelled', 'Cancelled'),
-        ('no_show', 'No-Show'),
+        ('missed', 'Missed'),
+        ('not_applicable', 'Not Applicable'),
+        ('completed', 'Completed'),
+    )
+    
+    VISIT_NATURE_CHOICES = (
+        ('scheduled', 'Scheduled'),
+        ('unscheduled', 'Unscheduled'),
     )
     
     patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE, related_name='appointments')
@@ -16,6 +23,8 @@ class Appointment(AuditableModel):
     reason = models.CharField(max_length=255, help_text="Reason for visit")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
     encounter = models.OneToOneField('encounters.Encounter', on_delete=models.SET_NULL, null=True, blank=True, related_name='appointment')
+    visit_number = models.IntegerField(null=True, blank=True, help_text="0 for Baseline, 1 for Visit 1, etc.")
+    visit_nature = models.CharField(max_length=20, choices=VISIT_NATURE_CHOICES, default='scheduled')
     
     class Meta:
         ordering = ['scheduled_time']
