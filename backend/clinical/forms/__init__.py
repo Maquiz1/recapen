@@ -7,3 +7,4 @@ from .history import HistoryForm
 from .symptom import SymptomForm
 from .complications import ComplicationsForm
 from .school_home_assessment import SchoolHomeAssessmentForm
+from .prescription import PrescriptionForm

@@ -100,6 +100,39 @@
                 </div>
               </div>
 
+              <!-- Status -->
+              <div class="col-xxl-3 col-lg-4 col-sm-6">
+                <div class="mb-3">
+                  <label class="form-label" for="id_status">Status</label>
+                  {{ form.status }}
+                  {% if form.status.errors %}
+                    <div class="text-danger mt-1 small">{{ form.status.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Status Date -->
+              <div class="col-xxl-3 col-lg-4 col-sm-6">
+                <div class="mb-3">
+                  <label class="form-label" for="id_status_date">Status Date (if deceased/LTFU)</label>
+                  {{ form.status_date }}
+                  {% if form.status_date.errors %}
+                    <div class="text-danger mt-1 small">{{ form.status_date.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Follow Up Interval -->
+              <div class="col-xxl-3 col-lg-4 col-sm-6">
+                <div class="mb-3">
+                  <label class="form-label" for="id_follow_up_interval_months">Follow-up Interval (Months)</label>
+                  {{ form.follow_up_interval_months }}
+                  {% if form.follow_up_interval_months.errors %}
+                    <div class="text-danger mt-1 small">{{ form.follow_up_interval_months.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
               <!-- Form Buttons -->
               <div class="col-sm-12 mt-4">
                 <div class="d-flex gap-2 justify-content-end">

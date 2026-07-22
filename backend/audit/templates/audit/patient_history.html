@@ -23,24 +23,24 @@
                 </tr>
               </thead>
               <tbody>
-                {% for record in history_records %}
+                {% for item in history_records %}
                 <tr>
-                  <td>{{ record.history_date|date:"Y-m-d H:i:s" }}</td>
+                  <td>{{ item.record.history_date|date:"Y-m-d H:i:s" }}</td>
                   <td>
-                    {% if record.history_type == '+' %}
+                    {% if item.record.history_type == '+' %}
                       <span class="badge bg-success">Created</span>
-                    {% elif record.history_type == '~' %}
+                    {% elif item.record.history_type == '~' %}
                       <span class="badge bg-warning">Updated</span>
-                    {% elif record.history_type == '-' %}
+                    {% elif item.record.history_type == '-' %}
                       <span class="badge bg-danger">Deleted</span>
                     {% endif %}
                   </td>
-                  <td>{{ record.history_user|default:"System" }}</td>
+                  <td>{{ item.record.history_user|default:"System" }}</td>
                   <td>
-                    {% if record.prev_record %}
+                    {% if item.has_prev %}
                       <ul class="mb-0 ps-3">
-                        {% for field, val in record.diff_against(record.prev_record).changes %}
-                          <li><strong>{{ field }}:</strong> <del>{{ val.old }}</del> <i class="ri-arrow-right-line"></i> <span>{{ val.new }}</span></li>
+                        {% for change in item.changes %}
+                          <li><strong>{{ change.field }}:</strong> <del>{{ change.old }}</del> <i class="ri-arrow-right-line"></i> <span>{{ change.new }}</span></li>
                         {% empty %}
                           <li class="text-muted">No tracked changes.</li>
                         {% endfor %}

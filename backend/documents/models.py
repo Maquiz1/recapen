@@ -18,6 +18,7 @@ class PatientDocument(AuditableModel):
     )
 
     patient = models.ForeignKey('patients.Patient', on_delete=models.CASCADE, related_name='documents')
+    encounter = models.ForeignKey('encounters.Encounter', on_delete=models.SET_NULL, null=True, blank=True, related_name='documents')
     file = models.FileField(upload_to=patient_directory_path)
     document_type = models.CharField(max_length=50, choices=DOCUMENT_TYPES, default='other')
     description = models.CharField(max_length=255, blank=True, null=True, help_text="Optional description of the file")

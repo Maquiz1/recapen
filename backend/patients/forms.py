@@ -4,7 +4,7 @@ from .models import Patient, Screening, Diagnosis, Enrollment, CARDIAC_TYPE_CHOI
 class PatientForm(forms.ModelForm):
     class Meta:
         model = Patient
-        fields = ['first_name', 'last_name', 'date_of_birth', 'gender', 'phone_number', 'national_id']
+        fields = ['first_name', 'last_name', 'date_of_birth', 'gender', 'phone_number', 'national_id', 'status', 'status_date', 'follow_up_interval_months']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter first name'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter last name'}),
@@ -12,6 +12,9 @@ class PatientForm(forms.ModelForm):
             'gender': forms.Select(attrs={'class': 'form-select'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter phone number'}),
             'national_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter National ID'}),
+            'status': forms.Select(attrs={'class': 'form-select'}),
+            'status_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'follow_up_interval_months': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
         }
 
 class ScreeningForm(forms.ModelForm):

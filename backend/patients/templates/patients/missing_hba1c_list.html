@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Missing HbA1c Results{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4 shadow-sm border-light-subtle">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="card-title m-0 text-danger"><i class="ri-alert-line me-2"></i>Patients Missing 90-Day HbA1c Tests</h5>
+                <span class="badge bg-danger rounded-pill">{{ missing_patients|length }} Patients</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle m-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Patient Name</th>
+                                <th>Patient ID</th>
+                                <th>Enrollment Date</th>
+                                <th>Days Enrolled</th>
+                                <th>Last HbA1c Date</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in missing_patients %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-box rounded-circle bg-primary-subtle text-primary fw-bold me-3">
+                                            {{ record.patient.first_name|first }}{{ record.patient.last_name|first }}
+                                        </div>
+                                        <div>
+                                            <h6 class="m-0 fw-bold">{{ record.patient.first_name }} {{ record.patient.last_name }}</h6>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="badge bg-secondary-subtle text-secondary">{{ record.patient.id_number|default:"N/A" }}</span></td>
+                                <td>{{ record.enrollment_date|date:"d M Y" }}</td>
+                                <td>{{ record.days_since_enrollment }} days</td>
+                                <td>
+                                    {% if record.last_hba1c_date %}
+                                        <span class="text-danger fw-bold">{{ record.last_hba1c_date|date:"d M Y" }}</span>
+                                    {% else %}
+                                        <span class="badge bg-danger text-white">Never</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    <a href="{% url 'patients:profile' pk=record.patient.pk %}" class="btn btn-sm btn-outline-primary">
+                                        View Profile
+                                    </a>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center p-5 text-muted">
+                                    <i class="ri-check-double-line fs-1 text-success mb-2"></i>
+                                    <h5>All patients are up-to-date!</h5>
+                                    <p>No patients are missing their 90-day HbA1c intervals.</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

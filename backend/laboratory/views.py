@@ -69,13 +69,13 @@ def patient_results_detail(request, pk):
 
 def pending_orders(request):
     from orders.models import Order
-    orders = Order.objects.filter(order_type='lab', status='pending').order_by('order_date')
+    orders = Order.objects.filter(test__isnull=False, status='pending').order_by('order_date')
     return render(request, 'laboratory/pending_orders.html', {'orders': orders})
 
 def fulfill_order(request, pk):
     from orders.models import Order
     from .forms_order import FulfillOrderForm
-    order = get_object_or_404(Order, pk=pk, order_type='lab')
+    order = get_object_or_404(Order, pk=pk, test__isnull=False)
     
     if request.method == 'POST':
         form = FulfillOrderForm(request.POST)

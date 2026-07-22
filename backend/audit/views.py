@@ -30,8 +30,28 @@ def audit_dashboard(request):
 def patient_history(request, pk):
     patient = get_object_or_404(Patient, pk=pk)
     # Get all history records for this specific patient
-    history_records = patient.history.all()
+    history_records_raw = list(patient.history.all())
     
+    # Pre-calculate field changes so the template doesn't have to call methods
+    history_records = []
+    for record in history_records_raw:
+        changes = []
+        if record.prev_record:
+            delta = record.diff_against(record.prev_record)
+            for c in delta.changes:
+                # Some fields might be objects, we just want string representations
+                changes.append({
+                    'field': c.field,
+                    'old': str(c.old), # The previous value
+                    'new': str(c.new)  # The new value
+                })
+        
+        history_records.append({
+            'record': record,
+            'changes': changes,
+            'has_prev': record.prev_record is not None
+        })
+
     return render(request, 'audit/patient_history.html', {
         'patient': patient,
         'history_records': history_records,

@@ -28,3 +28,4 @@ class Medication(AuditableModel):
     
     class Meta:
         ordering = ['name']
+

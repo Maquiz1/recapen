@@ -13,3 +13,5 @@ class InventoryUpdateForm(forms.ModelForm):
         widgets = {
             'stock_quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 0}),
         }
+
+

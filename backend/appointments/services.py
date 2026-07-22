@@ -10,6 +10,13 @@ def generate_visits_for_patient(patient):
     """
     TERMINAL_STATUSES = ['died', 'ltfu', 'withdrawn', 'transferred', 'defaulted']
     if patient.status in TERMINAL_STATUSES:
+        if patient.status_date:
+            # Delete any scheduled visits that fall after the terminal date
+            Appointment.objects.filter(
+                patient=patient,
+                scheduled_time__date__gt=patient.status_date,
+                status='scheduled'
+            ).delete()
         return
 
     # Must be enrolled
@@ -61,8 +68,13 @@ def generate_visits_for_patient(patient):
 
         scheduled_dt = timezone.make_aware(timezone.datetime.combine(next_date, datetime.time(9, 0)))
         
-        # Prevent duplicates
-        if not Appointment.objects.filter(patient=patient, scheduled_time__date=next_date, visit_nature='scheduled').exists():
+        # Prevent duplicates by checking if a scheduled visit already exists for this specific month/year
+        if not Appointment.objects.filter(
+            patient=patient, 
+            visit_nature='scheduled',
+            scheduled_time__year=next_date.year,
+            scheduled_time__month=next_date.month
+        ).exists():
             Appointment.objects.create(
                 patient=patient,
                 scheduled_time=scheduled_dt,

@@ -75,7 +75,7 @@ def patient_screening(request, pk):
             patient.save()
             
             messages.success(request, f"Screening results saved and Orders generated for {patient}.")
-            return redirect('patients:investigation', pk=patient.pk)
+            return redirect('patients:profile', pk=patient.pk)
     else:
         form = ScreeningForm(instance=screening)
         
@@ -86,6 +86,11 @@ def patient_screening(request, pk):
 
 def patient_investigation(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
+    
+    if patient.status == 'registered':
+        messages.warning(request, "Please complete the Initial Screening before proceeding to Investigation.")
+        return redirect('patients:screening', pk=patient.pk)
+        
     screening = get_object_or_404(Screening, patient=patient)
     
     scd_form = None
@@ -131,6 +136,11 @@ def patient_investigation(request, pk):
 
 def patient_diagnosis(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
+    
+    if patient.status == 'registered':
+        messages.warning(request, "Please complete the Initial Screening and Investigation before proceeding to Diagnosis.")
+        return redirect('patients:screening', pk=patient.pk)
+        
     diagnosis, _ = Diagnosis.objects.get_or_create(patient=patient)
     enrollment, _ = Enrollment.objects.get_or_create(patient=patient)
     
@@ -193,6 +203,11 @@ def patient_diagnosis(request, pk):
 
 def patient_enrollment(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
+    
+    if patient.status not in ['diagnosed', 'enrolled']:
+        messages.warning(request, "Patient must be diagnosed and marked eligible before proceeding to Enrollment.")
+        return redirect('patients:diagnosis', pk=patient.pk)
+        
     enrollment = get_object_or_404(Enrollment, patient=patient)
     
     if request.method == 'POST':
@@ -212,25 +227,86 @@ def patient_enrollment(request, pk):
         'form': form
     })
 
+from django.core.paginator import Paginator
+
 def patient_profile(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
     pending_orders = patient.orders.filter(status='pending')
     pending_orders_exist = pending_orders.exists()
+    initial_encounter = patient.encounters.order_by('start_time').first()
+    
+    last_encounter = patient.encounters.filter(status='finished').order_by('-end_time').first()
+    last_attended_date = last_encounter.end_time if last_encounter else None
+    
+    last_hba1c_order = patient.orders.filter(test__code__iexact='hba1c', status='completed').order_by('-updated_at').first()
+    last_hba1c_result = last_hba1c_order.results.order_by('-performed_date').first() if last_hba1c_order else None
+    
+    latest_followup = patient.encounters.filter(encounter_type='followup').order_by('-start_time').first()
+    
+    # Encounters list with search and pagination
+    encounters_query = patient.encounters.all()
+    search_date_from = request.GET.get('search_date_from', '')
+    search_date_to = request.GET.get('search_date_to', '')
+    search_status = request.GET.get('search_status', '')
+    
+    if search_date_from:
+        encounters_query = encounters_query.filter(start_time__date__gte=search_date_from)
+    if search_date_to:
+        encounters_query = encounters_query.filter(start_time__date__lte=search_date_to)
+    if search_status:
+        encounters_query = encounters_query.filter(status=search_status)
+        
+    encounters_query = encounters_query.order_by('-start_time')
+    
+    paginator = Paginator(encounters_query, 5) # Show 5 encounters per page
+    page_number = request.GET.get('page')
+    encounters_page = paginator.get_page(page_number)
+    
+    # Schedules for Log Follow-up Modal
+    pending_schedules = patient.appointments.filter(
+        status__in=['scheduled', 'missed']
+    ).order_by('scheduled_time')
+    
     return render(request, 'patients/patient_profile.html', {
         'patient': patient,
         'pending_orders': pending_orders,
         'pending_orders_exist': pending_orders_exist,
+        'initial_encounter': initial_encounter,
+        'last_attended_date': last_attended_date,
+        'last_hba1c_order': last_hba1c_order,
+        'last_hba1c_result': last_hba1c_result,
+        'latest_followup': latest_followup,
+        'encounters_page': encounters_page,
+        'search_date_from': search_date_from,
+        'search_date_to': search_date_to,
+        'search_status': search_status,
+        'pending_schedules': pending_schedules,
     })
 
 def patient_dashboard(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
     pending_orders = patient.orders.filter(status='pending')
     pending_orders_exist = pending_orders.exists()
+    initial_encounter = patient.encounters.order_by('start_time').first()
+    
+    last_encounter = patient.encounters.filter(status='finished').order_by('-end_time').first()
+    last_attended_date = last_encounter.end_time if last_encounter else None
+    
+    last_hba1c_order = patient.orders.filter(test__code__iexact='hba1c', status='completed').order_by('-updated_at').first()
+    last_hba1c_result = last_hba1c_order.results.order_by('-performed_date').first() if last_hba1c_order else None
+    
+    latest_followup = patient.encounters.filter(encounter_type='followup').order_by('-start_time').first()
+    
     return render(request, 'patients/patient_profile.html', {
         'patient': patient,
         'is_dashboard': True,
         'pending_orders': pending_orders,
         'pending_orders_exist': pending_orders_exist,
+        'initial_encounter': initial_encounter,
+        'last_attended_date': last_attended_date,
+        'last_hba1c_order': last_hba1c_order,
+        'last_hba1c_result': last_hba1c_result,
+        'latest_followup': latest_followup,
     })
 
 def patient_edit(request, pk):
@@ -280,3 +356,56 @@ def patient_edit_redirect(request):
         return redirect('patients:edit', pk=first_patient.pk)
     messages.warning(request, "No patients registered yet. Please add a patient first.")
     return redirect('patients:list')
+
+from django.utils import timezone
+from datetime import timedelta
+from orders.models import Order
+
+@login_required
+def missing_hba1c_list(request):
+    today = timezone.now().date()
+    cutoff_date = today - timedelta(days=90)
+    
+    enrolled_patients = Patient.objects.filter(
+        enrollment__isnull=False,
+        is_deleted=False
+    ).select_related('enrollment')
+    
+    missing_patients = []
+    
+    for patient in enrolled_patients:
+        days_since = (today - patient.enrollment.enrollment_date).days
+        if days_since >= 90:
+            last_hba1c_order = Order.objects.filter(
+                patient=patient,
+                test__code__iexact='hba1c',
+                status='completed'
+            ).order_by('-updated_at').first()
+            
+            is_missing = False
+            last_date = None
+            
+            if not last_hba1c_order:
+                is_missing = True
+            else:
+                last_result = last_hba1c_order.results.order_by('-performed_date').first()
+                if last_result:
+                    last_date = last_result.performed_date.date()
+                    if last_date < cutoff_date:
+                        is_missing = True
+                else:
+                    last_date = last_hba1c_order.order_date.date()
+                    if last_date < cutoff_date:
+                        is_missing = True
+                        
+            if is_missing:
+                missing_patients.append({
+                    'patient': patient,
+                    'enrollment_date': patient.enrollment.enrollment_date,
+                    'days_since_enrollment': days_since,
+                    'last_hba1c_date': last_date
+                })
+                
+    return render(request, 'patients/missing_hba1c_list.html', {
+        'missing_patients': missing_patients
+    })

@@ -7,3 +7,4 @@ from .history import History
 from .symptom import Symptom
 from .complications import Complications
 from .school_home_assessment import SchoolHomeAssessment
+from .prescription import Prescription

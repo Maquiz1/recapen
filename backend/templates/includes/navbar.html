@@ -35,33 +35,31 @@
               <!-- Header actions starts -->
               <div class="d-lg-flex d-none gap-2">
 
-                <!-- Select country dropdown starts -->
+                <!-- Missing HbA1c Notification -->
                 <div class="dropdown">
-                  <a class="dropdown-toggle header-icon" href="#!" role="button" data-bs-toggle="dropdown"
-                    aria-expanded="false">
-                    <img src="{% static 'assets/images/flags/1x1/fr.svg' %}" class="header-country-flag" alt="Bootstrap Dashboards">
+                  <a class="header-icon position-relative" href="{% url 'patients:missing_hba1c_list' %}" title="Missing HbA1c Tests">
+                    <i class="ri-test-tube-line"></i>
+                    {% if missing_hba1c_count > 0 %}
+                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.55rem; padding: 0.25em 0.4em;">
+                        {{ missing_hba1c_count }}
+                      </span>
+                    {% endif %}
                   </a>
-                  <div class="dropdown-menu dropdown-menu-end dropdown-mini">
-                    <div class="country-container">
-                      <a href="index-2.html" class="py-2">
-                        <img src="{% static 'assets/images/flags/1x1/us.svg' %}" alt="Admin Panel">
-                      </a>
-                      <a href="index-2.html" class="py-2">
-                        <img src="{% static 'assets/images/flags/1x1/in.svg' %}" alt="Admin Panels">
-                      </a>
-                      <a href="index-2.html" class="py-2">
-                        <img src="{% static 'assets/images/flags/1x1/br.svg' %}" alt="Admin Dashboards">
-                      </a>
-                      <a href="index-2.html" class="py-2">
-                        <img src="{% static 'assets/images/flags/1x1/tr.svg' %}" alt="Admin Templatess">
-                      </a>
-                      <a href="index-2.html" class="py-2">
-                        <img src="{% static 'assets/images/flags/1x1/gb.svg' %}" alt="Google Admin">
-                      </a>
-                    </div>
-                  </div>
                 </div>
-                <!-- Select country dropdown ends -->
+                <!-- Missing HbA1c Notification ends -->
+
+                <!-- Missing Medications Notification -->
+                <div class="dropdown">
+                  <a class="header-icon position-relative text-warning" href="{% url 'encounters:missing_meds_list' %}" title="Encounters Missing Medications">
+                    <i class="ri-capsule-line"></i>
+                    {% if missing_meds_count > 0 %}
+                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size: 0.55rem; padding: 0.25em 0.4em;">
+                        {{ missing_meds_count }}
+                      </span>
+                    {% endif %}
+                  </a>
+                </div>
+                <!-- Missing Medications Notification ends -->
 
                 <!-- Bookmarks starts -->
                 <div class="dropdown">

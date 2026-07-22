@@ -18,4 +18,5 @@ urlpatterns = [
     path('dashboard/', views.patient_dashboard_redirect, name='dashboard_no_pk'),
     path('profile/', views.patient_profile_redirect, name='profile_no_pk'),
     path('edit/', views.patient_edit_redirect, name='edit_no_pk'),
+    path('missing-hba1c/', views.missing_hba1c_list, name='missing_hba1c_list'),
 ]

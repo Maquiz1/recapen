@@ -24,7 +24,7 @@
                     <th>Patient Name</th>
                     <th>Doctor Name</th>
                     <th>Date & Time</th>
-                    <th>Problem/Reason</th>
+                    <th>Visit Info</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
@@ -42,7 +42,20 @@
                       {% endif %}
                     </td>
                     <td>{{ appointment.scheduled_time|date:"Y-m-d H:i" }}</td>
-                    <td>{{ appointment.reason|truncatechars:30 }}</td>
+                    <td>
+                      {% if appointment.visit_number is not None %}
+                        <span class="badge bg-primary">Visit {{ appointment.visit_number }}</span><br>
+                      {% endif %}
+                      <small class="text-muted">
+                        {% if appointment.visit_nature == 'scheduled' %}
+                          Scheduled
+                        {% elif appointment.visit_nature == 'unscheduled' %}
+                          Unscheduled
+                        {% else %}
+                          {{ appointment.reason|truncatechars:30 }}
+                        {% endif %}
+                      </small>
+                    </td>
                     <td>
                       {% if appointment.status == 'scheduled' %}
                         <span class="badge bg-primary">Scheduled</span>
@@ -50,6 +63,12 @@
                         <span class="badge bg-success">Arrived</span>
                       {% elif appointment.status == 'cancelled' %}
                         <span class="badge bg-danger">Cancelled</span>
+                      {% elif appointment.status == 'completed' %}
+                        <span class="badge bg-success text-dark">Completed</span>
+                      {% elif appointment.status == 'missed' %}
+                        <span class="badge bg-danger text-dark">Missed</span>
+                      {% elif appointment.status == 'not_applicable' %}
+                        <span class="badge bg-secondary">Not Applicable</span>
                       {% else %}
                         <span class="badge bg-secondary">{{ appointment.get_status_display }}</span>
                       {% endif %}

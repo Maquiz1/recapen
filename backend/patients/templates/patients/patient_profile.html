@@ -8,22 +8,22 @@
   <a href="{% url 'patients:list' %}" class="btn btn-outline-primary">
     <i class="ri-arrow-left-line"></i> Back to Patients
   </a>
-  {% if patient.status != 'registered' %}
-  <a href="{% url 'orders:prescribe' patient.pk %}" class="btn btn-primary">
-    <i class="ri-capsule-line"></i> Prescribe Medication
+  <a href="{% url 'patients:edit' patient.pk %}" class="btn btn-outline-warning">
+    <i class="ri-edit-line"></i> Edit Profile
   </a>
-  {% endif %}
   {% if patient.status == 'enrolled' %}
   <button type="button" class="btn btn-warning text-dark fw-bold" data-bs-toggle="modal" data-bs-target="#logFollowupModal">
-    <i class="ri-stethoscope-line"></i> Log Follow-up
+    <i class="ri-stethoscope-line"></i> Log Scheduled Visit
   </button>
+  <form action="{% url 'encounters:log_followup' patient.pk %}" method="post" class="d-inline">
+    {% csrf_token %}
+    <input type="hidden" name="visit_nature" value="unscheduled">
+    <button type="submit" class="btn btn-outline-success">
+      <i class="ri-calendar-event-line"></i> Unscheduled Visit
+    </button>
+  </form>
   {% endif %}
-  <a href="{% url 'appointments:book' patient.pk %}" class="btn btn-outline-success">
-    <i class="ri-calendar-event-line"></i> Book Appointment
-  </a>
-  <a href="{% url 'documents:upload' patient.pk %}" class="btn btn-outline-info">
-    <i class="ri-upload-2-line"></i> Upload Document
-  </a>
+
   <a href="{% url 'audit:patient_history' patient.pk %}" class="btn btn-outline-secondary">
     <i class="ri-history-line"></i> Audit Trail
   </a>
@@ -92,46 +92,22 @@
         </div>
         
         <div class="card-footer">
-          <div class="d-flex flex-row flex-wrap gap-3">
+          <div class="d-flex flex-row flex-wrap gap-4">
+            
             <div class="d-flex align-items-center">
               <div class="icon-box sm bg-primary-subtle rounded-5 me-2">
-                <i class="ri-stethoscope-line fs-5 text-primary"></i>
+                <i class="ri-calendar-check-line fs-5 text-primary"></i>
               </div>
               <div class="small">
-                Triage Status: 
-                {% if patient.status == 'registered' %}
-                  <span class="badge bg-secondary">Registered</span>
-                {% elif patient.status == 'screened' %}
-                  <span class="badge bg-info">Screened</span>
-                {% elif patient.status == 'diagnosed' %}
-                  <span class="badge bg-warning text-dark">Diagnosed</span>
-                {% elif patient.status == 'enrolled' %}
-                  <span class="badge bg-success">Enrolled</span>
-                {% elif patient.status == 'ineligible' %}
-                  <span class="badge bg-danger">Ineligible</span>
+                Last Attended / Arrived: 
+                {% if last_attended_date %}
+                  <span class="text-primary fw-semibold">{{ last_attended_date|date:"d M Y, H:i" }}</span>
+                {% else %}
+                  <span class="text-muted fw-semibold">No past visits recorded</span>
                 {% endif %}
               </div>
             </div>
-            
-            {% if patient.created_by %}
-              <div class="d-flex align-items-center">
-                <div class="icon-box sm bg-primary-subtle rounded-5 me-2">
-                  <i class="ri-user-line fs-5 text-primary"></i>
-                </div>
-                <div class="small">
-                  Created By: <span class="text-primary fw-semibold">{{ patient.created_by }}</span>
-                </div>
-              </div>
-            {% endif %}
 
-            <div class="d-flex align-items-center">
-              <div class="icon-box sm bg-primary-subtle rounded-5 me-2">
-                <i class="ri-time-line fs-5 text-primary"></i>
-              </div>
-              <div class="small">
-                Last Update: <span class="text-primary fw-semibold">{{ patient.updated_at|date:"d/m/Y H:i" }}</span>
-              </div>
-            </div>
           </div>
         </div>
       </div>
@@ -266,61 +242,39 @@
               {% endif %}
             </div>
 
-          </div>
-        </div>
-      </div>
-      
-      <!-- Upcoming Appointments -->
-      <div class="card mb-3">
-        <div class="card-header bg-light">
-          <h5 class="card-title m-0">Upcoming Appointments</h5>
-        </div>
-        <div class="card-body p-0">
-          <ul class="list-group list-group-flush">
-            {% for apt in patient.appointments.all %}
-              {% if apt.status == 'scheduled' %}
-              <li class="list-group-item d-flex justify-content-between align-items-center">
+            <!-- Step 6 -->
+            <div class="d-flex align-items-start gap-2">
+              {% if patient.status == 'enrolled' %}
+                {% if initial_encounter %}
+                  <div class="icon-box sm bg-primary text-white rounded-circle"><i class="ri-file-list-3-line"></i></div>
+                  <div>
+                    <h6 class="mb-0 fw-semibold">6. Baseline (Visit 0)</h6>
+                    <a href="{% url 'encounters:encounter_detail' initial_encounter.pk %}" class="btn btn-xs btn-warning text-dark fw-bold mt-1">Fill / Edit Baseline Forms</a>
+                  </div>
+                {% else %}
+                  <div class="icon-box sm bg-warning text-dark rounded-circle"><i class="ri-alert-line"></i></div>
+                  <div>
+                    <h6 class="mb-0 fw-semibold">6. Baseline (Visit 0)</h6>
+                    <small class="text-muted">No initial encounter found</small>
+                  </div>
+                {% endif %}
+              {% elif patient.status == 'ineligible' %}
+                <!-- Not applicable -->
+              {% else %}
+                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
-                  <h6 class="mb-0">{{ apt.scheduled_time|date:"d M Y, H:i" }}</h6>
-                  <small class="text-muted">{{ apt.reason }}</small>
+                  <h6 class="mb-0 text-muted">6. Baseline (Visit 0)</h6>
+                  <small class="text-muted">Locked until enrolled</small>
                 </div>
-                <span class="badge bg-primary rounded-pill">Scheduled</span>
-              </li>
               {% endif %}
-            {% empty %}
-              <li class="list-group-item text-center text-muted p-4">
-                No upcoming appointments.
-              </li>
-            {% endfor %}
-          </ul>
+            </div>
+
+          </div>
         </div>
       </div>
       
-      <!-- Documents -->
-      <div class="card mb-3">
-          <div class="card-header bg-light d-flex justify-content-between align-items-center">
-            <h5 class="card-title m-0">Documents</h5>
-          </div>
-          <ul class="list-group list-group-flush">
-            {% for doc in patient.documents.all %}
-              <li class="list-group-item d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 class="mb-0"><a href="{{ doc.file.url }}" target="_blank" class="text-decoration-none"><i class="ri-file-text-line"></i> {{ doc.get_document_type_display }}</a></h6>
-                  {% if doc.description %}<small class="text-muted">{{ doc.description }}</small><br>{% endif %}
-                  <small class="text-muted">{{ doc.uploaded_at|date:"d M Y" }}</small>
-                </div>
-                <form method="post" action="{% url 'documents:delete' doc.pk %}" onsubmit="return confirm('Are you sure you want to delete this document?');">
-                  {% csrf_token %}
-                  <button type="submit" class="btn btn-sm btn-outline-danger"><i class="ri-delete-bin-line"></i></button>
-                </form>
-              </li>
-            {% empty %}
-              <li class="list-group-item text-center text-muted p-4">
-                No documents uploaded.
-              </li>
-            {% endfor %}
-          </ul>
-        </div>
+
+
     </div>
 
     <!-- Timeline / Encounter History (Middle Column) -->
@@ -328,18 +282,88 @@
       
       <!-- Detailed Clinical Timeline Card -->
       <div class="card mb-3 shadow-sm border-light-subtle">
-        <div class="card-header bg-light">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center flex-wrap">
           <h5 class="card-title m-0">Detailed Clinical History</h5>
         </div>
         <div class="card-body">
-          {% if patient.encounters.all %}
-            <div class="timeline-container">
-              {% for encounter in patient.encounters.all|dictsortreversed:"start_time" %}
+          <div class="timeline-container">
+            
+            <!-- Last HbA1c Dedicated Card -->
+            <div class="card border border-danger-subtle shadow-sm mb-4">
+              <div class="card-header bg-danger-subtle text-danger d-flex justify-content-between align-items-center py-2">
+                <div>
+                  <i class="ri-drop-line"></i> <span class="fw-bold">Last HbA1c Result</span>
+                </div>
+              </div>
+              <div class="card-body py-2 px-3">
+                {% if last_hba1c_result %}
+                  <div class="row align-items-center text-center text-md-start">
+                    <div class="col-md-3 mb-2 mb-md-0">
+                      <small class="text-muted d-block"><strong>Result:</strong></small>
+                      <span class="fs-4 text-danger fw-bold">{{ last_hba1c_result.result_value }}</span>
+                    </div>
+                    <div class="col-md-3 mb-2 mb-md-0">
+                      <small class="text-muted d-block"><strong>Date Requested:</strong></small>
+                      <small>{{ last_hba1c_order.order_date|date:"d M Y, H:i" }}</small>
+                    </div>
+                    <div class="col-md-3 mb-2 mb-md-0">
+                      <small class="text-muted d-block"><strong>Date Tested:</strong></small>
+                      <small>{{ last_hba1c_result.performed_date|date:"d M Y, H:i" }}</small>
+                    </div>
+                    <div class="col-md-3">
+                      <small class="text-muted d-block"><strong>Date of Results:</strong></small>
+                      <small>{{ last_hba1c_result.created_at|date:"d M Y, H:i" }}</small>
+                    </div>
+                  </div>
+                {% elif last_hba1c_order %}
+                  <div class="row align-items-center text-center text-md-start">
+                    <div class="col-md-3 mb-2 mb-md-0">
+                      <small class="text-muted d-block"><strong>Result:</strong></small>
+                      <span class="badge bg-warning text-dark fs-6">Pending</span>
+                    </div>
+                    <div class="col-md-3 mb-2 mb-md-0">
+                      <small class="text-muted d-block"><strong>Date Requested:</strong></small>
+                      <small>{{ last_hba1c_order.order_date|date:"d M Y, H:i" }}</small>
+                    </div>
+                    <div class="col-md-3 mb-2 mb-md-0">
+                      <small class="text-muted d-block"><strong>Date Tested:</strong></small>
+                      <small>N/A</small>
+                    </div>
+                    <div class="col-md-3">
+                      <small class="text-muted d-block"><strong>Date of Results:</strong></small>
+                      <small>N/A</small>
+                    </div>
+                  </div>
+                {% else %}
+                  <div class="row align-items-center text-center text-md-start">
+                    <div class="col-md-3 mb-2 mb-md-0">
+                      <small class="text-muted d-block"><strong>Result:</strong></small>
+                      <span class="text-muted fw-semibold fs-6">No records</span>
+                    </div>
+                    <div class="col-md-3 mb-2 mb-md-0">
+                      <small class="text-muted d-block"><strong>Date Requested:</strong></small>
+                      <small>N/A</small>
+                    </div>
+                    <div class="col-md-3 mb-2 mb-md-0">
+                      <small class="text-muted d-block"><strong>Date Tested:</strong></small>
+                      <small>N/A</small>
+                    </div>
+                    <div class="col-md-3">
+                      <small class="text-muted d-block"><strong>Date of Results:</strong></small>
+                      <small>N/A</small>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+
+          {% if latest_followup %}
+              {% with encounter=latest_followup %}
                 <div class="card border border-light-subtle shadow-sm mb-4">
                   <!-- Card Header -->
                   <div class="card-header bg-light d-flex justify-content-between align-items-center py-2">
                     <div>
-                      <span class="fw-bold text-primary">{{ encounter.get_encounter_type_display }}</span>
+                      <span class="fw-bold text-primary">Last Follow-up</span>
                       <span class="text-muted ms-2 small">{{ encounter.start_time|date:"Y-m-d H:i" }}</span>
                     </div>
                     <div>
@@ -587,12 +611,12 @@
 
                   </div>
                 </div>
-              {% endfor %}
+              {% endwith %}
             </div>
           {% else %}
             <div class="p-4 text-center text-muted">
               <i class="ri-pulse-line fs-1 text-secondary"></i>
-              <p class="mt-2">No encounters recorded yet.</p>
+              <p class="mt-2">No follow up records.</p>
             </div>
           {% endif %}
         </div>
@@ -606,10 +630,28 @@
         <div class="card-header bg-light">
           <h5 class="card-title m-0">Encounters & Visits</h5>
         </div>
+        
+        <!-- Search Form -->
+        <div class="card-body p-2 border-bottom">
+          <form method="get" class="d-flex flex-column gap-2">
+            <div class="d-flex gap-1">
+              <input type="date" name="search_date_from" class="form-control form-control-sm" value="{{ search_date_from }}" title="From Date">
+              <input type="date" name="search_date_to" class="form-control form-control-sm" value="{{ search_date_to }}" title="To Date">
+            </div>
+            <select name="search_status" class="form-select form-select-sm" title="Search by Status">
+              <option value="">All Statuses</option>
+              <option value="in_progress" {% if search_status == 'in_progress' %}selected{% endif %}>In Progress</option>
+              <option value="finished" {% if search_status == 'finished' %}selected{% endif %}>Finished</option>
+              <option value="cancelled" {% if search_status == 'cancelled' %}selected{% endif %}>Cancelled</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-primary w-100">Search</button>
+          </form>
+        </div>
+        
         <div class="card-body p-0">
-          {% if patient.encounters.all %}
+          {% if encounters_page %}
             <div class="list-group list-group-flush" style="font-size: 0.85rem;">
-              {% for encounter in patient.encounters.all|dictsortreversed:"start_time" %}
+              {% for encounter in encounters_page %}
                 <div class="list-group-item p-3">
                   <div class="d-flex justify-content-between align-items-center mb-1">
                     <span class="fw-bold text-dark">{{ encounter.start_time|date:"Y-m-d H:i" }}</span>
@@ -628,6 +670,26 @@
                 </div>
               {% endfor %}
             </div>
+            
+            <!-- Pagination Controls -->
+            {% if encounters_page.has_other_pages %}
+            <div class="p-2 d-flex justify-content-between align-items-center border-top bg-light">
+              {% if encounters_page.has_previous %}
+                <a href="?page={{ encounters_page.previous_page_number }}&search_date_from={{ search_date_from }}&search_date_to={{ search_date_to }}&search_status={{ search_status }}" class="btn btn-sm btn-outline-secondary py-0 px-2"><i class="ri-arrow-left-s-line"></i></a>
+              {% else %}
+                <button class="btn btn-sm btn-outline-secondary py-0 px-2 disabled"><i class="ri-arrow-left-s-line"></i></button>
+              {% endif %}
+              
+              <span class="small text-muted">Page {{ encounters_page.number }} of {{ encounters_page.paginator.num_pages }}</span>
+              
+              {% if encounters_page.has_next %}
+                <a href="?page={{ encounters_page.next_page_number }}&search_date_from={{ search_date_from }}&search_date_to={{ search_date_to }}&search_status={{ search_status }}" class="btn btn-sm btn-outline-secondary py-0 px-2"><i class="ri-arrow-right-s-line"></i></a>
+              {% else %}
+                <button class="btn btn-sm btn-outline-secondary py-0 px-2 disabled"><i class="ri-arrow-right-s-line"></i></button>
+              {% endif %}
+            </div>
+            {% endif %}
+            
           {% else %}
             <div class="p-3 text-center text-muted small">
               No encounters recorded yet.
@@ -635,6 +697,8 @@
           {% endif %}
         </div>
       </div>
+
+
     </div>
 
     </div>
@@ -648,36 +712,84 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header bg-warning">
-        <h5 class="modal-title text-dark">Log Follow-up Visit</h5>
+        <h5 class="modal-title text-dark">Log Scheduled Visit</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="{% url 'encounters:log_followup' patient.pk %}" method="post">
+      <form action="{% url 'encounters:log_scheduled_visit' patient.pk %}" method="post">
         {% csrf_token %}
         <div class="modal-body">
-          <p>Please specify the nature of this follow-up visit for <strong>{{ patient }}</strong>. This will determine which study forms are required.</p>
+          <p>Please select the scheduled visit you are logging for <strong>{{ patient }}</strong>.</p>
+          
+          <div class="row mb-3">
+            <div class="col-6">
+              <label class="form-label fw-bold small">From Date</label>
+              <input type="date" class="form-control form-control-sm" id="scheduleFilterFrom">
+            </div>
+            <div class="col-6">
+              <label class="form-label fw-bold small">To Date</label>
+              <input type="date" class="form-control form-control-sm" id="scheduleFilterTo">
+            </div>
+          </div>
+
           <div class="mb-3">
-            <label class="form-label fw-bold">Visit Nature</label>
-            <div class="form-check mb-2">
-              <input class="form-check-input" type="radio" name="visit_nature" id="natureScheduled" value="scheduled" required>
-              <label class="form-check-label" for="natureScheduled">
-                Scheduled (Expected Visit)
-              </label>
-            </div>
-            <div class="form-check">
-              <input class="form-check-input" type="radio" name="visit_nature" id="natureUnscheduled" value="unscheduled" required>
-              <label class="form-check-label" for="natureUnscheduled">
-                Unscheduled (Walk-in / Urgent)
-              </label>
-            </div>
+            <label class="form-label fw-bold">Scheduled Visit</label>
+            <select class="form-select" name="appointment_id" id="scheduledVisitSelect" required>
+              <option value="">-- Select a schedule --</option>
+              {% for schedule in pending_schedules %}
+                <option value="{{ schedule.pk }}" data-date="{{ schedule.scheduled_time|date:'Y-m-d' }}">
+                  {{ schedule.scheduled_time|date:"d M Y" }} - {{ schedule.reason }} ({{ schedule.get_status_display }})
+                </option>
+              {% endfor %}
+            </select>
+            <div id="noSchedulesMsg" class="text-danger small mt-1 d-none">No schedules found in this date range.</div>
           </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="submit" class="btn btn-primary">Start Encounter</button>
+          <button type="submit" class="btn btn-primary">Log Visit</button>
         </div>
       </form>
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const fromInput = document.getElementById('scheduleFilterFrom');
+  const toInput = document.getElementById('scheduleFilterTo');
+  const select = document.getElementById('scheduledVisitSelect');
+  const options = Array.from(select.querySelectorAll('option[data-date]'));
+  const noSchedulesMsg = document.getElementById('noSchedulesMsg');
+
+  function filterSchedules() {
+    const fromDate = fromInput.value;
+    const toDate = toInput.value;
+    let visibleCount = 0;
+
+    options.forEach(opt => {
+      const optDate = opt.getAttribute('data-date');
+      let show = true;
+      
+      if (fromDate && optDate < fromDate) show = false;
+      if (toDate && optDate > toDate) show = false;
+      
+      opt.style.display = show ? '' : 'none';
+      if (show) visibleCount++;
+      
+      // If the currently selected option becomes hidden, unselect it
+      if (!show && select.value === opt.value) {
+        select.value = "";
+      }
+    });
+
+    noSchedulesMsg.classList.toggle('d-none', visibleCount > 0 || options.length === 0);
+  }
+
+  if(fromInput && toInput) {
+    fromInput.addEventListener('change', filterSchedules);
+    toInput.addEventListener('change', filterSchedules);
+  }
+});
+</script>
 {% endif %}
 {% endblock %}

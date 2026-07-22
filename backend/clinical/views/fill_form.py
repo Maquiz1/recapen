@@ -8,12 +8,9 @@ def fill_form(request, encounter_id, form_code):
     form_code_lower = form_code.lower()
     
     if form_code_lower in ['vitals', 'vt']:
-        if hasattr(encounter, 'vitals'):
-            messages.info(request, "Vitals form is already completed for this encounter.")
-            return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
-            
+        instance = getattr(encounter, 'vitals', None)
         if request.method == 'POST':
-            form = VitalsForm(request.POST)
+            form = VitalsForm(request.POST, instance=instance)
             if form.is_valid():
                 vitals = form.save(commit=False)
                 vitals.encounter = encounter
@@ -21,7 +18,7 @@ def fill_form(request, encounter_id, form_code):
                 messages.success(request, "Vitals recorded successfully.")
                 return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
         else:
-            form = VitalsForm()
+            form = VitalsForm(instance=instance)
             
         return render(request, 'clinical/vitals.html', {
             'form': form,
@@ -30,12 +27,9 @@ def fill_form(request, encounter_id, form_code):
         })
         
     elif form_code_lower in ['hospitalization', 'hosp']:
-        if hasattr(encounter, 'hospitalization'):
-            messages.info(request, "Hospitalization form is already completed for this encounter.")
-            return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
-            
+        instance = getattr(encounter, 'hospitalization', None)
         if request.method == 'POST':
-            form = HospitalizationForm(request.POST)
+            form = HospitalizationForm(request.POST, instance=instance)
             if form.is_valid():
                 hosp = form.save(commit=False)
                 hosp.encounter = encounter
@@ -43,7 +37,7 @@ def fill_form(request, encounter_id, form_code):
                 messages.success(request, "Hospitalization recorded successfully.")
                 return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
         else:
-            form = HospitalizationForm()
+            form = HospitalizationForm(instance=instance)
             
         return render(request, 'clinical/hospitalization.html', {
             'form': form,
@@ -52,20 +46,17 @@ def fill_form(request, encounter_id, form_code):
         })
         
     elif form_code_lower in ['risk', 'risks']:
-        if hasattr(encounter, 'risk'):
-            messages.info(request, "Risk Factors form is already completed for this encounter.")
-            return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
-            
+        instance = getattr(encounter, 'risk', None)
         if request.method == 'POST':
-            form = RiskForm(request.POST)
+            form = RiskForm(request.POST, instance=instance)
             if form.is_valid():
                 risk = form.save(commit=False)
                 risk.encounter = encounter
                 risk.save()
-                messages.success(request, "Risk Factors recorded successfully.")
+                messages.success(request, "Risk recorded successfully.")
                 return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
         else:
-            form = RiskForm()
+            form = RiskForm(instance=instance)
             
         return render(request, 'clinical/risk.html', {
             'form': form,
@@ -74,20 +65,17 @@ def fill_form(request, encounter_id, form_code):
         })
         
     elif form_code_lower in ['socioeconomic', 'se']:
-        if hasattr(encounter, 'socioeconomic'):
-            messages.info(request, "Socioeconomic form is already completed for this encounter.")
-            return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
-            
+        instance = getattr(encounter, 'socioeconomic', None)
         if request.method == 'POST':
-            form = SocioeconomicForm(request.POST)
+            form = SocioeconomicForm(request.POST, instance=instance)
             if form.is_valid():
                 se = form.save(commit=False)
                 se.encounter = encounter
                 se.save()
-                messages.success(request, "Socioeconomic profile recorded successfully.")
+                messages.success(request, "Socioeconomic recorded successfully.")
                 return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
         else:
-            form = SocioeconomicForm()
+            form = SocioeconomicForm(instance=instance)
             
         return render(request, 'clinical/socioeconomic.html', {
             'form': form,
@@ -96,20 +84,17 @@ def fill_form(request, encounter_id, form_code):
         })
         
     elif form_code_lower in ['treatment', 'tx']:
-        if hasattr(encounter, 'treatment'):
-            messages.info(request, "Treatment plan form is already completed for this encounter.")
-            return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
-            
+        instance = getattr(encounter, 'treatment', None)
         if request.method == 'POST':
-            form = TreatmentForm(request.POST)
+            form = TreatmentForm(request.POST, instance=instance)
             if form.is_valid():
                 tx = form.save(commit=False)
                 tx.encounter = encounter
                 tx.save()
-                messages.success(request, "Treatment plan recorded successfully.")
+                messages.success(request, "Treatment recorded successfully.")
                 return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
         else:
-            form = TreatmentForm()
+            form = TreatmentForm(instance=instance)
             
         return render(request, 'clinical/treatment.html', {
             'form': form,
@@ -118,20 +103,17 @@ def fill_form(request, encounter_id, form_code):
         })
 
     elif form_code_lower in ['history', 'hist']:
-        if hasattr(encounter, 'clinical_history'):
-            messages.info(request, "History form is already completed for this encounter.")
-            return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
-            
+        instance = getattr(encounter, 'clinical_history', None)
         if request.method == 'POST':
-            form = HistoryForm(request.POST)
+            form = HistoryForm(request.POST, instance=instance)
             if form.is_valid():
                 hist = form.save(commit=False)
                 hist.encounter = encounter
                 hist.save()
-                messages.success(request, "Medical history recorded successfully.")
+                messages.success(request, "History recorded successfully.")
                 return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
         else:
-            form = HistoryForm()
+            form = HistoryForm(instance=instance)
             
         return render(request, 'clinical/history.html', {
             'form': form,
@@ -140,20 +122,17 @@ def fill_form(request, encounter_id, form_code):
         })
 
     elif form_code_lower in ['symptom', 'symptoms', 'symp']:
-        if hasattr(encounter, 'symptom'):
-            messages.info(request, "Symptoms form is already completed for this encounter.")
-            return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
-            
+        instance = getattr(encounter, 'symptom', None)
         if request.method == 'POST':
-            form = SymptomForm(request.POST)
+            form = SymptomForm(request.POST, instance=instance)
             if form.is_valid():
                 symp = form.save(commit=False)
                 symp.encounter = encounter
                 symp.save()
-                messages.success(request, "Symptom details recorded successfully.")
+                messages.success(request, "Symptom recorded successfully.")
                 return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
         else:
-            form = SymptomForm()
+            form = SymptomForm(instance=instance)
             
         return render(request, 'clinical/symptom.html', {
             'form': form,
@@ -162,20 +141,17 @@ def fill_form(request, encounter_id, form_code):
         })
 
     elif form_code_lower in ['complications', 'comp']:
-        if hasattr(encounter, 'complications'):
-            messages.info(request, "Complications form is already completed for this encounter.")
-            return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
-            
+        instance = getattr(encounter, 'complications', None)
         if request.method == 'POST':
-            form = ComplicationsForm(request.POST)
+            form = ComplicationsForm(request.POST, instance=instance)
             if form.is_valid():
                 comp = form.save(commit=False)
                 comp.encounter = encounter
                 comp.save()
-                messages.success(request, "Complications details recorded successfully.")
+                messages.success(request, "Complications recorded successfully.")
                 return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
         else:
-            form = ComplicationsForm()
+            form = ComplicationsForm(instance=instance)
             
         return render(request, 'clinical/complications.html', {
             'form': form,
@@ -184,20 +160,17 @@ def fill_form(request, encounter_id, form_code):
         })
         
     elif form_code_lower in ['school_home_assessment', 'schoolhomeassessment', 'schoolhome']:
-        if hasattr(encounter, 'school_home_assessment'):
-            messages.info(request, "School & Home Assessment form is already completed for this encounter.")
-            return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
-            
+        instance = getattr(encounter, 'school_home_assessment', None)
         if request.method == 'POST':
-            form = SchoolHomeAssessmentForm(request.POST)
+            form = SchoolHomeAssessmentForm(request.POST, instance=instance)
             if form.is_valid():
                 assessment = form.save(commit=False)
                 assessment.encounter = encounter
                 assessment.save()
-                messages.success(request, "School & Home Assessment recorded successfully.")
+                messages.success(request, "SchoolHomeAssessment recorded successfully.")
                 return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
         else:
-            form = SchoolHomeAssessmentForm()
+            form = SchoolHomeAssessmentForm(instance=instance)
             
         return render(request, 'clinical/school_home_assessment.html', {
             'form': form,
