@@ -27,9 +27,14 @@ System Administrators and Data Managers configure the data collection requiremen
 **9. Longitudinal Visit Nomenclature**
 The system adheres to standard clinical trial nomenclature: the initial enrollment encounter is designated as the *Baseline (Visit 0)*, with the subsequent scheduled encounter documented as *Visit 1*, continuing sequentially.
 
-**10. Dynamic Visit Generation & Patient Status Management**
-To optimize database performance and clinical relevance, the system employs dynamic, step-wise visit generation (creating only the immediate next visit rather than an exhaustive multi-year schedule). Furthermore, the system provides Data Managers with robust administrative controls to:
-*   Modify follow-up intervals dynamically (e.g., transitioning from a 1-month to a 2-month cadence).
-*   Manually adjust scheduled follow-up dates.
-*   Manage terminal or exclusionary patient statuses (e.g., Withdrawn Consent, Transferred Out, or Deceased), thereby halting automated visit generation.
-*   Handle "Loss to Follow-Up" (LTFU) protocols, including the capability to seamlessly re-activate patients returning to clinical care.
+**10. Retrospective & Dynamic Visit Generation**
+To optimize database performance and maintain clinical relevance, the system employs an intelligent, step-wise visit generation algorithm rather than bulk-creating an exhaustive multi-year schedule upfront. 
+*   **Retrospective Catch-up:** If a patient is enrolled retrospectively (i.e., the enrollment date is more than one month in the past), the system automatically computes and generates all historical monthly visits spanning from the date of enrollment up to the current date, plus exactly one future scheduled visit.
+*   **Forward Generation:** For standard prospective enrollments, the system strictly generates only the immediate next anticipated visit following a completed encounter.
+
+**11. Patient Status & Visit Outcome Management**
+The architecture provides Data Managers and Administrators with highly dynamic, granular controls over the patient lifecycle and visit outcomes:
+*   **Visit Status Attribution:** Individual visits can be categorized securely with specific outcomes, including *Missed*, *Unscheduled*, or *Not Applicable*, ensuring data integrity across the longitudinal record.
+*   **Administrative Follow-Up Controls:** Administrators retain the authority to manually delete or override scheduled follow-up visits when necessary.
+*   **Terminal & Exclusionary Statuses:** The automated visit generation engine can be immediately halted if a patient undergoes a status change to *Deceased* (derived via date of death), *Loss to Follow-Up (LTFU)*, *Withdrawn Consent*, *Transferred Out*, or *Defaulted*.
+*   **Re-activation:** The system fully supports bidirectional status management, allowing patients who were previously designated as LTFU to be seamlessly re-activated and returned to active follow-up generation upon re-engaging with clinical care.
