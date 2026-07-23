@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block page_title %}Dispense Prescription{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-light-subtle">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title m-0"><i class="ri-medicine-bottle-line me-2"></i>Dispense Medication</h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info mb-4">
+                    <h6 class="alert-heading fw-bold mb-1">Prescription Details</h6>
+                    <p class="mb-1"><strong>Patient:</strong> {{ prescription.patient.first_name }} {{ prescription.patient.last_name }} ({{ prescription.patient.id_number }})</p>
+                    <p class="mb-1"><strong>Medication:</strong> {{ prescription.medication.name }}</p>
+                    <p class="mb-1"><strong>Prescribed Quantity:</strong> {{ prescription.quantity_prescribed }}</p>
+                    <p class="mb-0"><strong>Instructions:</strong> {{ prescription.instructions }}</p>
+                </div>
+
+                <div class="mb-4">
+                    <h6 class="fw-bold text-muted border-bottom pb-2">Available Inventory</h6>
+                    {% if available_batches %}
+                        <ul class="list-group">
+                            {% for batch in available_batches %}
+                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>Batch:</strong> {{ batch.batch_number }} <br>
+                                        <small class="text-muted">Expires: {{ batch.expiration_date|date:"d M Y" }}</small>
+                                    </div>
+                                    <span class="badge bg-primary rounded-pill">{{ batch.quantity_in_stock }} in stock</span>
+                                </li>
+                            {% endfor %}
+                            <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center fw-bold">
+                                Total Available
+                                <span>{{ total_available }}</span>
+                            </li>
+                        </ul>
+                    {% else %}
+                        <div class="alert alert-danger">
+                            <i class="ri-error-warning-line me-1"></i> No unexpired inventory available for this medication.
+                        </div>
+                    {% endif %}
+                </div>
+
+                {% if total_available > 0 %}
+                    <form method="post" action="{% url 'pharmacy:dispense_prescription' prescription.id %}">
+                        {% csrf_token %}
+                        {{ form|crispy }}
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <a href="{% url 'clinical:prescription_list' %}" class="btn btn-outline-secondary me-2">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="ri-check-line me-1"></i> Dispense Medication
+                            </button>
+                        </div>
+                    </form>
+                {% else %}
+                    <div class="d-flex justify-content-end mt-4">
+                        <a href="{% url 'clinical:prescription_list' %}" class="btn btn-outline-secondary">Go Back</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

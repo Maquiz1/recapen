@@ -93,6 +93,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'patients.context_processors.clinical_notifications_processor',
+                'pharmacy.context_processors.pharmacy_notifications',
             ],
         },
     },

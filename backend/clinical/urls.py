@@ -5,4 +5,5 @@ app_name = 'clinical'
 
 urlpatterns = [
     path('encounter/<int:encounter_id>/form/<str:form_code>/', views.fill_form, name='fill_form'),
+    path('prescriptions/', views.prescription_list, name='prescription_list'),
 ]

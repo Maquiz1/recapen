@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}All Batches{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4 shadow-sm border-light-subtle">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="card-title m-0 text-primary"><i class="ri-store-3-line me-2"></i>All Inventory Batches</h5>
+                <span class="badge bg-primary rounded-pill">{{ batches|length }} Batches</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle m-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Batch Number</th>
+                                <th>Medication</th>
+                                <th>Quantity Available</th>
+                                <th>Expiration Date</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for batch in batches %}
+                            <tr>
+                                <td>
+                                    <h6 class="m-0 fw-bold">{{ batch.batch_number }}</h6>
+                                </td>
+                                <td>
+                                    <h6 class="m-0 fw-bold">{{ batch.medication.name }}</h6>
+                                </td>
+                                <td>
+                                    <strong>{{ batch.quantity_in_stock }}</strong> <small class="text-muted">unit(s)</small>
+                                </td>
+                                <td>{{ batch.expiration_date|date:"d M Y" }}</td>
+                                <td>
+                                    {% if batch.quantity_in_stock <= 0 %}
+                                        <span class="badge bg-danger-subtle text-danger">Out of Stock</span>
+                                    {% elif batch.is_expired %}
+                                        <span class="badge bg-danger">Expired</span>
+                                    {% elif batch.is_expiring_soon %}
+                                        <span class="badge bg-warning-subtle text-warning">Expiring Soon</span>
+                                    {% else %}
+                                        <span class="badge bg-success-subtle text-success">Good</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center p-5 text-muted">
+                                    <i class="ri-check-double-line fs-1 text-success mb-2"></i>
+                                    <h5>No batches found.</h5>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

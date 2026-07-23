@@ -1,51 +1,122 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render
+from django.utils import timezone
+from datetime import timedelta
+from pharmacy.models import InventoryBatch
+from medications.models import Medication
+from django.db.models import Sum, F, Value
+from django.db.models.functions import Coalesce
+
+def low_stock_list(request):
+    medications_with_stock = Medication.objects.annotate(
+        total_stock=Sum('batches__quantity_in_stock')
+    )
+    meds_low = medications_with_stock.annotate(
+        actual_stock=Coalesce('total_stock', Value(0))
+    ).filter(actual_stock__lte=F('reorder_level'), is_active=True)
+
+    return render(request, 'pharmacy/low_stock_list.html', {'medications': meds_low})
+
+def expiring_soon_list(request):
+    today = timezone.now().date()
+    three_months_from_now = today + timedelta(days=90)
+    
+    batches = InventoryBatch.objects.filter(
+        quantity_in_stock__gt=0,
+        expiration_date__gt=today,
+        expiration_date__lte=three_months_from_now
+    ).order_by('expiration_date')
+
+    return render(request, 'pharmacy/expiring_soon_list.html', {'batches': batches})
+
+def expired_list(request):
+    today = timezone.now().date()
+    
+    batches = InventoryBatch.objects.filter(
+        quantity_in_stock__gt=0,
+        expiration_date__lte=today
+    ).order_by('expiration_date')
+
+    return render(request, 'pharmacy/expired_list.html', {'batches': batches})
+
+from django.shortcuts import get_object_or_404, redirect
 from django.contrib import messages
-from orders.models import Order
-from .forms import DispensationForm
-from .models import Dispensation
 from django.db import transaction
+from clinical.models import Prescription
+from .models import Dispensation, DispensationBatch
+from .forms import DispensationForm
 
-def pending_prescriptions(request):
-    orders = Order.objects.filter(order_type='pharmacy', status='pending').select_related('patient', 'medication', 'ordering_doctor').order_by('order_date')
-    return render(request, 'pharmacy/pending_prescriptions.html', {'orders': orders})
+def batch_list(request):
+    batches = InventoryBatch.objects.all().order_by('-created_at')
+    return render(request, 'pharmacy/batch_list.html', {'batches': batches})
 
-def fulfill_prescription(request, pk):
-    order = get_object_or_404(Order, pk=pk, order_type='pharmacy')
+def dispensation_list(request):
+    dispensations = Dispensation.objects.select_related('prescription', 'prescription__patient', 'prescription__medication', 'dispensed_by').order_by('-dispensed_date')
+    return render(request, 'pharmacy/dispensation_list.html', {'dispensations': dispensations})
+
+def dispense_prescription(request, prescription_id):
+    prescription = get_object_or_404(Prescription, id=prescription_id)
+    
+    # Check if already dispensed
+    if hasattr(prescription, 'dispensation') and prescription.dispensation:
+        messages.warning(request, "This prescription has already been dispensed.")
+        return redirect('clinical:prescription_list')
+        
+    medication = prescription.medication
+    
+    # Get total available stock for this medication
+    available_batches = InventoryBatch.objects.filter(
+        medication=medication, 
+        quantity_in_stock__gt=0,
+        expiration_date__gt=timezone.now().date()
+    ).order_by('expiration_date')
+    
+    total_available = sum(b.quantity_in_stock for b in available_batches)
     
     if request.method == 'POST':
         form = DispensationForm(request.POST)
         if form.is_valid():
-            dispensation = form.save(commit=False)
-            dispensation.order = order
-            if request.user.is_authenticated:
-                dispensation.dispensed_by = request.user
-                dispensation.created_by = request.user
-                dispensation.updated_by = request.user
-                
-            medication = order.medication
+            qty_requested = form.cleaned_data['quantity_dispensed']
             
-            # Simple inventory check
-            if medication.stock_quantity < dispensation.quantity_dispensed:
-                messages.error(request, f"Cannot dispense {dispensation.quantity_dispensed}. Only {medication.stock_quantity} in stock.")
+            if qty_requested > total_available:
+                messages.error(request, f"Cannot dispense {qty_requested}. Only {total_available} available in stock.")
             else:
                 with transaction.atomic():
-                    # Deduct stock
-                    medication.stock_quantity -= dispensation.quantity_dispensed
-                    medication.save()
-                    
-                    # Save dispensation
+                    dispensation = form.save(commit=False)
+                    dispensation.prescription = prescription
+                    if request.user.is_authenticated:
+                        dispensation.dispensed_by = request.user
                     dispensation.save()
                     
-                    # Complete order
-                    order.status = 'completed'
-                    order.save()
-                
-                messages.success(request, f"Dispensed {dispensation.quantity_dispensed} of {medication.name} for {order.patient}.")
-                return redirect('pharmacy:pending_prescriptions')
+                    # Deduct from batches
+                    qty_to_deduct = qty_requested
+                    for batch in available_batches:
+                        if qty_to_deduct <= 0:
+                            break
+                        
+                        take_from_batch = min(qty_to_deduct, batch.quantity_in_stock)
+                        
+                        # Create DispensationBatch record
+                        DispensationBatch.objects.create(
+                            dispensation=dispensation,
+                            batch=batch,
+                            quantity=take_from_batch
+                        )
+                        
+                        batch.quantity_in_stock -= take_from_batch
+                        batch.save()
+                        
+                        qty_to_deduct -= take_from_batch
+                        
+                    messages.success(request, f"Successfully dispensed {qty_requested} units of {medication.name}.")
+                    return redirect('clinical:prescription_list')
     else:
-        form = DispensationForm()
+        # Default the quantity to the prescribed quantity, or total available if prescribed > available
+        default_qty = min(prescription.quantity_prescribed, total_available)
+        form = DispensationForm(initial={'quantity_dispensed': default_qty})
         
-    return render(request, 'pharmacy/fulfill_prescription.html', {
+    return render(request, 'pharmacy/dispense_form.html', {
         'form': form,
-        'order': order
+        'prescription': prescription,
+        'total_available': total_available,
+        'available_batches': available_batches
     })

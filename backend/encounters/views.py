@@ -143,8 +143,6 @@ def missing_meds_list(request):
         'encounters': encounters,
     })
 
-from orders.models import Order
-from orders.forms import OrderForm
 from clinical.models import Prescription
 from clinical.forms import PrescriptionForm
 

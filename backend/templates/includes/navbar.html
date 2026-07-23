@@ -48,6 +48,41 @@
                 </div>
                 <!-- Missing HbA1c Notification ends -->
 
+                <!-- Pharmacy Notifications -->
+                <div class="dropdown">
+                  <a class="header-icon position-relative" href="{% url 'pharmacy:low_stock_list' %}" title="Low Stock Medications">
+                    <i class="ri-alert-line text-warning"></i>
+                    {% if low_stock_count > 0 %}
+                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning" style="font-size: 0.55rem; padding: 0.25em 0.4em;">
+                        {{ low_stock_count }}
+                      </span>
+                    {% endif %}
+                  </a>
+                </div>
+
+                <div class="dropdown">
+                  <a class="header-icon position-relative" href="{% url 'pharmacy:expiring_soon_list' %}" title="Medications Expiring Soon">
+                    <i class="ri-calendar-event-line text-info"></i>
+                    {% if expiring_soon_count > 0 %}
+                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info" style="font-size: 0.55rem; padding: 0.25em 0.4em;">
+                        {{ expiring_soon_count }}
+                      </span>
+                    {% endif %}
+                  </a>
+                </div>
+
+                <div class="dropdown">
+                  <a class="header-icon position-relative" href="{% url 'pharmacy:expired_list' %}" title="Expired Medications">
+                    <i class="ri-error-warning-line text-danger"></i>
+                    {% if expired_count > 0 %}
+                      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.55rem; padding: 0.25em 0.4em;">
+                        {{ expired_count }}
+                      </span>
+                    {% endif %}
+                  </a>
+                </div>
+                <!-- Pharmacy Notifications ends -->
+
                 <!-- Missing Medications Notification -->
                 <div class="dropdown">
                   <a class="header-icon position-relative text-warning" href="{% url 'encounters:missing_meds_list' %}" title="Encounters Missing Medications">

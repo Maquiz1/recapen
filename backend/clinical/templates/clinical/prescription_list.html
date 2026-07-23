@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block page_title %}Prescriptions List{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="card mb-4 shadow-sm border-light-subtle">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="card-title m-0 text-primary"><i class="ri-file-list-3-line me-2"></i>All Prescriptions</h5>
+                <span class="badge bg-primary rounded-pill">{{ prescriptions|length }} Records</span>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover table-striped align-middle m-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Patient</th>
+                                <th>Medication</th>
+                                <th>Quantity / Instructions</th>
+                                <th>Prescribed On</th>
+                                <th>Status</th>
+                                <th class="text-end">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for presc in prescriptions %}
+                            <tr>
+                                <td>
+                                    <h6 class="m-0 fw-bold">{{ presc.patient.first_name }} {{ presc.patient.last_name }}</h6>
+                                    <small class="text-muted">{{ presc.patient.id_number }}</small>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="avatar-box rounded-circle bg-primary-subtle text-primary fw-bold me-2" style="width:30px;height:30px;line-height:30px;font-size:0.8rem;">
+                                            {{ presc.medication.name|first }}
+                                        </div>
+                                        <h6 class="m-0 fw-bold">{{ presc.medication.name }}</h6>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong>{{ presc.quantity_prescribed }}</strong> <small class="text-muted">unit(s)</small><br>
+                                    <small>{{ presc.instructions }}</small>
+                                </td>
+                                <td>{{ presc.created_at|date:"d M Y, H:i" }}</td>
+                                <td>
+                                    {% if presc.dispensation %}
+                                        <span class="badge bg-success-subtle text-success">Dispensed</span>
+                                    {% else %}
+                                        <span class="badge bg-warning-subtle text-warning">Pending</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-end">
+                                    {% if not presc.dispensation %}
+                                        <a href="{% url 'pharmacy:dispense_prescription' presc.id %}" class="btn btn-sm btn-outline-primary">
+                                            Dispense
+                                        </a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="6" class="text-center p-5 text-muted">
+                                    <i class="ri-check-double-line fs-1 text-success mb-2"></i>
+                                    <h5>No prescriptions found.</h5>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
