@@ -15,7 +15,7 @@
           <h5 class="card-title">Edit Patient Details</h5>
         </div>
         <div class="card-body">
-          <form method="post" novalidate>
+          <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
             
             <!-- Row starts -->

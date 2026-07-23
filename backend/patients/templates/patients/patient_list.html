@@ -52,7 +52,9 @@
                     
                     <a href="{% url 'patients:profile' patient.pk %}" class="text-decoration-none text-dark d-block">
                       <div class="d-flex flex-wrap gap-3 border-bottom pb-2 mb-2">
-                        {% if patient.gender == 'female' %}
+                        {% if patient.passport_size_photo %}
+                          <img src="{{ patient.passport_size_photo.url }}" class="img-4x rounded-3" style="object-fit: cover;" alt="Patient Image">
+                        {% elif patient.gender == 'female' %}
                           <img src="{% static 'assets/images/patient1.png' %}" class="img-4x rounded-3" alt="Patient Image">
                         {% else %}
                           <img src="{% static 'assets/images/patient.png' %}" class="img-4x rounded-3" alt="Patient Image">

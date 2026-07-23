@@ -54,16 +54,20 @@ def encounter_detail(request, encounter_id):
     
     # Check if a pharmacy order (prescription) exists
     has_prescriptions = encounter.prescriptions.exists()
-    prescriptions = encounter.prescriptions.all()
+    prescriptions = patient.prescriptions.all().order_by('-encounter__start_time')
     
     from clinical.forms import PrescriptionForm
     prescription_form = PrescriptionForm()
+    
+    from documents.forms import DocumentUploadForm
+    document_upload_form = DocumentUploadForm()
                     
     return render(request, 'encounters/encounter_detail.html', {
         'encounter': encounter,
         'patient': patient,
         'prescriptions': prescriptions,
         'prescription_form': prescription_form,
+        'document_upload_form': document_upload_form,
         'required_forms': list(required_forms),
         'has_vitals': has_vitals,
         'has_hospitalization': has_hospitalization,

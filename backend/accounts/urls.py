@@ -18,5 +18,5 @@ urlpatterns = [
     path('staff/add/', views.staff_create, name='staff_create'),
     path('staff/edit/<int:pk>/', views.staff_edit, name='staff_edit'),
     path('staff/deactivate/<int:pk>/', views.staff_deactivate, name='staff_deactivate'),
+    path('profile/edit/', views.profile_edit, name='profile_edit'),
 ]
-

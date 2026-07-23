@@ -45,6 +45,7 @@ class Patient(AuditableModel):
     id_number = models.CharField(max_length=50, blank=True, null=True)
     marital_status = models.CharField(max_length=20, choices=MARITAL_STATUS_CHOICES, default='single')
     follow_up_interval_months = models.IntegerField(default=1, help_text="Follow-up interval in months")
+    passport_size_photo = models.ImageField(upload_to='patient_photos/', blank=True, null=True)
     history = HistoricalRecords()
 
     def __str__(self):

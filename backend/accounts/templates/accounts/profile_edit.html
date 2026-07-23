@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="content-wrapper">
+  <!-- Content header starts -->
+  <div class="content-header d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">{{ title }}</h3>
+      <p class="text-secondary mb-0">Update your personal information and profile picture.</p>
+    </div>
+  </div>
+  <!-- Content header ends -->
+
+  <!-- Row starts -->
+  <div class="row gx-4">
+    <div class="col-sm-12 col-12">
+      <div class="card border border-light-subtle shadow-sm mb-4">
+        <div class="card-header border-light-subtle">
+          <h5 class="card-title text-primary">Profile Details</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row gx-4">
+              <!-- Profile Picture -->
+              <div class="col-sm-12 col-12 mb-4 d-flex align-items-center gap-3">
+                <div class="avatar-box md">
+                  {% if request.user.profile_picture %}
+                    <img src="{{ request.user.profile_picture.url }}" class="rounded-5 img-4x" style="object-fit: cover;" alt="Profile Picture">
+                  {% else %}
+                    <img src="{% static 'assets/images/doctor.svg' %}" class="rounded-5 img-4x" style="object-fit: cover;" alt="Default Profile">
+                  {% endif %}
+                </div>
+                <div class="flex-grow-1">
+                  <label for="{{ form.profile_picture.id_for_label }}" class="form-label">Profile Picture</label>
+                  {{ form.profile_picture }}
+                  {% if form.profile_picture.errors %}
+                    <div class="text-danger small mt-1">{{ form.profile_picture.errors }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- First Name -->
+              <div class="col-sm-6 col-12 mb-3">
+                <label for="{{ form.first_name.id_for_label }}" class="form-label">First Name</label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
+                  <div class="text-danger small mt-1">{{ form.first_name.errors }}</div>
+                {% endif %}
+              </div>
+
+              <!-- Last Name -->
+              <div class="col-sm-6 col-12 mb-3">
+                <label for="{{ form.last_name.id_for_label }}" class="form-label">Last Name</label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
+                  <div class="text-danger small mt-1">{{ form.last_name.errors }}</div>
+                {% endif %}
+              </div>
+
+              <!-- Email -->
+              <div class="col-sm-6 col-12 mb-3">
+                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                  <div class="text-danger small mt-1">{{ form.email.errors }}</div>
+                {% endif %}
+              </div>
+
+              <!-- Phone Number -->
+              <div class="col-sm-6 col-12 mb-3">
+                <label for="{{ form.phone_number.id_for_label }}" class="form-label">Phone Number</label>
+                {{ form.phone_number }}
+                {% if form.phone_number.errors %}
+                  <div class="text-danger small mt-1">{{ form.phone_number.errors }}</div>
+                {% endif %}
+              </div>
+
+              <!-- Date of Birth -->
+              <div class="col-sm-6 col-12 mb-3">
+                <label for="{{ form.date_of_birth.id_for_label }}" class="form-label">Date of Birth</label>
+                {{ form.date_of_birth }}
+                {% if form.date_of_birth.errors %}
+                  <div class="text-danger small mt-1">{{ form.date_of_birth.errors }}</div>
+                {% endif %}
+              </div>
+
+              <!-- Gender -->
+              <div class="col-sm-6 col-12 mb-3">
+                <label for="{{ form.gender.id_for_label }}" class="form-label">Gender</label>
+                {{ form.gender }}
+                {% if form.gender.errors %}
+                  <div class="text-danger small mt-1">{{ form.gender.errors }}</div>
+                {% endif %}
+              </div>
+
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end mt-4">
+              <a href="{% url 'admin' %}" class="btn btn-outline-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Row ends -->
+</div>
+{% endblock content %}

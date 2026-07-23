@@ -16,7 +16,7 @@ def patient_diagnosis_list(request):
 
 def patient_register(request):
     if request.method == 'POST':
-        form = PatientForm(request.POST)
+        form = PatientForm(request.POST, request.FILES)
         if form.is_valid():
             patient = form.save(commit=False)
             if request.user.is_authenticated:
@@ -267,6 +267,39 @@ def patient_profile(request, pk):
         status__in=['scheduled', 'missed']
     ).order_by('scheduled_time')
     
+    # Check if baseline forms are fully complete
+    baseline_complete = False
+    if initial_encounter and hasattr(patient, 'enrollment') and patient.enrollment:
+        from study_config.models import FollowUpRule
+        
+        cohort_code = patient.enrollment.cohort
+        rules = FollowUpRule.objects.filter(
+            cohort=cohort_code.lower(),
+            encounter_type=initial_encounter.encounter_type,
+            visit_nature=initial_encounter.visit_nature
+        )
+        required_forms = set()
+        for rule in rules:
+            for form in rule.required_forms.all():
+                required_forms.add(form.name)
+                
+        is_complete = True
+        for form_name in required_forms:
+            if form_name == 'Clinical Vitals' and not hasattr(initial_encounter, 'vitals'): is_complete = False
+            elif form_name == 'Hospitalization' and not hasattr(initial_encounter, 'hospitalization'): is_complete = False
+            elif form_name == 'Risk' and not hasattr(initial_encounter, 'risk'): is_complete = False
+            elif form_name == 'Treatment' and not hasattr(initial_encounter, 'treatment'): is_complete = False
+            elif form_name == 'Symptom' and not hasattr(initial_encounter, 'symptom'): is_complete = False
+            elif form_name == 'Complications' and not hasattr(initial_encounter, 'complications'): is_complete = False
+            elif form_name == 'Socioeconomic' and not hasattr(initial_encounter, 'socioeconomic'): is_complete = False
+            elif form_name == 'Clinical History' and not hasattr(initial_encounter, 'clinical_history'): is_complete = False
+            elif form_name == 'School and Home Assessment' and not hasattr(initial_encounter, 'school_home_assessment'): is_complete = False
+            
+        if not required_forms:
+            is_complete = False
+            
+        baseline_complete = is_complete
+    
     return render(request, 'patients/patient_profile.html', {
         'patient': patient,
         'pending_orders': pending_orders,
@@ -281,6 +314,7 @@ def patient_profile(request, pk):
         'search_date_to': search_date_to,
         'search_status': search_status,
         'pending_schedules': pending_schedules,
+        'baseline_complete': baseline_complete,
     })
 
 def patient_dashboard(request, pk):
@@ -312,7 +346,7 @@ def patient_dashboard(request, pk):
 def patient_edit(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
     if request.method == 'POST':
-        form = PatientForm(request.POST, instance=patient)
+        form = PatientForm(request.POST, request.FILES, instance=patient)
         if form.is_valid():
             p = form.save(commit=False)
             if request.user.is_authenticated:

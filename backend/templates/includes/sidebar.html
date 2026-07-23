@@ -27,7 +27,11 @@
 
           <!-- Sidebar profile starts -->
           <div class="sidebar-profile">
-            <img src="{% static 'assets/images/doctor6.png' %}" class="rounded-5" alt="Profile Image">
+            {% if request.user.profile_picture %}
+              <img src="{{ request.user.profile_picture.url }}" class="rounded-5" style="object-fit: cover; width: 60px; height: 60px;" alt="Profile Image">
+            {% else %}
+              <img src="{% static 'assets/images/doctor.svg' %}" class="rounded-5" style="width: 60px; height: 60px;" alt="Default Profile">
+            {% endif %}
             <h6 class="mb-1 profile-name text-nowrap text-truncate text-primary">
               {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}
             </h6>

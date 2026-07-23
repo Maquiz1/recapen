@@ -138,3 +138,19 @@ def staff_deactivate(request, pk):
         messages.success(request, f"Staff member '{staff.username}' has been deactivated.")
     return redirect('accounts:staff_list')
 
+
+from django.contrib.auth.decorators import login_required
+from .forms import UserProfileForm
+
+@login_required
+def profile_edit(request):
+    if request.method == 'POST':
+        form = UserProfileForm(request.POST, request.FILES, instance=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully.')
+            return redirect('accounts:profile_edit')
+    else:
+        form = UserProfileForm(instance=request.user)
+    
+    return render(request, 'accounts/profile_edit.html', {'form': form, 'title': 'My Profile'})
