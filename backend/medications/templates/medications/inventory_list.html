@@ -9,6 +9,7 @@
       <div class="card mb-3">
         <div class="card-header bg-light d-flex justify-content-between align-items-center">
           <h5 class="card-title m-0">Pharmacy Inventory</h5>
+          <a href="{% url 'medications:create' %}" class="btn btn-primary btn-sm"><i class="ri-add-line"></i> Add Medication</a>
         </div>
         <div class="card-body">
           {% if medications %}
@@ -29,7 +30,7 @@
                   <tr>
                     <td><strong>{{ med.name }}</strong></td>
                     <td>{{ med.generic_name|default:"-" }}</td>
-                    <td><span class="badge bg-secondary-subtle text-secondary">{{ med.get_form_display }}</span> {{ med.strength }}</td>
+                    <td><span class="badge bg-dark-subtle text-dark">{{ med.get_form_display }}</span> {{ med.strength }}</td>
                     <td>
                       {% if med.stock_quantity == 0 %}
                         <span class="badge bg-danger">Out of Stock</span>
@@ -47,7 +48,9 @@
                       {% endif %}
                     </td>
                     <td>
-                      <a href="{% url 'medications:update_inventory' med.pk %}" class="btn btn-sm btn-outline-primary">Update Stock</a>
+                      <a href="{% url 'medications:edit' med.pk %}" class="btn btn-sm btn-outline-info">
+                        <i class="ri-edit-line"></i> Edit
+                      </a>
                     </td>
                   </tr>
                   {% endfor %}
@@ -58,7 +61,7 @@
             <div class="p-5 text-center text-muted">
               <i class="ri-capsule-line fs-1 text-secondary"></i>
               <h4>No Medications</h4>
-              <p>Add medications via the Django Admin to see them here.</p>
+              <p>Click "Add Medication" above to start building your catalog.</p>
             </div>
           {% endif %}
         </div>

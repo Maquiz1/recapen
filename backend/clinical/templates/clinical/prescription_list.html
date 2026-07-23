@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
 
+</div>
 {% block page_title %}Prescriptions List{% endblock %}
 
 {% block content %}
+<div class="app-body">
 <div class="row">
     <div class="col-12">
         <div class="card mb-4 shadow-sm border-light-subtle">
@@ -40,8 +42,8 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <strong>{{ presc.quantity_prescribed }}</strong> <small class="text-muted">unit(s)</small><br>
-                                    <small>{{ presc.instructions }}</small>
+                                    <strong>{{ presc.dose_description|default:"-" }}</strong> <small class="text-muted">dose</small><br>
+                                    <small>{{ presc.dose_duration|default:"-" }} duration</small>
                                 </td>
                                 <td>{{ presc.created_at|date:"d M Y, H:i" }}</td>
                                 <td>
@@ -73,5 +75,6 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}

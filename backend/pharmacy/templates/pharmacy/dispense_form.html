@@ -1,10 +1,11 @@
 {% extends "base.html" %}
 {% load static %}
-{% load crispy_forms_tags %}
 
+</div>
 {% block page_title %}Dispense Prescription{% endblock %}
 
 {% block content %}
+<div class="app-body">
 <div class="row justify-content-center">
     <div class="col-md-8">
         <div class="card shadow-sm border-light-subtle">
@@ -16,8 +17,8 @@
                     <h6 class="alert-heading fw-bold mb-1">Prescription Details</h6>
                     <p class="mb-1"><strong>Patient:</strong> {{ prescription.patient.first_name }} {{ prescription.patient.last_name }} ({{ prescription.patient.id_number }})</p>
                     <p class="mb-1"><strong>Medication:</strong> {{ prescription.medication.name }}</p>
-                    <p class="mb-1"><strong>Prescribed Quantity:</strong> {{ prescription.quantity_prescribed }}</p>
-                    <p class="mb-0"><strong>Instructions:</strong> {{ prescription.instructions }}</p>
+                    <p class="mb-1"><strong>Dose:</strong> {{ prescription.dose_description|default:"-" }}</p>
+                    <p class="mb-0"><strong>Duration:</strong> {{ prescription.dose_duration|default:"-" }}</p>
                 </div>
 
                 <div class="mb-4">
@@ -48,8 +49,21 @@
                 {% if total_available > 0 %}
                     <form method="post" action="{% url 'pharmacy:dispense_prescription' prescription.id %}">
                         {% csrf_token %}
-                        {{ form|crispy }}
+                        <div class="mb-3">
+                            <label for="{{ form.quantity_dispensed.id_for_label }}" class="form-label fw-bold">Quantity Dispensed</label>
+                            {{ form.quantity_dispensed }}
+                            {% if form.quantity_dispensed.errors %}
+                            <div class="text-danger small">{{ form.quantity_dispensed.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
                         
+                        <div class="mb-3">
+                            <label for="{{ form.notes.id_for_label }}" class="form-label fw-bold">Notes</label>
+                            {{ form.notes }}
+                            {% if form.notes.errors %}
+                            <div class="text-danger small">{{ form.notes.errors|striptags }}</div>
+                            {% endif %}
+                        </div>
                         <div class="d-flex justify-content-end mt-4">
                             <a href="{% url 'clinical:prescription_list' %}" class="btn btn-outline-secondary me-2">Cancel</a>
                             <button type="submit" class="btn btn-primary">
@@ -65,5 +79,6 @@
             </div>
         </div>
     </div>
+</div>
 </div>
 {% endblock %}

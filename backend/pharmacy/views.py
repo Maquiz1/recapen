@@ -110,8 +110,8 @@ def dispense_prescription(request, prescription_id):
                     messages.success(request, f"Successfully dispensed {qty_requested} units of {medication.name}.")
                     return redirect('clinical:prescription_list')
     else:
-        # Default the quantity to the prescribed quantity, or total available if prescribed > available
-        default_qty = min(prescription.quantity_prescribed, total_available)
+        # We don't have a numeric quantity_prescribed anymore, so default to 1 if available
+        default_qty = min(1, total_available) if total_available > 0 else 0
         form = DispensationForm(initial={'quantity_dispensed': default_qty})
         
     return render(request, 'pharmacy/dispense_form.html', {

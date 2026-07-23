@@ -56,7 +56,7 @@ def encounter_detail(request, encounter_id):
     has_prescriptions = encounter.prescriptions.exists()
     prescriptions = encounter.prescriptions.all()
     
-    from medications.forms import PrescriptionForm
+    from clinical.forms import PrescriptionForm
     prescription_form = PrescriptionForm()
                     
     return render(request, 'encounters/encounter_detail.html', {
@@ -158,18 +158,41 @@ def manage_prescription(request, encounter_id, prescription_id=None):
                 messages.success(request, "Prescription deleted.")
                 return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
             form = PrescriptionForm(request.POST, instance=prescription)
-            action_msg = "updated"
+            if form.is_valid():
+                form.save()
+                messages.success(request, "Prescription updated successfully.")
+            else:
+                messages.error(request, "Error saving prescription. Please check the form.")
         else:
-            form = PrescriptionForm(request.POST)
-            action_msg = "added"
+            # Handle Add Multiple Prescriptions
+            medications = request.POST.getlist('medication')
+            start_dates = request.POST.getlist('start_date')
+            end_dates = request.POST.getlist('end_date')
+            actions = request.POST.getlist('action')
+            dose_descriptions = request.POST.getlist('dose_description')
+            dose_durations = request.POST.getlist('dose_duration')
             
-        if form.is_valid():
-            prescription = form.save(commit=False)
-            prescription.encounter = encounter
-            prescription.patient = encounter.patient
-            prescription.save()
-            messages.success(request, f"Prescription {action_msg} successfully.")
-        else:
-            messages.error(request, "Error saving prescription. Please check the form.")
+            added_count = 0
+            for i in range(len(medications)):
+                med_id = medications[i]
+                if not med_id: 
+                    continue
+                
+                Prescription.objects.create(
+                    encounter=encounter,
+                    patient=encounter.patient,
+                    medication_id=med_id,
+                    start_date=start_dates[i] if start_dates[i] else None,
+                    end_date=end_dates[i] if end_dates[i] else None,
+                    action=actions[i] if i < len(actions) else 'continue',
+                    dose_description=dose_descriptions[i] if i < len(dose_descriptions) else '',
+                    dose_duration=dose_durations[i] if i < len(dose_durations) else '',
+                )
+                added_count += 1
+                
+            if added_count > 0:
+                messages.success(request, f"Successfully added {added_count} medication(s).")
+            else:
+                messages.error(request, "No medications were selected.")
             
     return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
