@@ -54,26 +54,22 @@
                 </div>
               </div>
 
-              <!-- Gender -->
+              <!-- Sex -->
               <div class="col-xxl-3 col-lg-4 col-sm-6">
                 <div class="mb-3">
-                  <label class="form-label">Gender <span class="text-danger">*</span></label>
-                  <div class="m-0 pt-1">
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="gender" id="gender_male" value="male" {% if form.gender.value == 'male' or patient.gender == 'male' %}checked{% endif %}>
-                      <label class="form-check-label" for="gender_male">Male</label>
+                  <label class="form-label" for="id_sex">Sex</label>
+                  <div class="d-flex gap-3 mt-2">
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="sex" id="sex_male" value="male" {% if form.sex.value == 'male' or patient.sex == 'male' %}checked{% endif %}>
+                      <label class="form-check-label" for="sex_male">Male</label>
                     </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="gender" id="gender_female" value="female" {% if form.gender.value == 'female' or patient.gender == 'female' %}checked{% endif %}>
-                      <label class="form-check-label" for="gender_female">Female</label>
-                    </div>
-                    <div class="form-check form-check-inline">
-                      <input class="form-check-input" type="radio" name="gender" id="gender_other" value="other" {% if form.gender.value == 'other' or patient.gender == 'other' %}checked{% endif %}>
-                      <label class="form-check-label" for="gender_other">Other</label>
+                    <div class="form-check">
+                      <input class="form-check-input" type="radio" name="sex" id="sex_female" value="female" {% if form.sex.value == 'female' or patient.sex == 'female' %}checked{% endif %}>
+                      <label class="form-check-label" for="sex_female">Female</label>
                     </div>
                   </div>
-                  {% if form.gender.errors %}
-                    <div class="text-danger mt-1 small">{{ form.gender.errors.0 }}</div>
+                  {% if form.sex.errors %}
+                    <div class="text-danger mt-1 small">{{ form.sex.errors.0 }}</div>
                   {% endif %}
                 </div>
               </div>
@@ -129,6 +125,28 @@
                   {{ form.follow_up_interval_months }}
                   {% if form.follow_up_interval_months.errors %}
                     <div class="text-danger mt-1 small">{{ form.follow_up_interval_months.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Passport Size Photo -->
+              <div class="col-xxl-3 col-lg-4 col-sm-6">
+                <div class="mb-3">
+                  <label class="form-label" for="id_passport_size_photo">Passport Photo</label>
+                  {{ form.passport_size_photo }}
+                  {% if form.passport_size_photo.errors %}
+                    <div class="text-danger mt-1 small">{{ form.passport_size_photo.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Current Site -->
+              <div class="col-xxl-3 col-lg-4 col-sm-6">
+                <div class="mb-3">
+                  <label class="form-label" for="id_current_site">Current Site <span class="text-danger">*</span></label>
+                  {{ form.current_site }}
+                  {% if form.current_site.errors %}
+                    <div class="text-danger mt-1 small">{{ form.current_site.errors.0 }}</div>
                   {% endif %}
                 </div>
               </div>

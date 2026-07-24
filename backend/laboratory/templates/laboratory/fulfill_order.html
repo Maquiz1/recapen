@@ -22,13 +22,15 @@
           
           <form method="post">
             {% csrf_token %}
+            {% for field in form %}
             <div class="mb-3">
-              <label for="{{ form.result_value.id_for_label }}" class="form-label">Test Result Value</label>
-              {{ form.result_value }}
-              {% if form.result_value.errors %}
-                <div class="text-danger small mt-1">{{ form.result_value.errors }}</div>
+              <label for="{{ field.id_for_label }}" class="form-label fw-bold">{{ field.label }}</label>
+              {{ field }}
+              {% if field.errors %}
+                <div class="text-danger small mt-1">{{ field.errors }}</div>
               {% endif %}
             </div>
+            {% endfor %}
             
             <div class="d-flex justify-content-end gap-2 mt-4">
               <a href="{% url 'laboratory:pending_orders' %}" class="btn btn-outline-secondary">Cancel</a>

@@ -1,10 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from laboratory.models import LabTest
+from laboratory.models import LaboratoryTest
 from .forms import RadiologyTestForm
 
 def test_list(request):
-    tests = LabTest.objects.filter(is_active=True).order_by('category', 'name')
+    tests = LaboratoryTest.objects.filter(is_active=True).order_by('laboratory_category', 'name')
     return render(request, 'radiology/test_list.html', {'tests': tests})
 
 def test_create(request):
@@ -24,7 +24,7 @@ def test_create(request):
     return render(request, 'radiology/test_form.html', {'form': form, 'title': 'Add Lab Test'})
 
 def test_edit(request, pk):
-    test = get_object_or_404(LabTest, pk=pk)
+    test = get_object_or_404(LaboratoryTest, pk=pk)
     if request.method == 'POST':
         form = RadiologyTestForm(request.POST, instance=test)
         if form.is_valid():
@@ -40,7 +40,7 @@ def test_edit(request, pk):
     return render(request, 'radiology/test_form.html', {'form': form, 'title': 'Edit Lab Test', 'test': test})
 
 def test_edit_redirect(request):
-    first_test = LabTest.objects.filter(is_active=True).first()
+    first_test = LaboratoryTest.objects.filter(is_active=True).first()
     if first_test:
         return redirect('radiology:edit', pk=first_test.pk)
     messages.warning(request, "No radiology tests registered yet. Please create a radiology test first.")

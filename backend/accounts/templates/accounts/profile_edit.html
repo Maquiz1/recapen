@@ -29,7 +29,9 @@
                   {% if request.user.profile_picture %}
                     <img src="{{ request.user.profile_picture.url }}" class="rounded-5 img-4x" style="object-fit: cover;" alt="Profile Picture">
                   {% else %}
-                    <img src="{% static 'assets/images/doctor.svg' %}" class="rounded-5 img-4x" style="object-fit: cover;" alt="Default Profile">
+                    <div class="d-flex justify-content-center align-items-center bg-primary-subtle text-primary rounded-5 img-4x">
+                      <i class="ri-user-3-line fs-2"></i>
+                    </div>
                   {% endif %}
                 </div>
                 <div class="flex-grow-1">

@@ -106,7 +106,9 @@
                     {% if request.user.profile_picture %}
                       <img src="{{ request.user.profile_picture.url }}" class="img-2xx rounded-5" style="object-fit: cover; height: 32px;" alt="Profile Picture">
                     {% else %}
-                      <img src="{% static 'assets/images/doctor.svg' %}" class="img-2xx rounded-5" alt="Default Profile">
+                      <div class="d-flex justify-content-center align-items-center bg-primary-subtle text-primary rounded-5 img-2xx" style="height: 32px; width: 32px;">
+                        <i class="ri-user-3-line fs-5"></i>
+                      </div>
                     {% endif %}
                     <span class="status busy"></span>
                   </div>

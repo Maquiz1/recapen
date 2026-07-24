@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Fulfill Lab Orders: {{ patient.first_name }} {{ patient.last_name }}{% endblock %}
+
+{% block content %}
+<div class="app-body">
+    <div class="row gx-3 justify-content-center">
+        <div class="col-lg-12 col-sm-12">
+            
+            <!-- Patient Summary Card -->
+            <div class="card mb-3 bg-light border-0">
+                <div class="card-body py-3">
+                    <div class="row align-items-center">
+                        <div class="col-auto pe-4 border-end border-2 me-3">
+                            <a href="javascript:history.back()" class="btn btn-sm btn-outline-secondary">
+                                <i class="ri-arrow-left-line"></i> Back
+                            </a>
+                        </div>
+                        <div class="col">
+                            <span class="text-muted small">Patient Name:</span>
+                            <h5 class="mb-0 text-primary">{{ patient.first_name }} {{ patient.last_name }}</h5>
+                        </div>
+                        <div class="col">
+                            <span class="text-muted small">Date of Birth:</span>
+                            <p class="mb-0 fw-semibold">{{ patient.date_of_birth|date:"d M Y" }}</p>
+                        </div>
+                        <div class="col">
+                            <span class="text-muted small">Ordering Doctor:</span>
+                            <p class="mb-0 fw-semibold">Dr. {{ first_doctor.last_name|default:"Unknown" }}</p>
+                        </div>
+                        <div class="col-auto">
+                            {% if highest_urgency == 'stat' %}
+                            <span class="badge bg-danger text-uppercase">STAT</span>
+                            {% elif highest_urgency == 'urgent' %}
+                            <span class="badge bg-warning text-uppercase">Urgent</span>
+                            {% else %}
+                            <span class="badge bg-secondary text-uppercase">Routine</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fulfillment Form -->
+            <div class="card mb-3">
+                <div class="card-header">
+                    <h5 class="card-title">Results Entry</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="results-form">
+                        {% csrf_token %}
+                        
+                        {% if grouped_tests %}
+                        <!-- Category Tabs -->
+                        <ul class="nav nav-pills mb-4 gap-2" id="test-category-tabs" role="tablist">
+                          {% for category_name, types in grouped_tests.items %}
+                            {% with cat_id=category_name|slugify %}
+                            <li class="nav-item" role="presentation">
+                              <button class="nav-link border border-primary-subtle rounded-pill {% if forloop.first %}active{% endif %}" 
+                                      id="tab-{{ cat_id }}" 
+                                      data-bs-toggle="pill" 
+                                      data-bs-target="#content-{{ cat_id }}" 
+                                      type="button" role="tab" 
+                                      aria-controls="content-{{ cat_id }}" 
+                                      aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                                <i class="ri-test-tube-line me-1"></i> {{ category_name }}
+                              </button>
+                            </li>
+                            {% endwith %}
+                          {% endfor %}
+                        </ul>
+
+                        <!-- Tab Content -->
+                        <div class="tab-content" id="test-category-content">
+                          {% for category_name, types in grouped_tests.items %}
+                            {% with cat_id=category_name|slugify %}
+                            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
+                                 id="content-{{ cat_id }}" role="tabpanel" aria-labelledby="tab-{{ cat_id }}" tabindex="0">
+                              
+                                {% for type_name, tests in types.items %}
+                                <div class="mb-4">
+                                    <h6 class="text-primary border-bottom border-primary-subtle pb-2 mb-3">
+                                        <i class="ri-microscope-line me-1"></i> {{ type_name }}
+                                    </h6>
+                                    
+                                    <div class="table-responsive">
+                                        <table class="table align-middle">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th style="width: 25%">Parameter</th>
+                                                    <th style="width: 25%">Result</th>
+                                                    <th style="width: 10%">Unit</th>
+                                                    <th style="width: 15%">Ref. Range</th>
+                                                    <th style="width: 10%">Flag</th>
+                                                    <th style="width: 15%">Notes</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for test in tests %}
+                                                <tr class="result-row" data-min="{{ test.range_min }}" data-max="{{ test.range_max }}">
+                                                    <td><strong>{{ test.name }}</strong></td>
+                                                    <td>
+                                                        <input type="text" name="result_{{ test.id }}" class="form-control form-control-sm result-input" data-test-id="{{ test.id }}" autocomplete="off" required>
+                                                        <div class="invalid-feedback">Please enter a result.</div>
+                                                    </td>
+                                                    <td>{{ test.units|default:"-" }}</td>
+                                                    <td>
+                                                        <small class="text-muted">
+                                                            {% if test.range_min and test.range_max %}
+                                                                {{ test.range_min }} - {{ test.range_max }}
+                                                            {% else %}
+                                                                N/A
+                                                            {% endif %}
+                                                        </small>
+                                                    </td>
+                                                    <td>
+                                                        <span class="badge bg-secondary flag-badge" style="display:none;">-</span>
+                                                    </td>
+                                                    <td>
+                                                        <input type="text" name="notes_{{ test.id }}" class="form-control form-control-sm" placeholder="Optional notes...">
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                                {% endfor %}
+
+                            </div>
+                            {% endwith %}
+                          {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted">No pending tests to fulfill.</p>
+                        {% endif %}
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{% url 'laboratory:lab_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-success fw-bold">Submit Results</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const inputs = document.querySelectorAll('.result-input');
+    
+    inputs.forEach(input => {
+        input.addEventListener('input', function() {
+            const row = this.closest('tr');
+            const minStr = row.dataset.min;
+            const maxStr = row.dataset.max;
+            const badge = row.querySelector('.flag-badge');
+            
+            if (minStr && maxStr && minStr !== 'None' && maxStr !== 'None') {
+                const val = parseFloat(this.value);
+                const min = parseFloat(minStr);
+                const max = parseFloat(maxStr);
+                
+                if (!isNaN(val) && !isNaN(min) && !isNaN(max)) {
+                    badge.style.display = 'inline-block';
+                    if (val < min) {
+                        badge.className = 'badge bg-warning text-dark flag-badge';
+                        badge.textContent = 'LOW';
+                        this.classList.add('is-invalid');
+                        this.classList.remove('is-valid');
+                    } else if (val > max) {
+                        badge.className = 'badge bg-danger flag-badge';
+                        badge.textContent = 'HIGH';
+                        this.classList.add('is-invalid');
+                        this.classList.remove('is-valid');
+                    } else {
+                        badge.className = 'badge bg-success flag-badge';
+                        badge.textContent = 'NORMAL';
+                        this.classList.remove('is-invalid');
+                        this.classList.add('is-valid');
+                    }
+                } else {
+                    badge.style.display = 'none';
+                    this.classList.remove('is-invalid', 'is-valid');
+                }
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

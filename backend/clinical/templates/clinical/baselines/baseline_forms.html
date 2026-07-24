@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4 align-items-center">
+        <div class="col">
+            <h1 class="h3 mb-0 text-gray-800">Disease Baseline Information</h1>
+            <p class="text-muted mb-0">Patient: {{ patient.first_name }} {{ patient.last_name }} ({{ enrollment.enrollment_id }})</p>
+        </div>
+        <div class="col-auto">
+            <a href="{% url 'patients:profile' patient.pk %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Profile
+            </a>
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'clinical:baseline_forms' enrollment.pk %}">
+        {% csrf_token %}
+        
+        <div class="row">
+            {% if show_scd %}
+            <div class="col-lg-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-primary text-white">
+                        <h5 class="mb-0"><i class="bi bi-droplet"></i> Sickle Cell Baseline</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">Visit Date</label>
+                                {{ scd_form.visit_date }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">Diagnosis Date</label>
+                                {{ scd_form.diagnosis_date }}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">Main Diagnosis?</label>
+                            <div class="d-flex flex-column gap-2 mt-2">
+                                {% for radio in scd_form.main_diagnosis %}
+                                    <div class="form-check">
+                                        {{ radio.tag }}
+                                        <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                            {{ radio.choice_label }}
+                                        </label>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label text-muted small fw-bold">Comments</label>
+                            {{ scd_form.comments }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if show_dm %}
+            <div class="col-lg-6 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-info text-white">
+                        <h5 class="mb-0"><i class="bi bi-activity"></i> Diabetes Baseline</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">Visit Date</label>
+                                {{ dm_form.visit_date }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">Diagnosis Date</label>
+                                {{ dm_form.diagnosis_date }}
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">Main Diagnosis?</label>
+                                <div class="d-flex flex-column gap-2 mt-2">
+                                    {% for radio in dm_form.main_diagnosis %}
+                                        <div class="form-check">
+                                            {{ radio.tag }}
+                                            <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                                {{ radio.choice_label }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">Presentation / Complications</label>
+                                {{ dm_form.presentation }}
+                            </div>
+                        </div>
+                        <div class="row border-top pt-3 mt-2">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">Hypertension?</label>
+                                <div class="d-flex flex-column gap-2 mt-2">
+                                    {% for radio in dm_form.hypertension %}
+                                        <div class="form-check">
+                                            {{ radio.tag }}
+                                            <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                                {{ radio.choice_label }}
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">Hypertension Date</label>
+                                {{ dm_form.hypertension_date }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if show_cardiac %}
+            <div class="col-lg-12 mb-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-header bg-danger text-white">
+                        <h5 class="mb-0"><i class="bi bi-heart-pulse"></i> Cardiac Baseline</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">Visit Date</label>
+                                {{ cardiac_form.visit_date }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-muted small fw-bold">Diagnosis Date</label>
+                                {{ cardiac_form.diagnosis_date }}
+                            </div>
+                        </div>
+
+                        <!-- Add a scrollable container if the form is large -->
+                        <div class="row border-top pt-3 mt-2">
+                            {% for field in cardiac_form %}
+                                {% if field.name != 'visit_date' and field.name != 'diagnosis_date' %}
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label text-muted small fw-bold">{{ field.label }}</label>
+                                    
+                                    {% if field.field.widget.input_type == 'radio' %}
+                                    <div class="d-flex flex-column gap-2 mt-2">
+                                        {% for radio in field %}
+                                            <div class="form-check">
+                                                {{ radio.tag }}
+                                                <label class="form-check-label" for="{{ radio.id_for_label }}">
+                                                    {{ radio.choice_label }}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                    {% else %}
+                                        {{ field }}
+                                    {% endif %}
+                                    
+                                    {% if field.help_text %}
+                                        <small class="form-text text-muted">{{ field.help_text }}</small>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if not show_scd and not show_dm and not show_cardiac %}
+            <div class="col-12">
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle"></i> No baseline clinical forms are available for the selected cohort.
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if show_scd or show_dm or show_cardiac %}
+        <div class="row">
+            <div class="col-12 text-end">
+                <button type="submit" class="btn btn-primary px-4 py-2">
+                    <i class="bi bi-check-circle"></i> Save Baseline Information
+                </button>
+            </div>
+        </div>
+        {% endif %}
+
+    </form>
+</div>
+{% endblock %}

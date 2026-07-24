@@ -56,8 +56,8 @@
                   <i class="ri-women-line fs-3 text-primary"></i>
                 </div>
                 <div>
-                  <h4 class="mb-1 text-capitalize">{{ patient.gender }}</h4>
-                  <p class="m-0 text-muted small">Gender</p>
+                  <h4 class="mb-1 text-capitalize">{{ patient.sex }}</h4>
+                  <p class="m-0 text-muted small">Sex</p>
                 </div>
               </div>
               
@@ -80,15 +80,48 @@
                   <p class="m-0 text-muted small">Patient ID / MRN</p>
                 </div>
               </div>
+
+              
+              <!-- Current Site -->
+              <div class="d-flex align-items-center">
+                <div class="icon-box lg bg-primary-subtle rounded-5 me-2">
+                  <i class="ri-hospital-line fs-3 text-primary"></i>
+                </div>
+                <div>
+                  <h4 class="mb-1">{{ patient.current_site.name|default:"Not Assigned" }}</h4>
+                  <p class="m-0 text-muted small">Current Site</p>
+                </div>
+              </div>
+              
+              <!-- Diagnosis -->
+              <div class="d-flex align-items-center">
+                <div class="icon-box lg bg-primary-subtle rounded-5 me-2">
+                  <i class="ri-stethoscope-line fs-3 text-primary"></i>
+                </div>
+                <div>
+                  {% if patient.diagnosis and patient.diagnosis.confirmed_diseases.exists %}
+                    <h4 class="mb-1">
+                      {% for disease in patient.diagnosis.confirmed_diseases.all %}
+                        {{ disease.name }}{% if not forloop.last %}, {% endif %}
+                      {% endfor %}
+                    </h4>
+                  {% elif patient.diagnosis and patient.diagnosis.diagnosis %}
+                    <h4 class="mb-1 text-truncate" style="max-width: 150px;" title="{{ patient.diagnosis.diagnosis }}">{{ patient.diagnosis.diagnosis }}</h4>
+                  {% else %}
+                    <h4 class="mb-1 text-muted">Not Diagnosed</h4>
+                  {% endif %}
+                  <p class="m-0 text-muted small">Diagnosis</p>
+                </div>
+              </div>
             </div>
             <!-- Stats ends -->
 
             {% if patient.passport_size_photo %}
               <img src="{{ patient.passport_size_photo.url }}" class="img-7x rounded-circle ms-auto" style="object-fit: cover;" alt="Patient Avatar">
-            {% elif patient.gender == 'female' %}
-              <img src="{% static 'assets/images/patient1.png' %}" class="img-7x rounded-circle ms-auto" alt="Patient Avatar">
             {% else %}
-              <img src="{% static 'assets/images/patient.png' %}" class="img-7x rounded-circle ms-auto" alt="Patient Avatar">
+              <div class="d-flex justify-content-center align-items-center bg-primary-subtle text-primary rounded-circle ms-auto img-7x">
+                <i class="ri-user-3-line display-6"></i>
+              </div>
             {% endif %}
           </div>
         </div>
@@ -132,7 +165,9 @@
             <div class="d-flex align-items-start gap-2 border-bottom pb-2">
               <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
               <div>
-                <h6 class="mb-0 fw-semibold">1. Registration</h6>
+                <a href="{% url 'patients:edit' patient.pk %}" class="text-decoration-none">
+                  <h6 class="mb-0 fw-semibold text-primary">1. Registration <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                </a>
                 <small class="text-muted">Completed on {{ patient.created_at|date:"d/m/Y" }}</small>
               </div>
             </div>
@@ -142,31 +177,56 @@
               {% if patient.screening %}
                 <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
                 <div>
-                  <h6 class="mb-0 fw-semibold">2. Initial Screening</h6>
+                  <a href="{% url 'patients:screening' patient.pk %}" class="text-decoration-none">
+                    <h6 class="mb-0 fw-semibold text-primary">2. Initial Screening <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                  </a>
                   <small class="text-muted">Suspected conditions selected</small>
                 </div>
               {% else %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-checkbox-blank-circle-line"></i></div>
                 <div>
-                  <h6 class="mb-0 text-muted">2. Initial Screening</h6>
+                  <a href="{% url 'patients:screening' patient.pk %}" class="text-decoration-none">
+                    <h6 class="mb-0 text-primary">2. Initial Screening <i class="ri-arrow-right-line fs-6 ms-1"></i></h6>
+                  </a>
                   <a href="{% url 'patients:screening' patient.pk %}" class="btn btn-xs btn-primary mt-1">Start Triage</a>
                 </div>
               {% endif %}
             </div>
 
-            <!-- Step 3 -->
+            <!-- Step 3 (New: Test Requests) -->
+            <div class="d-flex align-items-start gap-2 border-bottom pb-2">
+              {% if not patient.screening %}
+                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
+                <div>
+                  <h6 class="mb-0 text-muted">3. Test Requests</h6>
+                  <small class="text-muted small">Locked until screened</small>
+                </div>
+              {% else %}
+                <div class="icon-box sm bg-primary text-white rounded-circle"><i class="ri-flask-line"></i></div>
+                <div>
+                  <a href="{% url 'patients:test_requests' patient.pk %}" class="text-decoration-none">
+                    <h6 class="mb-0 text-primary">3. Test Requests <i class="ri-arrow-right-line fs-6 ms-1"></i></h6>
+                  </a>
+                  <a href="{% url 'patients:test_requests' patient.pk %}" class="btn btn-xs btn-primary mt-1">Place Orders</a>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Step 4 -->
             <div class="d-flex align-items-start gap-2 border-bottom pb-2">
               {% if patient.status == 'registered' or not patient.screening %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
-                  <h6 class="mb-0 text-muted">3. Orders Fulfillment</h6>
+                  <h6 class="mb-0 text-muted">4. Orders Fulfillment</h6>
                   <small class="text-muted small">Locked until screened</small>
                 </div>
               {% else %}
                 {% if pending_orders_exist %}
                   <div class="icon-box sm bg-info text-white rounded-circle"><i class="ri-flask-line"></i></div>
                   <div class="w-100">
-                    <h6 class="mb-0 fw-semibold">3. Orders Fulfillment</h6>
+                    <a href="{% url 'patients:investigation' patient.pk %}" class="text-decoration-none">
+                      <h6 class="mb-0 fw-semibold text-primary">4. Orders Fulfillment <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                    </a>
                     <small class="text-muted d-block mb-1">Awaiting lab fulfillment:</small>
                     <div class="pe-2">
                       {% for order in pending_orders %}
@@ -180,48 +240,56 @@
                 {% else %}
                   <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
                   <div>
-                    <h6 class="mb-0 fw-semibold">3. Orders Fulfillment</h6>
+                    <a href="{% url 'patients:investigation' patient.pk %}" class="text-decoration-none">
+                      <h6 class="mb-0 fw-semibold text-primary">4. Orders Fulfillment <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                    </a>
                     <small class="text-success small fw-semibold"><i class="ri-checkbox-circle-fill"></i> Labs completed</small>
                   </div>
                 {% endif %}
               {% endif %}
             </div>
 
-            <!-- Step 4 -->
+            <!-- Step 5 -->
             <div class="d-flex align-items-start gap-2 border-bottom pb-2">
               {% if patient.status == 'registered' or not patient.screening %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
-                  <h6 class="mb-0 text-muted">4. Clinical Evaluation</h6>
+                  <h6 class="mb-0 text-muted">5. Clinical Evaluation</h6>
                   <small class="text-muted">Locked until screened</small>
                 </div>
               {% elif pending_orders_exist %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
-                  <h6 class="mb-0 text-muted">4. Clinical Evaluation</h6>
+                  <h6 class="mb-0 text-muted">5. Clinical Evaluation</h6>
                   <small class="text-muted">Locked: awaiting lab results</small>
                 </div>
               {% elif patient.diagnosis %}
                 <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
                 <div>
-                  <h6 class="mb-0 fw-semibold">4. Clinical Evaluation</h6>
+                  <a href="{% url 'patients:diagnosis' patient.pk %}" class="text-decoration-none">
+                    <h6 class="mb-0 fw-semibold text-primary">5. Clinical Evaluation <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                  </a>
                   <small class="text-muted">Diagnoses confirmed</small>
                 </div>
               {% else %}
                 <div class="icon-box sm bg-primary text-white rounded-circle"><i class="ri-stethoscope-line"></i></div>
                 <div>
-                  <h6 class="mb-0 fw-semibold">4. Clinical Evaluation</h6>
+                  <a href="{% url 'patients:diagnosis' patient.pk %}" class="text-decoration-none">
+                    <h6 class="mb-0 fw-semibold text-primary">5. Clinical Evaluation <i class="ri-arrow-right-line fs-6 ms-1"></i></h6>
+                  </a>
                   <a href="{% url 'patients:diagnosis' patient.pk %}" class="btn btn-xs btn-primary mt-1 fw-semibold">Consultation</a>
                 </div>
               {% endif %}
             </div>
 
-            <!-- Step 5 -->
+            <!-- Step 6 -->
             <div class="d-flex align-items-start gap-2">
               {% if patient.status == 'enrolled' %}
                 <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
                 <div>
-                  <h6 class="mb-0 fw-semibold">5. Study Enrollment</h6>
+                  <a href="{% url 'patients:enrollment' patient.pk %}" class="text-decoration-none">
+                    <h6 class="mb-0 fw-semibold text-primary">6. Study Enrollment <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                  </a>
                   <small class="text-muted text-uppercase text-primary fw-bold">{{ patient.enrollment.cohort }} Cohort</small>
                 </div>
               {% elif patient.status == 'ineligible' %}
@@ -233,38 +301,59 @@
               {% elif patient.status == 'diagnosed' %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-checkbox-blank-circle-line"></i></div>
                 <div>
-                  <h6 class="mb-0 text-muted">5. Study Enrollment</h6>
+                  <a href="{% url 'patients:enrollment' patient.pk %}" class="text-decoration-none">
+                    <h6 class="mb-0 text-primary">6. Study Enrollment <i class="ri-arrow-right-line fs-6 ms-1"></i></h6>
+                  </a>
                   <a href="{% url 'patients:enrollment' patient.pk %}" class="btn btn-xs btn-primary mt-1">Finalize Enrollment</a>
                 </div>
               {% else %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
-                  <h6 class="mb-0 text-muted">5. Study Enrollment</h6>
+                  <h6 class="mb-0 text-muted">6. Study Enrollment</h6>
                 </div>
               {% endif %}
             </div>
 
-            <!-- Step 6 -->
-            <div class="d-flex align-items-start gap-2">
+            <!-- Step 7 (Disease Specific Baseline) -->
+            <div class="d-flex align-items-start gap-2 border-bottom pb-2 mt-2">
+              {% if patient.status == 'enrolled' %}
+                <div class="icon-box sm bg-primary text-white rounded-circle"><i class="ri-heart-pulse-line"></i></div>
+                <div>
+                  <h6 class="mb-0 fw-semibold">7. Disease Baseline</h6>
+                  <a href="{% url 'clinical:baseline_forms' patient.enrollment.pk %}" class="btn btn-xs btn-outline-primary fw-bold mt-1">Fill / Edit Disease Forms</a>
+                </div>
+              {% elif patient.status == 'ineligible' %}
+                <!-- Not applicable -->
+              {% else %}
+                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
+                <div>
+                  <h6 class="mb-0 text-muted">7. Disease Baseline</h6>
+                  <small class="text-muted">Locked until enrolled</small>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Step 8 -->
+            <div class="d-flex align-items-start gap-2 mt-2">
               {% if patient.status == 'enrolled' %}
                 {% if initial_encounter %}
                   {% if baseline_complete %}
                   <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
                   <div>
-                    <h6 class="mb-0 fw-semibold">6. Baseline (Visit 0)</h6>
+                    <h6 class="mb-0 fw-semibold">8. Baseline (Visit 0)</h6>
                     <a href="{% url 'encounters:encounter_detail' initial_encounter.pk %}" class="btn btn-xs btn-outline-success fw-bold mt-1">Review Baseline Forms</a>
                   </div>
                   {% else %}
                   <div class="icon-box sm bg-primary text-white rounded-circle"><i class="ri-file-list-3-line"></i></div>
                   <div>
-                    <h6 class="mb-0 fw-semibold">6. Baseline (Visit 0)</h6>
+                    <h6 class="mb-0 fw-semibold">8. Baseline (Visit 0)</h6>
                     <a href="{% url 'encounters:encounter_detail' initial_encounter.pk %}" class="btn btn-xs btn-warning text-dark fw-bold mt-1">Fill / Edit Baseline Forms</a>
                   </div>
                   {% endif %}
                 {% else %}
                   <div class="icon-box sm bg-warning text-dark rounded-circle"><i class="ri-alert-line"></i></div>
                   <div>
-                    <h6 class="mb-0 fw-semibold">6. Baseline (Visit 0)</h6>
+                    <h6 class="mb-0 fw-semibold">8. Baseline (Visit 0)</h6>
                     <small class="text-muted">No initial encounter found</small>
                   </div>
                 {% endif %}
@@ -273,7 +362,7 @@
               {% else %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
-                  <h6 class="mb-0 text-muted">6. Baseline (Visit 0)</h6>
+                  <h6 class="mb-0 text-muted">8. Baseline (Visit 0)</h6>
                   <small class="text-muted">Locked until enrolled</small>
                 </div>
               {% endif %}

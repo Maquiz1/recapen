@@ -4,7 +4,7 @@ from core.models import AuditableModel
 from simple_history.models import HistoricalRecords
 from patients.models import Patient
 from encounters.models import Encounter
-from laboratory.models import LabTest
+from laboratory.models import LaboratoryTest
 
 class Order(AuditableModel):
     ORDER_TYPE_CHOICES = (
@@ -33,7 +33,7 @@ class Order(AuditableModel):
     order_type = models.CharField(max_length=20, choices=ORDER_TYPE_CHOICES)
     
     # For Lab/Rad/Cardio
-    test = models.ForeignKey(LabTest, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
+    test = models.ForeignKey(LaboratoryTest, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     
     # For Pharmacy/Medications
     medication = models.ForeignKey('medications.Medication', on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')

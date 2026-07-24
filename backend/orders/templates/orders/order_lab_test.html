@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Order Lab Test{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  <div class="row gx-3 justify-content-center">
+    <div class="col-md-8 col-sm-12">
+      <div class="card mb-3">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center">
+          <h5 class="card-title m-0">Order Lab Test for {{ patient.first_name }} {{ patient.last_name }}</h5>
+          <a href="{% url 'encounters:encounter_detail' encounter.pk %}" class="btn btn-sm btn-outline-secondary">Cancel</a>
+        </div>
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            
+            <div class="row">
+              <div class="col-md-8 mb-3">
+                <label for="{{ form.test.id_for_label }}" class="form-label">Laboratory Test *</label>
+                {{ form.test }}
+                {% if form.test.errors %}<div class="text-danger small mt-1">{{ form.test.errors }}</div>{% endif %}
+              </div>
+              <div class="col-md-4 mb-3">
+                <label for="{{ form.urgency.id_for_label }}" class="form-label">Urgency</label>
+                {{ form.urgency }}
+                {% if form.urgency.errors %}<div class="text-danger small mt-1">{{ form.urgency.errors }}</div>{% endif %}
+              </div>
+            </div>
+            
+            <div class="mb-4">
+              <label for="{{ form.clinical_notes.id_for_label }}" class="form-label">Clinical Notes (Optional)</label>
+              {{ form.clinical_notes }}
+              <div class="form-text">Reason for ordering, or note to lab technician.</div>
+              {% if form.clinical_notes.errors %}<div class="text-danger small mt-1">{{ form.clinical_notes.errors }}</div>{% endif %}
+            </div>
+            
+            <div class="d-flex justify-content-end gap-2">
+              <button type="submit" class="btn btn-primary">Order Test</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

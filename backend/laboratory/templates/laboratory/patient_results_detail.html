@@ -34,57 +34,134 @@
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="card-title">Laboratory Test History</h5>
           <div>
-            <a href="{% url 'patients:investigation' patient.pk %}" class="btn btn-warning btn-sm me-2">
-              <i class="ri-edit-line"></i> Update Results
-            </a>
             <a href="{% url 'laboratory:patients_results' %}" class="btn btn-outline-secondary btn-sm">
               <i class="ri-arrow-left-line"></i> Back to Patients
             </a>
           </div>
         </div>
-        <div class="card-body">
-          <div class="table-outer">
-            <div class="table-responsive">
-              <table class="table align-middle truncate m-0 table-hover">
-                <thead>
-                  <tr>
-                    <th>Test Name</th>
-                    <th>Code</th>
-                    <th>Category</th>
-                    <th>Result Value</th>
-                    <th>Date Performed</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {% for res in results %}
-                    <tr>
-                      <td>
-                        <span class="fw-semibold">{{ res.test.name }}</span>
-                      </td>
-                      <td>
-                        <div class="small text-muted">{{ res.test.code }}</div>
-                      </td>
-                      <td>
-                        <span class="badge bg-secondary text-capitalize">{{ res.test.get_category_display }}</span>
-                      </td>
-                      <td>
-                        <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-2">{{ res.result_value }}</span>
-                      </td>
-                      <td>
-                        {{ res.performed_date|date:"d M Y" }}
-                      </td>
-                    </tr>
-                  {% empty %}
-                    <tr>
-                      <td colspan="5" class="text-center p-5 text-muted">
-                        <h5>No laboratory results found for this patient.</h5>
-                      </td>
-                    </tr>
-                  {% endfor %}
-                </tbody>
-              </table>
+        <div class="card-body border-bottom p-3 bg-light">
+          <form method="GET" action="" class="row gx-2 align-items-end">
+            <div class="col-md-3 mb-2 mb-md-0">
+                <label class="form-label small text-muted mb-1">Filter By</label>
+                <select name="date_type" class="form-select form-select-sm">
+                    <option value="visit_date" {% if date_type == 'visit_date' %}selected{% endif %}>Visit Date</option>
+                    <option value="request_date" {% if date_type == 'request_date' %}selected{% endif %}>Request Date</option>
+                    <option value="result_date" {% if date_type == 'result_date' %}selected{% endif %}>Result Date</option>
+                </select>
             </div>
-          </div>
+            <div class="col-md-3 mb-2 mb-md-0">
+                <label class="form-label small text-muted mb-1">Start Date</label>
+                <input type="date" name="start_date" class="form-control form-control-sm" value="{{ start_date|default:'' }}">
+            </div>
+            <div class="col-md-3 mb-2 mb-md-0">
+                <label class="form-label small text-muted mb-1">End Date</label>
+                <input type="date" name="end_date" class="form-control form-control-sm" value="{{ end_date|default:'' }}">
+            </div>
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-sm btn-primary w-100"><i class="ri-filter-3-line"></i> Filter</button>
+                <a href="{% url 'laboratory:patient_detail' patient.pk %}" class="btn btn-sm btn-outline-secondary w-100">Clear</a>
+            </div>
+          </form>
+        </div>
+        <div class="card-body">
+          {% if grouped_results %}
+            <div class="accordion" id="resultsAccordion">
+              {% for date_key, categories in grouped_results.items %}
+              {% with date_id=date_key|slugify %}
+              <div class="accordion-item mb-3 border rounded shadow-sm">
+                <h2 class="accordion-header position-relative" id="heading-{{ date_id }}">
+                  <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ date_id }}" aria-expanded="false" aria-controls="collapse-{{ date_id }}">
+                    <i class="ri-calendar-event-line me-2 text-primary"></i> {{ date_type_label }}: {{ date_key }}
+                  </button>
+                  <a href="{% url 'laboratory:edit_lab_results' patient.pk date_type date_key %}" class="btn btn-warning btn-sm position-absolute top-50 translate-middle-y" style="right: 60px; z-index: 4;">
+                    <i class="ri-edit-line"></i> Update Results
+                  </a>
+                </h2>
+                <div id="collapse-{{ date_id }}" class="accordion-collapse collapse" aria-labelledby="heading-{{ date_id }}" data-bs-parent="#resultsAccordion">
+                  <div class="accordion-body bg-light">
+                    
+                    <!-- Tabs for Categories -->
+                    <ul class="nav nav-pills mb-3 gap-2" id="tabs-{{ date_id }}" role="tablist">
+                      {% for category_name, results_list in categories.items %}
+                        {% with cat_id=category_name|slugify %}
+                        <li class="nav-item" role="presentation">
+                          <button class="nav-link border border-primary-subtle rounded-pill {% if forloop.first %}active{% endif %}" 
+                                  id="tab-{{ date_id }}-{{ cat_id }}" 
+                                  data-bs-toggle="pill" 
+                                  data-bs-target="#content-{{ date_id }}-{{ cat_id }}" 
+                                  type="button" role="tab" 
+                                  aria-controls="content-{{ date_id }}-{{ cat_id }}" 
+                                  aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                            <i class="ri-test-tube-line me-1"></i> {{ category_name }}
+                          </button>
+                        </li>
+                        {% endwith %}
+                      {% endfor %}
+                    </ul>
+
+                    <!-- Tab Panes -->
+                    <div class="tab-content bg-white p-3 border rounded shadow-sm" id="tabContent-{{ date_id }}">
+                      {% for category_name, results_list in categories.items %}
+                        {% with cat_id=category_name|slugify %}
+                        <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="content-{{ date_id }}-{{ cat_id }}" role="tabpanel" aria-labelledby="tab-{{ date_id }}-{{ cat_id }}">
+                          <div class="table-responsive">
+                            <table class="table align-middle table-hover m-0">
+                                <thead class="table-light">
+                                <tr>
+                                  <th style="width: 25%">Test Name</th>
+                                  <th style="width: 10%">Code</th>
+                                  <th style="width: 15%">Request Date</th>
+                                  <th style="width: 15%">Result Date</th>
+                                  <th style="width: 15%">Result Value</th>
+                                  <th style="width: 10%">Flag</th>
+                                  <th style="width: 10%">Notes</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {% for res in results_list %}
+                                <tr>
+                                  <td><span class="fw-semibold">{{ res.test.name }}</span></td>
+                                  <td><div class="small text-muted">{{ res.test.code }}</div></td>
+                                  <td><span class="small text-muted">{{ res.order.order_date|date:"d M Y"|default:"-" }}</span></td>
+                                  <td><span class="small text-muted">{{ res.performed_date|date:"d M Y"|default:"-" }}</span></td>
+                                  <td>
+                                    <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-2 fs-6">{{ res.result_value|default:"-" }}</span>
+                                    {% if res.test.units %}<span class="ms-1 small text-muted">{{ res.test.units }}</span>{% endif %}
+                                  </td>
+                                  <td>
+                                    {% if res.flag == 'HIGH' %}
+                                      <span class="badge bg-danger">HIGH</span>
+                                    {% elif res.flag == 'LOW' %}
+                                      <span class="badge bg-warning text-dark">LOW</span>
+                                    {% elif res.flag == 'NORMAL' %}
+                                      <span class="badge bg-success">NORMAL</span>
+                                    {% else %}
+                                      <span class="text-muted">-</span>
+                                    {% endif %}
+                                  </td>
+                                  <td><span class="small text-muted">{{ res.notes|default:"-" }}</span></td>
+                                </tr>
+                                {% endfor %}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+                        {% endwith %}
+                      {% endfor %}
+                    </div>
+                    
+                  </div>
+                </div>
+              </div>
+              {% endwith %}
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="text-center p-5 text-muted">
+              <i class="ri-file-search-line display-4 text-secondary mb-3 d-block"></i>
+              <h5>No laboratory results found for this patient.</h5>
+            </div>
+          {% endif %}
         </div>
       </div>
     </div>

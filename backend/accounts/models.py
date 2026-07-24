@@ -21,5 +21,7 @@ class CustomUser(AbstractUser):
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     date_of_birth = models.DateField(blank=True, null=True)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True, null=True)
+    sites = models.ManyToManyField('sites.Site', blank=True, related_name='users')
+
     def __str__(self):
         return f"{self.username} ({self.get_role_type_display() or 'No Role'})"

@@ -37,7 +37,7 @@
                   <tr>
                     <th>Patient ID</th>
                     <th>Patient Name</th>
-                    <th>Gender</th>
+                    <th>Sex</th>
                     <th>Status</th>
                     <th>Diagnosis Actions</th>
                   </tr>
@@ -52,16 +52,16 @@
                         <div class="d-flex align-items-center">
                           {% if p.passport_size_photo %}
                             <img src="{{ p.passport_size_photo.url }}" class="img-3x rounded-5 me-3" style="object-fit: cover;" alt="Patient Avatar">
-                          {% elif p.gender == 'female' %}
-                            <img src="{% static 'assets/images/patient1.png' %}" class="img-3x rounded-5 me-3" alt="Patient Avatar">
                           {% else %}
-                            <img src="{% static 'assets/images/patient.png' %}" class="img-3x rounded-5 me-3" alt="Patient Avatar">
+                            <div class="d-flex justify-content-center align-items-center bg-primary-subtle text-primary rounded-5 img-3x me-3">
+                              <i class="ri-user-3-line fs-5"></i>
+                            </div>
                           {% endif %}
                           <span class="fw-semibold text-dark">{{ p.first_name }} {{ p.last_name }}</span>
                         </div>
                       </td>
                       <td>
-                        <span class="text-capitalize">{{ p.gender }}</span>
+                        <span class="text-capitalize">{{ p.sex }}</span>
                       </td>
                       <td>
                         <span class="badge {% if p.status == 'diagnosed' %}bg-warning-subtle text-warning{% elif p.status == 'enrolled' %}bg-success-subtle text-success{% else %}bg-info-subtle text-info{% endif %} text-uppercase px-2 py-1">{{ p.status }}</span>

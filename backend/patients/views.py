@@ -58,28 +58,40 @@ def patient_screening(request, pk):
                 }
             )
             
-            # Generate Orders
-            for test in screening.ordered_tests.all():
-                Order.objects.get_or_create(
-                    encounter=encounter,
-                    patient=patient,
-                    test=test,
-                    defaults={
-                        'ordering_doctor': request.user if request.user.is_authenticated else None,
-                        'order_type': test.category,
-                        'status': 'pending'
-                    }
-                )
-            
             patient.status = 'screened'
             patient.save()
             
-            messages.success(request, f"Screening results saved and Orders generated for {patient}.")
+            messages.success(request, f"Screening results saved for {patient}.")
             return redirect('patients:profile', pk=patient.pk)
     else:
         form = ScreeningForm(instance=screening)
         
     return render(request, 'patients/patient_screening.html', {
+        'form': form,
+        'patient': patient
+    })
+
+def test_requests(request, pk):
+    patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
+    
+    if patient.status == 'registered':
+        messages.warning(request, "Please complete the Initial Screening before proceeding to Test Requests.")
+        return redirect('patients:screening', pk=patient.pk)
+        
+    from .forms import TestRequestsForm
+    if request.method == 'POST':
+        form = TestRequestsForm(request.POST, patient=patient)
+        if form.is_valid():
+            orders = form.save(user=request.user)
+            if orders:
+                messages.success(request, f"{len(orders)} orders generated for {patient}.")
+            else:
+                messages.info(request, "No orders were selected.")
+            return redirect('patients:profile', pk=patient.pk)
+    else:
+        form = TestRequestsForm(patient=patient)
+        
+    return render(request, 'patients/test_requests_form.html', {
         'form': form,
         'patient': patient
     })
@@ -217,8 +229,8 @@ def patient_enrollment(request, pk):
             e.save()
             patient.status = 'enrolled'
             patient.save()
-            messages.success(request, f"Patient {patient} successfully enrolled in cohort: {e.get_cohort_display()}.")
-            return redirect('patients:list')
+            messages.success(request, f"Patient {patient} successfully enrolled in cohort: {e.get_cohort_display()}. Please fill out the clinical baselines.")
+            return redirect('clinical:baseline_forms', enrollment_id=e.pk)
     else:
         form = EnrollmentForm(instance=enrollment, prefix='enroll')
         

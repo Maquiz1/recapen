@@ -86,10 +86,10 @@ class PatientWorkflowTests(TestCase):
         )
         screening = Screening.objects.create(patient=patient)
         from diseases.models import Disease
-        from laboratory.models import LabTest
+        from laboratory.models import LaboratoryTest
         screening.suspected_diseases.add(Disease.objects.get(code='DM'))
-        screening.ordered_tests.add(LabTest.objects.get(code='hba1c'))
-        screening.ordered_tests.add(LabTest.objects.get(code='fbg'))
+        screening.ordered_tests.add(LaboratoryTest.objects.get(code='hba1c'))
+        screening.ordered_tests.add(LaboratoryTest.objects.get(code='fbg'))
         
         # Post DM Investigation values for ordered tests
         data = {
@@ -147,9 +147,9 @@ class PatientWorkflowTests(TestCase):
         )
         screening = Screening.objects.create(patient=patient)
         from diseases.models import Disease
-        from laboratory.models import LabTest
+        from laboratory.models import LaboratoryTest
         screening.suspected_diseases.add(Disease.objects.get(code='CARDIAC'))
-        screening.ordered_tests.add(LabTest.objects.get(code='ecg'))
+        screening.ordered_tests.add(LaboratoryTest.objects.get(code='ecg'))
         
         # Post Cardiac diagnosis confirmation but omit confirmed_cardiac_type
         consult_data = {

@@ -123,10 +123,10 @@
                       <div class="d-flex flex-wrap gap-3 border-bottom pb-2 mb-2">
                         {% if patient.passport_size_photo %}
                           <img src="{{ patient.passport_size_photo.url }}" class="img-4x rounded-3" style="object-fit: cover;" alt="Patient Image">
-                        {% elif patient.gender == 'female' %}
-                          <img src="{% static 'assets/images/patient1.png' %}" class="img-4x rounded-3" alt="Patient Image">
                         {% else %}
-                          <img src="{% static 'assets/images/patient.png' %}" class="img-4x rounded-3" alt="Patient Image">
+                          <div class="d-flex justify-content-center align-items-center bg-primary-subtle text-primary rounded-3 img-4x">
+                            <i class="ri-user-3-line fs-3"></i>
+                          </div>
                         {% endif %}
                         
                         <div class="d-flex flex-column flex-grow-1">
@@ -152,7 +152,7 @@
                           <h6 class="fw-semibold mb-1 mt-1 text-truncate" style="max-width: 140px;">{{ patient.first_name }} {{ patient.last_name }}</h6>
                           <ul class="list-unstyled d-flex mb-0 small text-muted">
                             <li class="pe-2 border-end">DOB: {{ patient.date_of_birth|date:"d/m/y" }}</li>
-                            <li class="ps-2 text-capitalize">{{ patient.gender }}</li>
+                            <li class="ps-2 text-capitalize">{{ patient.sex }}</li>
                           </ul>
                         </div>
                       </div>

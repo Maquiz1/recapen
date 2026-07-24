@@ -22,7 +22,7 @@
             </div>
             <div class="col">
               <span class="text-muted small">Gender:</span>
-              <p class="mb-0 fw-semibold text-capitalize">{{ patient.gender }}</p>
+              <p class="mb-0 fw-semibold text-capitalize">{{ patient.sex }}</p>
             </div>
             <div class="col-auto">
               <span class="badge bg-secondary-subtle text-secondary text-uppercase">{{ patient.status }}</span>
@@ -143,6 +143,26 @@
                       <label for="id_confirmed_cardiac_type" class="small text-muted fw-semibold">Cardiac Type:</label>
                       {{ c_form.confirmed_cardiac_type }}
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Consent Section -->
+            <div class="card mb-4 border border-secondary-subtle">
+              <div class="card-header bg-light">
+                <h6 class="mb-0 text-secondary"><i class="ri-file-text-line"></i> Patient Consent</h6>
+              </div>
+              <div class="card-body">
+                <div class="row gx-3">
+                  <div class="col-md-6 mb-3">
+                    <div class="form-check form-switch mt-4">
+                      {{ c_form.consent_given }}
+                      <label class="form-check-label fw-semibold ms-2" for="{{ c_form.consent_given.id_for_label }}">Consent Given for Enrollment</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="{{ c_form.date_of_consent.id_for_label }}" class="form-label">Date of Consent</label>
+                    {{ c_form.date_of_consent }}
                   </div>
                 </div>
               </div>

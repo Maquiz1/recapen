@@ -8,6 +8,9 @@
   <a href="{% url 'patients:profile' patient.pk %}" class="btn btn-outline-primary">
     <i class="ri-arrow-left-line"></i> Back to Patient
   </a>
+  <a href="{% url 'orders:order_lab_test' encounter.pk %}" class="btn btn-info text-white">
+    <i class="ri-test-tube-line"></i> Order Lab Test
+  </a>
   <button type="button" data-bs-toggle="modal" data-bs-target="#addPrescriptionModal" class="btn {% if not has_prescriptions %}btn-warning text-dark fw-bold{% else %}btn-primary{% endif %}">
     <i class="ri-capsule-line"></i> Add New Prescription
   </button>

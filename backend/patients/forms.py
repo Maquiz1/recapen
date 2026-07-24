@@ -4,18 +4,19 @@ from .models import Patient, Screening, Diagnosis, Enrollment, CARDIAC_TYPE_CHOI
 class PatientForm(forms.ModelForm):
     class Meta:
         model = Patient
-        fields = ['first_name', 'last_name', 'date_of_birth', 'gender', 'phone_number', 'national_id', 'status', 'status_date', 'follow_up_interval_months', 'passport_size_photo']
+        fields = ['first_name', 'last_name', 'date_of_birth', 'sex', 'phone_number', 'national_id', 'status', 'status_date', 'follow_up_interval_months', 'passport_size_photo', 'current_site']
         widgets = {
             'first_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter first name'}),
             'last_name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter last name'}),
             'date_of_birth': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
-            'gender': forms.Select(attrs={'class': 'form-select'}),
+            'sex': forms.Select(attrs={'class': 'form-select'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter phone number'}),
             'national_id': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter National ID'}),
             'status': forms.Select(attrs={'class': 'form-select'}),
             'status_date': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'follow_up_interval_months': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'passport_size_photo': forms.FileInput(attrs={'class': 'form-control'}),
+            'current_site': forms.Select(attrs={'class': 'form-select'}),
         }
 
 class ScreeningForm(forms.ModelForm):
@@ -23,29 +24,14 @@ class ScreeningForm(forms.ModelForm):
     suspect_dm = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_suspect_dm'}))
     suspect_cardiac = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_suspect_cardiac'}))
 
-    # We also render test checkbox choices dynamically. But since the HTML has specific static fields,
-    # we bind the dynamic checked tests in save() and load them in __init__ for backward compatibility.
-    order_scd_lab = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input scd-test'}))
-    order_scd_radiology = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input scd-test'}))
-    order_scd_echo = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input scd-test'}))
-    order_scd_screening = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input scd-test'}))
-
-    order_dm_hba1c = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input dm-test'}))
-    order_dm_c_peptide = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input dm-test'}))
-    order_dm_creatinine = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input dm-test'}))
-    order_dm_urea = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input dm-test'}))
-    order_dm_rbg = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input dm-test'}))
-    order_dm_fbg = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input dm-test'}))
-
-    order_cardiac_lab = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input cardiac-test'}))
-    order_cardiac_echo = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input cardiac-test'}))
-    order_cardiac_ecg = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input cardiac-test'}))
-    order_cardiac_xray = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input cardiac-test'}))
-
     class Meta:
         model = Screening
-        fields = ['screening_notes']
+        fields = ['date_of_screening', 'is_permanent_resident', 'known_ncd', 'type_of_screening', 'screening_notes']
         widgets = {
+            'date_of_screening': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'is_permanent_resident': forms.Select(choices=[(True, 'Yes'), (False, 'No')], attrs={'class': 'form-select'}),
+            'known_ncd': forms.Select(choices=[(True, 'Yes'), (False, 'No')], attrs={'class': 'form-select'}),
+            'type_of_screening': forms.Select(attrs={'class': 'form-select'}),
             'screening_notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Enter screening notes...'}),
         }
 
@@ -56,28 +42,10 @@ class ScreeningForm(forms.ModelForm):
             self.fields['suspect_dm'].initial = self.instance.suspected_diseases.filter(code='DM').exists()
             self.fields['suspect_cardiac'].initial = self.instance.suspected_diseases.filter(code='CARDIAC').exists()
 
-            self.fields['order_scd_lab'].initial = self.instance.ordered_tests.filter(code='scd_lab').exists()
-            self.fields['order_scd_radiology'].initial = self.instance.ordered_tests.filter(code='scd_xray').exists()
-            self.fields['order_scd_echo'].initial = self.instance.ordered_tests.filter(code='scd_echo').exists()
-            self.fields['order_scd_screening'].initial = self.instance.ordered_tests.filter(code='scd_screening').exists()
-
-            self.fields['order_dm_hba1c'].initial = self.instance.ordered_tests.filter(code='hba1c').exists()
-            self.fields['order_dm_c_peptide'].initial = self.instance.ordered_tests.filter(code='c_peptide').exists()
-            self.fields['order_dm_creatinine'].initial = self.instance.ordered_tests.filter(code='creatinine').exists()
-            self.fields['order_dm_urea'].initial = self.instance.ordered_tests.filter(code='urea').exists()
-            self.fields['order_dm_rbg'].initial = self.instance.ordered_tests.filter(code='rbg').exists()
-            self.fields['order_dm_fbg'].initial = self.instance.ordered_tests.filter(code='fbg').exists()
-
-            self.fields['order_cardiac_lab'].initial = self.instance.ordered_tests.filter(code='cardiac_lab').exists()
-            self.fields['order_cardiac_echo'].initial = self.instance.ordered_tests.filter(code='cardiac_echo').exists()
-            self.fields['order_cardiac_ecg'].initial = self.instance.ordered_tests.filter(code='ecg').exists()
-            self.fields['order_cardiac_xray'].initial = self.instance.ordered_tests.filter(code='cardiac_xray').exists()
-
     def save(self, commit=True):
         instance = super().save(commit=commit)
         
         from diseases.models import Disease
-        from laboratory.models import LabTest
 
         diseases_to_add = []
         if self.cleaned_data.get('suspect_scd'):
@@ -86,35 +54,10 @@ class ScreeningForm(forms.ModelForm):
             diseases_to_add.append(Disease.objects.get(code='DM'))
         if self.cleaned_data.get('suspect_cardiac'):
             diseases_to_add.append(Disease.objects.get(code='CARDIAC'))
-            
-        tests_to_add = []
-        mapping = {
-            'order_scd_lab': 'scd_lab',
-            'order_scd_radiology': 'scd_xray',
-            'order_scd_echo': 'scd_echo',
-            'order_scd_screening': 'scd_screening',
-            'order_dm_hba1c': 'hba1c',
-            'order_dm_c_peptide': 'c_peptide',
-            'order_dm_creatinine': 'creatinine',
-            'order_dm_urea': 'urea',
-            'order_dm_rbg': 'rbg',
-            'order_dm_fbg': 'fbg',
-            'order_cardiac_lab': 'cardiac_lab',
-            'order_cardiac_echo': 'cardiac_echo',
-            'order_cardiac_ecg': 'ecg',
-            'order_cardiac_xray': 'cardiac_xray',
-        }
-        for field_name, test_code in mapping.items():
-            if self.cleaned_data.get(field_name):
-                try:
-                    tests_to_add.append(LabTest.objects.get(code=test_code))
-                except LabTest.DoesNotExist:
-                    pass
 
         if not instance.pk:
             instance.save()
         instance.suspected_diseases.set(diseases_to_add)
-        instance.ordered_tests.set(tests_to_add)
         return instance
 
 class SCDInvestigationForm(forms.Form):
@@ -145,9 +88,9 @@ class SCDInvestigationForm(forms.Form):
         self._save_val('scd_screening', self.cleaned_data.get('scd_screening_results'), user)
 
     def _save_val(self, code, val, user):
-        from laboratory.models import PatientTestResult, LabTest
+        from laboratory.models import PatientTestResult, LaboratoryTest
         if val is not None:
-            test = LabTest.objects.get(code=code)
+            test = LaboratoryTest.objects.get(code=code)
             res, _ = PatientTestResult.objects.get_or_create(patient=self.patient, test=test)
             res.result_value = str(val)
             if user and user.is_authenticated:
@@ -189,9 +132,9 @@ class DMInvestigationForm(forms.Form):
         self._save_val('fbg', self.cleaned_data.get('fbg'), user)
 
     def _save_val(self, code, val, user):
-        from laboratory.models import PatientTestResult, LabTest
+        from laboratory.models import PatientTestResult, LaboratoryTest
         if val is not None:
-            test = LabTest.objects.get(code=code)
+            test = LaboratoryTest.objects.get(code=code)
             res, _ = PatientTestResult.objects.get_or_create(patient=self.patient, test=test)
             res.result_value = str(val)
             if user and user.is_authenticated:
@@ -230,9 +173,9 @@ class CardiacInvestigationForm(forms.Form):
         self._save_val('cardiac_xray', self.cleaned_data.get('xray_results'), user)
 
     def _save_val(self, code, val, user):
-        from laboratory.models import PatientTestResult, LabTest
+        from laboratory.models import PatientTestResult, LaboratoryTest
         if val is not None and val != '':
-            test, _ = LabTest.objects.get_or_create(code=code, defaults={'name': code.replace('_', ' ').title(), 'category': 'cardiology'})
+            test, _ = LaboratoryTest.objects.get_or_create(code=code, defaults={'name': code.replace('_', ' ').title(), })
             res, _ = PatientTestResult.objects.get_or_create(patient=self.patient, test=test)
             res.result_value = str(val)
             if user and user.is_authenticated:
@@ -247,8 +190,10 @@ class DiagnosisForm(forms.ModelForm):
 
     class Meta:
         model = Diagnosis
-        fields = ['diagnosis', 'confirmed_cardiac_type', 'comments']
+        fields = ['consent_given', 'date_of_consent', 'diagnosis', 'confirmed_cardiac_type', 'comments']
         widgets = {
+            'consent_given': forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_consent_given'}),
+            'date_of_consent': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'diagnosis': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Diagnosis...', 'required': 'required'}),
             'confirmed_cardiac_type': forms.Select(attrs={'class': 'form-select', 'id': 'id_confirmed_cardiac_type'}),
             'comments': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Clinical comments...'}),
@@ -296,3 +241,61 @@ class EnrollmentForm(forms.ModelForm):
             'cohort': forms.Select(attrs={'class': 'form-select'}),
             'remarks': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Explanation if not eligible', 'id': 'remarks_input'}),
         }
+
+class TestRequestsForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        self.patient = kwargs.pop('patient', None)
+        super().__init__(*args, **kwargs)
+        from laboratory.models import LaboratoryTest
+        tests = LaboratoryTest.objects.filter(is_active=True).select_related('laboratory_category', 'laboratory_type').order_by('laboratory_category__name', 'laboratory_type__name', 'name')
+        
+        self.grouped_fields = {}
+        for test in tests:
+            field_name = f'test_{test.id}'
+            self.fields[field_name] = forms.BooleanField(
+                required=False, 
+                label=test.name,
+                widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+            )
+            cat_name = test.laboratory_category.name if test.laboratory_category else "Other"
+            type_name = test.laboratory_type.name if test.laboratory_type else "General"
+            
+            if cat_name not in self.grouped_fields:
+                self.grouped_fields[cat_name] = {}
+            if type_name not in self.grouped_fields[cat_name]:
+                self.grouped_fields[cat_name][type_name] = []
+                
+            self.grouped_fields[cat_name][type_name].append(self[field_name])
+
+    def save(self, user=None):
+        from orders.models import Order
+        from encounters.models import Encounter
+        from laboratory.models import LaboratoryTest
+        orders_created = []
+        encounter = Encounter.objects.filter(patient=self.patient, status='in_progress').first()
+        if not encounter:
+            encounter = Encounter.objects.create(patient=self.patient, status='in_progress', doctor=user if user.is_authenticated else None)
+
+        for field_name, value in self.cleaned_data.items():
+            if field_name.startswith('test_') and value:
+                test_id = field_name.split('_')[1]
+                test = LaboratoryTest.objects.get(id=test_id)
+                
+                order_type = 'lab'
+                if test.laboratory_category:
+                    cat_name = test.laboratory_category.name.lower()
+                    if 'radiology' in cat_name or 'imaging' in cat_name:
+                        order_type = 'radiology'
+                    elif 'cardiology' in cat_name or 'echo' in cat_name:
+                        order_type = 'cardiology'
+
+                order = Order.objects.create(
+                    patient=self.patient,
+                    encounter=encounter,
+                    test=test,
+                    order_type=order_type,
+                    ordering_doctor=user if user and user.is_authenticated else None,
+                    status='pending'
+                )
+                orders_created.append(order)
+        return orders_created

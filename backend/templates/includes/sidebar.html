@@ -30,7 +30,9 @@
             {% if request.user.profile_picture %}
               <img src="{{ request.user.profile_picture.url }}" class="rounded-5" style="object-fit: cover; width: 60px; height: 60px;" alt="Profile Image">
             {% else %}
-              <img src="{% static 'assets/images/doctor.svg' %}" class="rounded-5" style="width: 60px; height: 60px;" alt="Default Profile">
+              <div class="d-flex justify-content-center align-items-center bg-primary-subtle text-primary rounded-5" style="width: 60px; height: 60px;">
+                <i class="ri-user-3-line fs-1"></i>
+              </div>
             {% endif %}
             <h6 class="mb-1 profile-name text-nowrap text-truncate text-primary">
               {% if request.user.get_full_name %}{{ request.user.get_full_name }}{% else %}{{ request.user.username }}{% endif %}
@@ -144,10 +146,15 @@
                 </a>
                 <ul class="treeview-menu">
                   <li>
-                    <a href="{% url 'laboratory:list' %}">Lab Tests List</a>
+                    <a href="{% url 'laboratory:lab_dashboard' %}" class="d-flex justify-content-between align-items-center">
+                        Pending Orders
+                        {% if pending_lab_orders_count > 0 %}
+                        <span class="badge bg-danger rounded-pill">{{ pending_lab_orders_count }}</span>
+                        {% endif %}
+                    </a>
                   </li>
                   <li>
-                    <a href="{% url 'laboratory:results_list' %}">Enter Results</a>
+                    <a href="{% url 'laboratory:list' %}">Lab Tests List</a>
                   </li>
                   <li>
                     <a href="{% url 'laboratory:patients_results' %}">Patients Results</a>

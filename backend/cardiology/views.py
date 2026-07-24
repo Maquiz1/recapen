@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from laboratory.models import LabTest
+from laboratory.models import LaboratoryTest
 from .forms import CardiologyTestForm
 from patients.models import Patient
 
 def test_list(request):
-    tests = LabTest.objects.filter(is_active=True, category='cardiology').order_by('name')
+    tests = LaboratoryTest.objects.filter(is_active=True).order_by('name')
     return render(request, 'cardiology/test_list.html', {'tests': tests})
 
 def test_create(request):
@@ -25,7 +25,7 @@ def test_create(request):
     return render(request, 'cardiology/test_form.html', {'form': form, 'title': 'Add Cardiology Test'})
 
 def test_edit(request, pk):
-    test = get_object_or_404(LabTest, pk=pk, category='cardiology')
+    test = get_object_or_404(LaboratoryTest, pk=pk)
     if request.method == 'POST':
         form = CardiologyTestForm(request.POST, instance=test)
         if form.is_valid():
@@ -41,7 +41,7 @@ def test_edit(request, pk):
     return render(request, 'cardiology/test_form.html', {'form': form, 'title': 'Edit Cardiology Test', 'test': test})
 
 def test_edit_redirect(request):
-    first_test = LabTest.objects.filter(is_active=True, category='cardiology').first()
+    first_test = LaboratoryTest.objects.filter(is_active=True).first()
     if first_test:
         return redirect('cardiology:edit', pk=first_test.pk)
     messages.warning(request, "No cardiology tests registered yet. Please create a test first.")
@@ -54,12 +54,12 @@ def patient_results_list(request):
 
 def patients_with_results(request):
     # Patients who have cardiology test results
-    patients = Patient.objects.filter(test_results__test__category='cardiology', is_deleted=False).distinct().order_by('-created_at')
+    patients = Patient.objects.filter(test_results__test__is_deleted=False).distinct().order_by('-created_at')
     return render(request, 'cardiology/patients_results_list.html', {'patients': patients})
 
 def patient_results_detail(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
-    results = patient.test_results.filter(test__category='cardiology').select_related('test').order_by('-performed_date', 'test__name')
+    results = patient.test_results.filter(test__).select_related('test').order_by('-performed_date', 'test__name')
     return render(request, 'cardiology/patient_results_detail.html', {
         'patient': patient,
         'results': results
