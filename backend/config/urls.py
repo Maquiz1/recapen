@@ -41,6 +41,7 @@ urlpatterns = [
     path('study-config/', include('study_config.urls')),
     path('clinical/', include('clinical.urls')),
     path('departments/', include('departments.urls')),
+    path('diseases/', include('diseases.urls')),
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('django.contrib.auth.urls')),
 ]

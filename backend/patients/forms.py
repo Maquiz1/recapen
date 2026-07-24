@@ -21,9 +21,12 @@ class PatientForm(forms.ModelForm):
         self.fields['phone_number'].required = True
 
 class ScreeningForm(forms.ModelForm):
-    suspect_scd = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_suspect_scd'}))
-    suspect_dm = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_suspect_dm'}))
-    suspect_cardiac = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_suspect_cardiac'}))
+    from diseases.models import Disease
+    suspected_diseases = forms.ModelMultipleChoiceField(
+        queryset=Disease.objects.filter(is_deleted=False, is_active=True),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        required=False
+    )
 
     class Meta:
         model = Screening
@@ -39,23 +42,13 @@ class ScreeningForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
-            self.fields['suspect_scd'].initial = self.instance.suspected_diseases.filter(code='SCD').exists()
-            self.fields['suspect_dm'].initial = self.instance.suspected_diseases.filter(code='DM').exists()
-            self.fields['suspect_cardiac'].initial = self.instance.suspected_diseases.filter(code='CARDIAC').exists()
+            self.fields['suspected_diseases'].initial = self.instance.suspected_diseases.filter(is_deleted=False, is_active=True)
 
     def save(self, commit=True):
         instance = super().save(commit=commit)
         
-        from diseases.models import Disease
-
-        diseases_to_add = []
-        if self.cleaned_data.get('suspect_scd'):
-            diseases_to_add.append(Disease.objects.get(code='SCD'))
-        if self.cleaned_data.get('suspect_dm'):
-            diseases_to_add.append(Disease.objects.get(code='DM'))
-        if self.cleaned_data.get('suspect_cardiac'):
-            diseases_to_add.append(Disease.objects.get(code='CARDIAC'))
-
+        diseases_to_add = self.cleaned_data.get('suspected_diseases')
+        
         if not instance.pk:
             instance.save()
         instance.suspected_diseases.set(diseases_to_add)
@@ -188,9 +181,12 @@ class CardiacInvestigationForm(forms.Form):
             res.save()
 
 class DiagnosisForm(forms.ModelForm):
-    confirmed_scd = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_confirmed_scd'}))
-    confirmed_dm = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_confirmed_dm'}))
-    confirmed_cardiac = forms.BooleanField(required=False, widget=forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_confirmed_cardiac'}))
+    from diseases.models import Disease
+    confirmed_diseases = forms.ModelMultipleChoiceField(
+        queryset=Disease.objects.filter(is_deleted=False, is_active=True),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        required=False
+    )
 
     class Meta:
         model = Diagnosis
@@ -206,21 +202,12 @@ class DiagnosisForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
-            self.fields['confirmed_scd'].initial = self.instance.confirmed_diseases.filter(code='SCD').exists()
-            self.fields['confirmed_dm'].initial = self.instance.confirmed_diseases.filter(code='DM').exists()
-            self.fields['confirmed_cardiac'].initial = self.instance.confirmed_diseases.filter(code='CARDIAC').exists()
+            self.fields['confirmed_diseases'].initial = self.instance.confirmed_diseases.filter(is_deleted=False, is_active=True)
 
     def save(self, commit=True):
         instance = super().save(commit=commit)
         
-        from diseases.models import Disease
-        diseases_to_add = []
-        if self.cleaned_data.get('confirmed_scd'):
-            diseases_to_add.append(Disease.objects.get(code='SCD'))
-        if self.cleaned_data.get('confirmed_dm'):
-            diseases_to_add.append(Disease.objects.get(code='DM'))
-        if self.cleaned_data.get('confirmed_cardiac'):
-            diseases_to_add.append(Disease.objects.get(code='CARDIAC'))
+        diseases_to_add = self.cleaned_data.get('confirmed_diseases')
             
         if not instance.pk:
             instance.save()
@@ -229,10 +216,10 @@ class DiagnosisForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        confirmed_cardiac = cleaned_data.get('confirmed_cardiac')
+        confirmed_diseases = cleaned_data.get('confirmed_diseases')
         confirmed_cardiac_type = cleaned_data.get('confirmed_cardiac_type')
         
-        if confirmed_cardiac and not confirmed_cardiac_type:
+        if confirmed_diseases and confirmed_diseases.filter(code='CARDIAC').exists() and not confirmed_cardiac_type:
             self.add_error('confirmed_cardiac_type', 'Please select a cardiac condition type.')
         return cleaned_data
 

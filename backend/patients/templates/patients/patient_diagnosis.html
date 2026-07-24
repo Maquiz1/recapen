@@ -122,27 +122,19 @@
               <div class="card-body">
                 <p class="small text-muted">Select the chronic diseases diagnosed and confirmed by clinical assessment and lab findings:</p>
                 <div class="row gx-3">
+                  {% for checkbox in c_form.confirmed_diseases %}
                   <div class="col-md-4 mb-3">
                     <div class="form-check form-switch">
-                      {{ c_form.confirmed_scd }}
-                      <label class="form-check-label fw-semibold ms-2" for="id_confirmed_scd">Confirmed SCD</label>
+                      {{ checkbox.tag }}
+                      <label class="form-check-label fw-semibold ms-2" for="{{ checkbox.id_for_label }}">{{ checkbox.choice_label }}</label>
                     </div>
                   </div>
-                  <div class="col-md-4 mb-3">
-                    <div class="form-check form-switch">
-                      {{ c_form.confirmed_dm }}
-                      <label class="form-check-label fw-semibold ms-2" for="id_confirmed_dm">Confirmed Diabetes</label>
-                    </div>
-                  </div>
-                  <div class="col-md-4 mb-3">
-                    <div class="form-check form-switch">
-                      {{ c_form.confirmed_cardiac }}
-                      <label class="form-check-label fw-semibold ms-2" for="id_confirmed_cardiac">Confirmed Cardiac</label>
-                    </div>
-                    <div class="mt-2" id="cardiac-type-container">
-                      <label for="id_confirmed_cardiac_type" class="small text-muted fw-semibold">Cardiac Type:</label>
-                      {{ c_form.confirmed_cardiac_type }}
-                    </div>
+                  {% endfor %}
+                </div>
+                <div class="row mt-2" id="cardiac-type-container" style="display:none;">
+                  <div class="col-md-4">
+                    <label for="id_confirmed_cardiac_type" class="small text-muted fw-semibold">Cardiac Type:</label>
+                    {{ c_form.confirmed_cardiac_type }}
                   </div>
                 </div>
               </div>
@@ -213,12 +205,20 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const cardiacCheck = document.getElementById('id_confirmed_cardiac');
     const cardiacContainer = document.getElementById('cardiac-type-container');
     const cardiacSelect = document.getElementById('id_confirmed_cardiac_type');
+    
+    // Find the cardiac checkbox dynamically by checking its label
+    let cardiacCheck = null;
+    const allChecks = document.querySelectorAll('input[name="confirmed_diseases"]');
+    allChecks.forEach(chk => {
+        if (chk.nextElementSibling && chk.nextElementSibling.innerText.includes('Cardiac')) {
+            cardiacCheck = chk;
+        }
+    });
 
     function toggleCardiacType() {
-      if (cardiacCheck.checked) {
+      if (cardiacCheck && cardiacCheck.checked) {
         cardiacContainer.style.display = 'block';
         cardiacSelect.required = true;
       } else {
@@ -228,8 +228,10 @@
       }
     }
 
-    cardiacCheck.addEventListener('change', toggleCardiacType);
-    toggleCardiacType();
+    if (cardiacCheck) {
+        cardiacCheck.addEventListener('change', toggleCardiacType);
+        toggleCardiacType();
+    }
 
     // Eligibility remarks toggle
     const eligibleCheck = document.getElementById('is_eligible_checkbox');

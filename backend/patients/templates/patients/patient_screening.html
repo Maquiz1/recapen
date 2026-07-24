@@ -65,38 +65,18 @@
 
             <p class="text-muted mt-3 mb-2">Select the chronic conditions suspected for this patient:</p>
             <div class="row gx-3 mb-4">
+              {% for checkbox in form.suspected_diseases %}
               <div class="col-md-4 mb-3">
-                <div class="card border border-primary-subtle p-3 h-100 bg-light-subtle">
+                <div class="card border p-3 h-100 bg-light-subtle">
                   <div class="form-check mb-2">
-                    {{ form.suspect_scd }}
-                    <label class="form-check-label fw-bold text-primary ms-1" for="id_suspect_scd">
-                      Sickle Cell Disease (SCD)
+                    {{ checkbox.tag }}
+                    <label class="form-check-label fw-bold ms-1" for="{{ checkbox.id_for_label }}">
+                      {{ checkbox.choice_label }}
                     </label>
                   </div>
                 </div>
               </div>
-              
-              <div class="col-md-4 mb-3">
-                <div class="card border border-success-subtle p-3 h-100 bg-light-subtle">
-                  <div class="form-check mb-2">
-                    {{ form.suspect_dm }}
-                    <label class="form-check-label fw-bold text-success ms-1" for="id_suspect_dm">
-                      Diabetes Mellitus (DM)
-                    </label>
-                  </div>
-                </div>
-              </div>
-              
-              <div class="col-md-4 mb-3">
-                <div class="card border border-danger-subtle p-3 h-100 bg-light-subtle">
-                  <div class="form-check mb-2">
-                    {{ form.suspect_cardiac }}
-                    <label class="form-check-label fw-bold text-danger ms-1" for="id_suspect_cardiac">
-                      Cardiac Conditions
-                    </label>
-                  </div>
-                </div>
-              </div>
+              {% endfor %}
             </div>
 
             <!-- Notes -->
