@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from orders.models import Order
 from laboratory.models.results import PatientTestResult
-from laboratory.models.tests import LaboratoryTest
+from diagnostics.models import DiagnosticTest
 
 @login_required
 def fulfill_lab_order(request, patient_id):

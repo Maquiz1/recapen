@@ -43,40 +43,68 @@
             <div class="row gx-4 mb-4">
               <!-- Left Side: Categories and Tests -->
               <div class="col-md-8">
-                <!-- Category Tabs -->
-                <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3" id="test-category-tabs" role="tablist">
-                  {% for category_name, types in form.grouped_fields.items %}
+                <!-- Department Master Tabs -->
+                <ul class="nav nav-tabs mb-4 border-bottom" id="department-tabs" role="tablist">
+                  {% for dept, categories in form.grouped_fields.items %}
                   <li class="nav-item" role="presentation">
-                    <button class="nav-link {% if forloop.first %}active{% endif %}" 
-                            id="tab-{{ category_name|slugify }}" 
-                            data-bs-toggle="pill" 
-                            data-bs-target="#pane-{{ category_name|slugify }}" 
+                    <button class="nav-link {% if forloop.first %}active{% endif %} fw-semibold text-uppercase" 
+                            id="tab-dept-{{ dept }}" 
+                            data-bs-toggle="tab" 
+                            data-bs-target="#pane-dept-{{ dept }}" 
                             type="button" role="tab" 
-                            aria-controls="pane-{{ category_name|slugify }}" 
+                            aria-controls="pane-dept-{{ dept }}" 
                             aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
-                      {{ category_name }}
+                      {{ dept }}
                     </button>
                   </li>
                   {% endfor %}
                 </ul>
 
-                <!-- Category Contents -->
-                <div class="tab-content" id="test-category-tabContent">
-                  {% for category_name, types in form.grouped_fields.items %}
+                <!-- Department Contents -->
+                <div class="tab-content" id="department-tabContent">
+                  {% for dept, categories in form.grouped_fields.items %}
                   <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
-                       id="pane-{{ category_name|slugify }}" 
+                       id="pane-dept-{{ dept }}" 
                        role="tabpanel" 
-                       aria-labelledby="tab-{{ category_name|slugify }}" tabindex="0">
+                       aria-labelledby="tab-dept-{{ dept }}" tabindex="0">
                        
-                    <div class="row gx-3">
-                      {% for type_name, fields in types.items %}
-                      <div class="col-md-6 mb-3">
-                        <div class="card border border-primary-subtle p-3 h-100 bg-light-subtle shadow-sm">
-                          <h6 class="text-primary border-bottom pb-2 mb-3">{{ type_name }}</h6>
-                          {% for field in fields %}
-                          <div class="form-check mb-2">
-                            {{ field }}
-                            <label class="form-check-label small ms-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    <!-- Category Tabs inside Department -->
+                    <ul class="nav nav-pills mb-4 gap-2 border-bottom pb-3" id="cat-tabs-{{ dept }}" role="tablist">
+                      {% for category_name, types in categories.items %}
+                      <li class="nav-item" role="presentation">
+                        <button class="nav-link {% if forloop.first %}active{% endif %}" 
+                                id="tab-{{ dept }}-{{ category_name|slugify }}" 
+                                data-bs-toggle="pill" 
+                                data-bs-target="#pane-{{ dept }}-{{ category_name|slugify }}" 
+                                type="button" role="tab" 
+                                aria-controls="pane-{{ dept }}-{{ category_name|slugify }}" 
+                                aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
+                          {{ category_name }}
+                        </button>
+                      </li>
+                      {% endfor %}
+                    </ul>
+
+                    <!-- Category Contents -->
+                    <div class="tab-content" id="cat-tabContent-{{ dept }}">
+                      {% for category_name, types in categories.items %}
+                      <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
+                           id="pane-{{ dept }}-{{ category_name|slugify }}" 
+                           role="tabpanel" 
+                           aria-labelledby="tab-{{ dept }}-{{ category_name|slugify }}" tabindex="0">
+                           
+                        <div class="row gx-3">
+                          {% for type_name, fields in types.items %}
+                          <div class="col-md-6 mb-3">
+                            <div class="card border border-primary-subtle p-3 h-100 bg-light-subtle shadow-sm">
+                              <h6 class="text-primary border-bottom pb-2 mb-3">{{ type_name }}</h6>
+                              {% for field in fields %}
+                              <div class="form-check mb-2">
+                                {{ field }}
+                                <label class="form-check-label small ms-1" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                              </div>
+                              {% endfor %}
+                            </div>
                           </div>
                           {% endfor %}
                         </div>

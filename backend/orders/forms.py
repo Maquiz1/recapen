@@ -1,11 +1,11 @@
 from django import forms
 from .models import Order
 from medications.models import Medication
-from laboratory.models import LaboratoryTest
+from diagnostics.models import DiagnosticTest
 
 class OrderLabTestForm(forms.ModelForm):
     test = forms.ModelChoiceField(
-        queryset=LaboratoryTest.objects.filter(is_active=True),
+        queryset=DiagnosticTest.objects.filter(is_active=True, department__name='laboratory'),
         widget=forms.Select(attrs={'class': 'form-select'}),
         empty_label="Select Laboratory Test..."
     )

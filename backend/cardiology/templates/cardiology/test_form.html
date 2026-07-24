@@ -47,33 +47,74 @@
                 </div>
               </div>
 
-              <!-- Category -->
+
+              <!-- Lab Category -->
               <div class="col-md-6 col-sm-12">
                 <div class="mb-3">
-                  <label class="form-label" for="id_category">Category <span class="text-danger">*</span></label>
-                  {{ form.category }}
-                  {% if form.category.errors %}
-                    <div class="text-danger mt-1 small">{{ form.category.errors.0 }}</div>
+                  <label class="form-label" for="id_laboratory_category">Category</label>
+                  {{ form.laboratory_category }}
+                  {% if form.laboratory_category.errors %}
+                    <div class="text-danger mt-1 small">{{ form.laboratory_category.errors.0 }}</div>
                   {% endif %}
                 </div>
               </div>
 
-              <!-- Mapped Diseases -->
+              <!-- Lab Sub Category -->
               <div class="col-md-6 col-sm-12">
                 <div class="mb-3">
-                  <label class="form-label" for="id_diseases">Mapped Diseases</label>
-                  {{ form.diseases }}
-                  <small class="text-muted">Hold Control/Command to select multiple diseases mapped to this test</small>
-                  {% if form.diseases.errors %}
-                    <div class="text-danger mt-1 small">{{ form.diseases.errors.0 }}</div>
+                  <label class="form-label" for="id_laboratory_type">Type</label>
+                  {{ form.laboratory_type }}
+                  {% if form.laboratory_type.errors %}
+                    <div class="text-danger mt-1 small">{{ form.laboratory_type.errors.0 }}</div>
                   {% endif %}
                 </div>
               </div>
+
+              <div class="col-sm-4">
+                <div class="mb-3">
+                  <label class="form-label" for="{{ form.range_min.id_for_label }}">Range Min</label>
+                  {{ form.range_min }}
+                  {% if form.range_min.errors %}
+                    <div class="text-danger mt-1 small">{{ form.range_min.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <div class="mb-3">
+                  <label class="form-label" for="{{ form.range_max.id_for_label }}">Range Max</label>
+                  {{ form.range_max }}
+                  {% if form.range_max.errors %}
+                    <div class="text-danger mt-1 small">{{ form.range_max.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="col-sm-4">
+                <div class="mb-3">
+                  <label class="form-label" for="{{ form.units.id_for_label }}">Units</label>
+                  {{ form.units }}
+                  {% if form.units.errors %}
+                    <div class="text-danger mt-1 small">{{ form.units.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Cost -->
+              <div class="col-md-4 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label" for="id_cost">Cost</label>
+                  {{ form.cost }}
+                  {% if form.cost.errors %}
+                    <div class="text-danger mt-1 small">{{ form.cost.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+
 
               <!-- Description -->
               <div class="col-sm-12">
                 <div class="mb-3">
-                  <label class="form-label" for="id_description">Description / Reference range</label>
+                  <label class="form-label" for="id_description">Description / Notes</label>
                   {{ form.description }}
                 </div>
               </div>

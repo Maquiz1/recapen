@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'radiology:type_list' %}" class="btn btn-outline-secondary">
+  <i class="ri-arrow-left-line"></i> Cancel
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+
+  <!-- Row starts -->
+  <div class="row gx-3">
+    <div class="col-sm-12">
+      <div class="card">
+        <div class="card-header">
+          <h5 class="card-title">{{ title }}</h5>
+        </div>
+        <div class="card-body">
+          <form method="post" novalidate>
+            {% csrf_token %}
+            
+            <div class="row gx-3">
+              <!-- Category -->
+              <div class="col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label" for="id_category">Category <span class="text-danger">*</span></label>
+                  {{ form.category }}
+                  {% if form.category.errors %}
+                    <div class="text-danger mt-1 small">{{ form.category.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Name -->
+              <div class="col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label" for="id_name">Type Name <span class="text-danger">*</span></label>
+                  {{ form.name }}
+                  {% if form.name.errors %}
+                    <div class="text-danger mt-1 small">{{ form.name.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Description -->
+              <div class="col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label" for="id_description">Description</label>
+                  {{ form.description }}
+                  {% if form.description.errors %}
+                    <div class="text-danger mt-1 small">{{ form.description.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Status -->
+              <div class="col-sm-12 mt-2">
+                <div class="form-check form-switch mb-3">
+                  {{ form.is_active }}
+                  <label class="form-check-label" for="id_is_active">Is Active?</label>
+                </div>
+              </div>
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end mt-4">
+              <a href="{% url 'radiology:type_list' %}" class="btn btn-outline-secondary">
+                Cancel
+              </a>
+              <button type="submit" class="btn btn-primary">
+                Save Type
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Row ends -->
+
+</div>
+{% endblock %}

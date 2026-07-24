@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'laboratory',
     'radiology',
     'cardiology',
+    'diagnostics',
     'encounters',
     'orders',
     'medications',

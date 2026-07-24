@@ -88,9 +88,10 @@ class SCDInvestigationForm(forms.Form):
         self._save_val('scd_screening', self.cleaned_data.get('scd_screening_results'), user)
 
     def _save_val(self, code, val, user):
-        from laboratory.models import PatientTestResult, LaboratoryTest
+        from laboratory.models import PatientTestResult
+        from diagnostics.models import DiagnosticTest
         if val is not None:
-            test = LaboratoryTest.objects.get(code=code)
+            test = DiagnosticTest.objects.get(code=code)
             res, _ = PatientTestResult.objects.get_or_create(patient=self.patient, test=test)
             res.result_value = str(val)
             if user and user.is_authenticated:
@@ -132,9 +133,10 @@ class DMInvestigationForm(forms.Form):
         self._save_val('fbg', self.cleaned_data.get('fbg'), user)
 
     def _save_val(self, code, val, user):
-        from laboratory.models import PatientTestResult, LaboratoryTest
+        from laboratory.models import PatientTestResult
+        from diagnostics.models import DiagnosticTest
         if val is not None:
-            test = LaboratoryTest.objects.get(code=code)
+            test = DiagnosticTest.objects.get(code=code)
             res, _ = PatientTestResult.objects.get_or_create(patient=self.patient, test=test)
             res.result_value = str(val)
             if user and user.is_authenticated:
@@ -173,9 +175,10 @@ class CardiacInvestigationForm(forms.Form):
         self._save_val('cardiac_xray', self.cleaned_data.get('xray_results'), user)
 
     def _save_val(self, code, val, user):
-        from laboratory.models import PatientTestResult, LaboratoryTest
+        from laboratory.models import PatientTestResult
+        from diagnostics.models import DiagnosticTest
         if val is not None and val != '':
-            test, _ = LaboratoryTest.objects.get_or_create(code=code, defaults={'name': code.replace('_', ' ').title(), })
+            test, _ = DiagnosticTest.objects.get_or_create(code=code, defaults={'test_name': code.replace('_', ' ').title(), })
             res, _ = PatientTestResult.objects.get_or_create(patient=self.patient, test=test)
             res.result_value = str(val)
             if user and user.is_authenticated:
@@ -246,31 +249,39 @@ class TestRequestsForm(forms.Form):
     def __init__(self, *args, **kwargs):
         self.patient = kwargs.pop('patient', None)
         super().__init__(*args, **kwargs)
-        from laboratory.models import LaboratoryTest
-        tests = LaboratoryTest.objects.filter(is_active=True).select_related('laboratory_category', 'laboratory_type').order_by('laboratory_category__name', 'laboratory_type__name', 'name')
+        from diagnostics.models import DiagnosticTest
+        from django.db.models import Q
+        tests = DiagnosticTest.objects.filter(
+            is_active=True
+        ).exclude(
+            Q(diagnostic_group__is_active=False) | Q(diagnostic_category__is_active=False)
+        ).select_related('diagnostic_group', 'diagnostic_category', 'department').order_by('department__name', 'diagnostic_group__name', 'diagnostic_category__name', 'test_name')
         
         self.grouped_fields = {}
         for test in tests:
             field_name = f'test_{test.id}'
             self.fields[field_name] = forms.BooleanField(
                 required=False, 
-                label=test.name,
+                label=test.test_name,
                 widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
             )
-            cat_name = test.laboratory_category.name if test.laboratory_category else "Other"
-            type_name = test.laboratory_type.name if test.laboratory_type else "General"
-            
-            if cat_name not in self.grouped_fields:
-                self.grouped_fields[cat_name] = {}
-            if type_name not in self.grouped_fields[cat_name]:
-                self.grouped_fields[cat_name][type_name] = []
+            dept = test.department.name if test.department else 'General'
+            if dept not in self.grouped_fields:
+                self.grouped_fields[dept] = {}
                 
-            self.grouped_fields[cat_name][type_name].append(self[field_name])
+            group_name = test.diagnostic_group.name if test.diagnostic_group else "Other"
+            cat_name = test.diagnostic_category.name if test.diagnostic_category else "General"
+            
+            if group_name not in self.grouped_fields[dept]:
+                self.grouped_fields[dept][group_name] = {}
+            if cat_name not in self.grouped_fields[dept][group_name]:
+                self.grouped_fields[dept][group_name][cat_name] = []
+            self.grouped_fields[dept][group_name][cat_name].append(self[field_name])
 
     def save(self, user=None):
         from orders.models import Order
         from encounters.models import Encounter
-        from laboratory.models import LaboratoryTest
+        from diagnostics.models import DiagnosticTest
         orders_created = []
         encounter = Encounter.objects.filter(patient=self.patient, status='in_progress').first()
         if not encounter:
@@ -279,15 +290,9 @@ class TestRequestsForm(forms.Form):
         for field_name, value in self.cleaned_data.items():
             if field_name.startswith('test_') and value:
                 test_id = field_name.split('_')[1]
-                test = LaboratoryTest.objects.get(id=test_id)
+                test = DiagnosticTest.objects.get(id=test_id)
                 
-                order_type = 'lab'
-                if test.laboratory_category:
-                    cat_name = test.laboratory_category.name.lower()
-                    if 'radiology' in cat_name or 'imaging' in cat_name:
-                        order_type = 'radiology'
-                    elif 'cardiology' in cat_name or 'echo' in cat_name:
-                        order_type = 'cardiology'
+                order_type = test.department.name.lower() if test.department else 'other'
 
                 order = Order.objects.create(
                     patient=self.patient,

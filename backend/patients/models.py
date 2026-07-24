@@ -155,7 +155,7 @@ class Screening(AuditableModel):
     type_of_screening = models.CharField(max_length=20, choices=SCREENING_TYPE_CHOICES, default='facility')
     
     suspected_diseases = models.ManyToManyField('diseases.Disease', blank=True, related_name='screenings')
-    ordered_tests = models.ManyToManyField('laboratory.LaboratoryTest', blank=True, related_name='screening_orders')
+    ordered_tests = models.ManyToManyField('diagnostics.DiagnosticTest', blank=True, related_name='screening_orders')
     screening_notes = models.TextField(blank=True, null=True)
 
     def __str__(self):

@@ -28,57 +28,154 @@
   <div class="row gx-3">
     <div class="col-sm-12">
       <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="card-title">Registered Radiology Tests</h5>
-          <div class="search-container d-md-block d-none">
-            <input type="text" class="form-control" id="searchTests" placeholder="Search Test Name/Code...">
-            <i class="ri-search-line" style="position: absolute; right: 15px; top: 12px; color: #aaa;"></i>
-          </div>
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <h5 class="card-title mb-0">Registered Radiology Tests <span class="badge bg-primary ms-2">{{ total_tests }} Tests</span></h5>
         </div>
         <div class="card-body">
+          <form method="get" action="{% url 'radiology:list' %}" class="row gx-2 gy-2 mb-4 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label small">Search Name</label>
+              <input type="text" name="q" class="form-control" placeholder="Search Test Name..." value="{{ current_q }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small">Category</label>
+              <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                {% for c in categories %}
+                <option value="{{ c.id }}" {% if current_category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small">Type</label>
+              <select name="type" class="form-select">
+                <option value="">All Types</option>
+                {% for t in types %}
+                <option value="{{ t.id }}" {% if current_type == t.id|stringformat:"s" %}selected{% endif %}>{{ t.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small">Status</label>
+              <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="active" {% if current_status == 'active' %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if current_status == 'inactive' %}selected{% endif %}>Inactive</option>
+              </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+              <button type="submit" class="btn btn-primary w-100">Filter</button>
+              <a href="{% url 'radiology:list' %}" class="btn btn-outline-secondary">Clear</a>
+            </div>
+          </form>
+          <style>
+            .table-bordered > tbody > tr:last-child > td {
+              border-bottom: 1px solid #dee2e6 !important;
+            }
+          </style>
           <div class="table-outer">
             <div class="table-responsive">
-              <table class="table align-middle truncate m-0 table-hover">
-                <thead>
+              <table class="table align-middle m-0 table-hover table-bordered">
+                <thead class="table-primary text-white">
                   <tr>
-                    <th>Test Name</th>
-                    <th>Unique Code</th>
                     <th>Category</th>
-                    <th>Mapped Diseases</th>
-                    <th>Actions</th>
+                    <th>Type</th>
+                    <th>Test Name</th>
+                    <th>Units</th>
+                    <th>Range</th>
+                    <th>Description</th>
+                    <th>Cost</th>
+                    <th>Status</th>
+                    <th>Action</th>
                   </tr>
                 </thead>
                 <tbody id="testTableBody">
                   {% for test in tests %}
-                    <tr class="test-row-item" data-name="{{ test.name }}" data-code="{{ test.code }}">
+                    <tr class="test-row-item" data-name="{{ test.name }}" data-code="{{ test.code }}" data-category="{{ test.laboratory_category.name|default:'' }}" data-type="{{ test.laboratory_type.name|default:'' }}">
+                      <td>{{ test.laboratory_category.name|default:"-" }}</td>
+                      <td>{{ test.laboratory_type.name|default:"-" }}</td>
+                      <td>{{ test.name }}</td>
+                      <td>{{ test.units|default:"" }}</td>
                       <td>
-                        <div class="d-flex align-items-center">
-                          <div class="icon-box sm bg-primary-subtle rounded-5 me-2 text-primary">
-                            <i class="ri-pulse-line"></i>
-                          </div>
-                          <span class="fw-semibold text-dark">{{ test.name }}</span>
+                        {% if test.range_min and test.range_max and test.range_min != 'N/A' and test.range_max != 'N/A' and test.range_min != '0' and test.range_max != '0' %}
+                          {{ test.range_min }} - {{ test.range_max }}
+                        {% elif test.range_min and test.range_min != 'N/A' and test.range_min != '0' %}
+                          {{ test.range_min }}
+                        {% endif %}
+                      </td>
+                      <td>{{ test.description|truncatechars:30|default:"" }}</td>
+                      <td>{{ test.cost }}</td>
+                      <td>
+                        {% if test.is_active %}
+                          <span class="badge bg-success rounded-pill px-3">Active</span>
+                        {% else %}
+                          <span class="badge bg-danger rounded-pill px-3">Inactive</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <div class="dropdown">
+                          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="window">
+                            Action
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#viewTestModal{{ test.pk }}"><i class="ri-eye-line me-2"></i> View</a></li>
+                            <li><a class="dropdown-item text-primary" href="{% url 'radiology:edit' test.pk %}"><i class="ri-edit-box-line me-2"></i> Edit</a></li>
+                            {% if test.is_active %}
+                              <li><a class="dropdown-item text-warning" href="{% url 'radiology:deactivate' test.pk %}"><i class="ri-eye-off-line me-2"></i> Deactivate</a></li>
+                            {% else %}
+                              <li><a class="dropdown-item text-success" href="{% url 'radiology:activate' test.pk %}"><i class="ri-eye-line me-2"></i> Activate</a></li>
+                            {% endif %}
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'radiology:delete' test.pk %}" onclick="return confirm('Are you sure you want to delete this test?');"><i class="ri-delete-bin-line me-2"></i> Delete</a>
+                            </li>
+                          </ul>
                         </div>
-                      </td>
-                      <td><code>{{ test.code }}</code></td>
-                      <td>
-                        <span class="badge bg-secondary text-capitalize">{{ test.get_category_display }}</span>
-                      </td>
-                      <td>
-                        {% for disease in test.diseases.all %}
-                          <span class="badge bg-primary-subtle text-primary">{{ disease.name }}</span>
-                        {% empty %}
-                          <span class="text-muted small">None</span>
-                        {% endfor %}
-                      </td>
-                      <td>
-                        <a href="{% url 'radiology:edit' test.pk %}" class="btn btn-outline-warning btn-sm">
-                          <i class="ri-edit-line"></i> Edit
-                        </a>
+
+                        <!-- View Modal -->
+                        <div class="modal fade" id="viewTestModal{{ test.pk }}" tabindex="-1" aria-labelledby="viewTestModalLabel{{ test.pk }}" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="viewTestModalLabel{{ test.pk }}">Test Details: {{ test.name }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <p><strong>Name:</strong> {{ test.name }}</p>
+                                <p><strong>Code:</strong> {{ test.code }}</p>
+                                <p><strong>Category:</strong> {{ test.laboratory_category.name|default:"-" }}</p>
+                                <p><strong>Type:</strong> {{ test.laboratory_type.name|default:"-" }}</p>
+                                <p><strong>Units:</strong> {{ test.units|default:"-" }}</p>
+                                <p><strong>Range:</strong> 
+                                  {% if test.range_min and test.range_max and test.range_min != 'N/A' and test.range_max != 'N/A' and test.range_min != '0' and test.range_max != '0' %}
+                                    {{ test.range_min }} - {{ test.range_max }}
+                                  {% elif test.range_min and test.range_min != 'N/A' and test.range_min != '0' %}
+                                    {{ test.range_min }}
+                                  {% else %}
+                                    -
+                                  {% endif %}
+                                </p>
+                                <p><strong>Cost:</strong> {{ test.cost }}</p>
+                                <p><strong>Description:</strong> {{ test.description|default:"-" }}</p>
+                                <p><strong>Status:</strong> 
+                                  {% if test.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                  {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                  {% endif %}
+                                </p>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- End View Modal -->
                       </td>
                     </tr>
                   {% empty %}
                     <tr>
-                      <td colspan="5" class="text-center p-5 text-muted">
+                      <td colspan="9" class="text-center p-5 text-muted">
                         <h5>No laboratory tests registered yet.</h5>
                         <p class="mb-0">Click the "Register New Test" button at the top right to get started.</p>
                       </td>
@@ -89,32 +186,37 @@
             </div>
           </div>
         </div>
+        
+        {% if tests.has_other_pages %}
+        <div class="card-footer d-flex justify-content-between align-items-center">
+          <span class="text-muted">Showing page {{ tests.number }} of {{ tests.paginator.num_pages }}</span>
+          <ul class="pagination pagination-sm m-0">
+            {% if tests.has_previous %}
+              <li class="page-item"><a class="page-link" href="?page={{ tests.previous_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">Previous</a></li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">Previous</span></li>
+            {% endif %}
+            
+            {% for i in tests.paginator.page_range %}
+              {% if tests.number == i %}
+                <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+              {% elif i > tests.number|add:'-3' and i < tests.number|add:'3' %}
+                <li class="page-item"><a class="page-link" href="?page={{ i }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">{{ i }}</a></li>
+              {% endif %}
+            {% endfor %}
+            
+            {% if tests.has_next %}
+              <li class="page-item"><a class="page-link" href="?page={{ tests.next_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">Next</a></li>
+            {% else %}
+              <li class="page-item disabled"><span class="page-link">Next</span></li>
+            {% endif %}
+          </ul>
+        </div>
+        {% endif %}
+        
       </div>
     </div>
   </div>
   <!-- Row ends -->
 </div>
-
-<script>
-  // Simple client-side search filtering
-  document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchTests');
-    const tableRows = document.querySelectorAll('.test-row-item');
-
-    if (searchInput) {
-      searchInput.addEventListener('input', function(e) {
-        const query = e.target.value.toLowerCase().trim();
-        tableRows.forEach(row => {
-          const name = row.getAttribute('data-name').toLowerCase();
-          const code = row.getAttribute('data-code').toLowerCase();
-          if (name.includes(query) || code.includes(query)) {
-            row.style.display = '';
-          } else {
-            row.style.display = 'none';
-          }
-        });
-      });
-    }
-  });
-</script>
 {% endblock %}

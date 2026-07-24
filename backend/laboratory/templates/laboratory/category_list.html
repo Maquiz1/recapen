@@ -70,12 +70,45 @@
                             Action
                           </button>
                           <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#viewCategoryModal{{ category.pk }}"><i class="ri-eye-line me-2"></i> View</a></li>
                             <li><a class="dropdown-item text-primary" href="{% url 'laboratory:category_edit' category.pk %}"><i class="ri-edit-box-line me-2"></i> Edit</a></li>
+                            {% if category.is_active %}
+                              <li><a class="dropdown-item text-warning" href="{% url 'laboratory:category_deactivate' category.pk %}"><i class="ri-eye-off-line me-2"></i> Deactivate</a></li>
+                            {% else %}
+                              <li><a class="dropdown-item text-success" href="{% url 'laboratory:category_activate' category.pk %}"><i class="ri-eye-line me-2"></i> Activate</a></li>
+                            {% endif %}
                             <li>
                                 <a class="dropdown-item text-danger" href="{% url 'laboratory:category_delete' category.pk %}" onclick="return confirm('Are you sure you want to delete this category?');"><i class="ri-delete-bin-line me-2"></i> Delete</a>
                             </li>
                           </ul>
                         </div>
+
+                        <!-- View Modal -->
+                        <div class="modal fade" id="viewCategoryModal{{ category.pk }}" tabindex="-1" aria-labelledby="viewCategoryModalLabel{{ category.pk }}" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="viewCategoryModalLabel{{ category.pk }}">Category Details: {{ category.name }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <p><strong>Name:</strong> {{ category.name }}</p>
+                                <p><strong>Description:</strong> {{ category.description|default:"-" }}</p>
+                                <p><strong>Status:</strong> 
+                                  {% if category.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                  {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                  {% endif %}
+                                </p>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- End View Modal -->
                       </td>
                     </tr>
                   {% empty %}

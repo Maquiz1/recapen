@@ -118,7 +118,7 @@
                             Action
                           </button>
                           <ul class="dropdown-menu dropdown-menu-end shadow">
-                            <li><a class="dropdown-item" href="{% url 'laboratory:edit' test.pk %}"><i class="ri-eye-line me-2"></i> View</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#viewTestModal{{ test.pk }}"><i class="ri-eye-line me-2"></i> View</a></li>
                             <li><a class="dropdown-item text-primary" href="{% url 'laboratory:edit' test.pk %}"><i class="ri-edit-box-line me-2"></i> Edit</a></li>
                             {% if test.is_active %}
                               <li><a class="dropdown-item text-warning" href="{% url 'laboratory:deactivate' test.pk %}"><i class="ri-eye-off-line me-2"></i> Deactivate</a></li>
@@ -130,6 +130,47 @@
                             </li>
                           </ul>
                         </div>
+
+                        <!-- View Modal -->
+                        <div class="modal fade" id="viewTestModal{{ test.pk }}" tabindex="-1" aria-labelledby="viewTestModalLabel{{ test.pk }}" aria-hidden="true">
+                          <div class="modal-dialog">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="viewTestModalLabel{{ test.pk }}">Test Details: {{ test.name }}</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                              </div>
+                              <div class="modal-body">
+                                <p><strong>Name:</strong> {{ test.name }}</p>
+                                <p><strong>Code:</strong> {{ test.code }}</p>
+                                <p><strong>Category:</strong> {{ test.laboratory_category.name|default:"-" }}</p>
+                                <p><strong>Type:</strong> {{ test.laboratory_type.name|default:"-" }}</p>
+                                <p><strong>Units:</strong> {{ test.units|default:"-" }}</p>
+                                <p><strong>Range:</strong> 
+                                  {% if test.range_min and test.range_max and test.range_min != 'N/A' and test.range_max != 'N/A' and test.range_min != '0' and test.range_max != '0' %}
+                                    {{ test.range_min }} - {{ test.range_max }}
+                                  {% elif test.range_min and test.range_min != 'N/A' and test.range_min != '0' %}
+                                    {{ test.range_min }}
+                                  {% else %}
+                                    -
+                                  {% endif %}
+                                </p>
+                                <p><strong>Cost:</strong> {{ test.cost }}</p>
+                                <p><strong>Description:</strong> {{ test.description|default:"-" }}</p>
+                                <p><strong>Status:</strong> 
+                                  {% if test.is_active %}
+                                    <span class="badge bg-success">Active</span>
+                                  {% else %}
+                                    <span class="badge bg-danger">Inactive</span>
+                                  {% endif %}
+                                </p>
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <!-- End View Modal -->
                       </td>
                     </tr>
                   {% empty %}

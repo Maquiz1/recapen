@@ -1,9 +1,9 @@
 from django import forms
-from laboratory.models import LaboratoryCategory, LaboratoryType
+from diagnostics.models import DiagnosticGroup, DiagnosticCategory
 
 class CategoryForm(forms.ModelForm):
     class Meta:
-        model = LaboratoryCategory
+        model = DiagnosticGroup
         fields = ['name', 'description', 'is_active']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Haematology'}),
@@ -13,10 +13,10 @@ class CategoryForm(forms.ModelForm):
 
 class TypeForm(forms.ModelForm):
     class Meta:
-        model = LaboratoryType
-        fields = ['category', 'name', 'description', 'is_active']
+        model = DiagnosticCategory
+        fields = ['group', 'name', 'description', 'is_active']
         widgets = {
-            'category': forms.Select(attrs={'class': 'form-select'}),
+            'group': forms.Select(attrs={'class': 'form-select'}),
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Renal Function Test'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Enter description...'}),
             'is_active': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
