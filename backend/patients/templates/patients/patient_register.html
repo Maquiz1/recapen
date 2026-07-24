@@ -15,7 +15,7 @@
           <h5 class="card-title">Add Patient Details</h5>
         </div>
         <div class="card-body">
-          <form method="post" enctype="multipart/form-data" novalidate>
+          <form method="post" enctype="multipart/form-data">
             {% csrf_token %}
             
             <!-- Row starts -->
@@ -57,14 +57,14 @@
               <!-- Sex -->
               <div class="col-xxl-3 col-lg-4 col-sm-6">
                 <div class="mb-3">
-                  <label class="form-label" for="id_sex">Sex</label>
+                  <label class="form-label" for="id_sex">Sex <span class="text-danger">*</span></label>
                   <div class="d-flex gap-3 mt-2">
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="sex" id="sex_male" value="male" {% if form.sex.value == 'male' %}checked{% endif %}>
+                      <input class="form-check-input" type="radio" name="sex" id="sex_male" value="male" {% if form.sex.value == 'male' %}checked{% endif %} required>
                       <label class="form-check-label" for="sex_male">Male</label>
                     </div>
                     <div class="form-check">
-                      <input class="form-check-input" type="radio" name="sex" id="sex_female" value="female" {% if form.sex.value == 'female' %}checked{% endif %}>
+                      <input class="form-check-input" type="radio" name="sex" id="sex_female" value="female" {% if form.sex.value == 'female' %}checked{% endif %} required>
                       <label class="form-check-label" for="sex_female">Female</label>
                     </div>
                   </div>
@@ -88,7 +88,7 @@
               <!-- Mobile Number -->
               <div class="col-xxl-3 col-lg-4 col-sm-6">
                 <div class="mb-3">
-                  <label class="form-label" for="id_phone_number">Mobile Number</label>
+                  <label class="form-label" for="id_phone_number">Mobile Number <span class="text-danger">*</span></label>
                   {{ form.phone_number }}
                   {% if form.phone_number.errors %}
                     <div class="text-danger mt-1 small">{{ form.phone_number.errors.0 }}</div>

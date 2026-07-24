@@ -4,7 +4,7 @@
 {% block page_title %}Cardiology Types Directory{% endblock %}
 
 {% block header_actions %}
-<a href="{% url 'cardiology:type_create' %}" class="btn btn-primary">
+<a href="{% url 'cardiology:group_create' %}" class="btn btn-primary">
   <i class="ri-add-line"></i> Register New Type
 </a>
 {% endblock %}
@@ -17,7 +17,7 @@
         {% for message in messages %}
           <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
             {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button group="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         {% endfor %}
       </div>
@@ -29,16 +29,17 @@
     <div class="col-sm-12">
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="card-title">Registered Cardiology Types</h5>
+          <h5 class="card-title">Registered Cardiology Categories</h5>
           <div class="search-container d-md-block d-none">
-            <input type="text" class="form-control" id="searchType" placeholder="Search Name or Category...">
+            <input group="text" class="form-control" id="searchGroup" placeholder="Search Name or Group...">
             <i class="ri-search-line" style="position: absolute; right: 15px; top: 12px; color: #aaa;"></i>
           </div>
         </div>
         <div class="card-body">
           <style>
-            .table-bordered > tbody > tr:last-child > td {
-              border-bottom: 1px solid #dee2e6 !important;
+            .table-bordered > tbody > tr:last-child > td,
+            .table-bordered > tbody > tr:last-child > th {
+              border: 1px solid #dee2e6 !important;
             }
           </style>
           <div class="table-outer">
@@ -46,21 +47,19 @@
               <table class="table align-middle m-0 table-hover table-bordered">
                 <thead class="table-primary text-white">
                   <tr>
-                    <th>Type Name</th>
-                    <th>Category</th>
+                    <th>Group Name</th>
                     <th>Description</th>
                     <th>Status</th>
                     <th>Action</th>
                   </tr>
                 </thead>
-                <tbody id="typeTableBody">
-                  {% for type_obj in types %}
-                    <tr class="type-row-item" data-name="{{ type_obj.name }}" data-category="{{ type_obj.category.name|default:'' }}">
-                      <td>{{ type_obj.name }}</td>
-                      <td>{{ type_obj.category.name|default:"-" }}</td>
-                      <td>{{ type_obj.description|truncatechars:80|default:"-" }}</td>
+                <tbody id="groupTableBody">
+                  {% for group in groups %}
+                    <tr class="type-row-item" data-name="{{ group.name }}" data-group="{{ group.group.name|default:'' }}">
+                      <td>{{ group.name }}</td>
+                      <td>{{ group.description|truncatechars:80|default:"-" }}</td>
                       <td>
-                        {% if type_obj.is_active %}
+                        {% if group.is_active %}
                           <span class="badge bg-success rounded-pill px-3">Active</span>
                         {% else %}
                           <span class="badge bg-danger rounded-pill px-3">Inactive</span>
@@ -68,37 +67,37 @@
                       </td>
                       <td>
                         <div class="dropdown">
-                          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="window">
+                          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" group="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="window">
                             Action
                           </button>
                           <ul class="dropdown-menu dropdown-menu-end shadow">
-                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#viewTypeModal{{ type_obj.pk }}"><i class="ri-eye-line me-2"></i> View</a></li>
-                            <li><a class="dropdown-item text-primary" href="{% url 'cardiology:type_edit' type_obj.pk %}"><i class="ri-edit-box-line me-2"></i> Edit</a></li>
-                            {% if type_obj.is_active %}
-                              <li><a class="dropdown-item text-warning" href="{% url 'cardiology:type_deactivate' type_obj.pk %}"><i class="ri-eye-off-line me-2"></i> Deactivate</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#viewTypeModal{{ group.pk }}"><i class="ri-eye-line me-2"></i> View</a></li>
+                            <li><a class="dropdown-item text-primary" href="{% url 'cardiology:group_edit' group.pk %}"><i class="ri-edit-box-line me-2"></i> Edit</a></li>
+                            {% if group.is_active %}
+                              <li><a class="dropdown-item text-warning" href="{% url 'cardiology:group_deactivate' group.pk %}"><i class="ri-eye-off-line me-2"></i> Deactivate</a></li>
                             {% else %}
-                              <li><a class="dropdown-item text-success" href="{% url 'cardiology:type_activate' type_obj.pk %}"><i class="ri-eye-line me-2"></i> Activate</a></li>
+                              <li><a class="dropdown-item text-success" href="{% url 'cardiology:group_activate' group.pk %}"><i class="ri-eye-line me-2"></i> Activate</a></li>
                             {% endif %}
                             <li>
-                                <a class="dropdown-item text-danger" href="{% url 'cardiology:type_delete' type_obj.pk %}" onclick="return confirm('Are you sure you want to delete this type?');"><i class="ri-delete-bin-line me-2"></i> Delete</a>
+                                <a class="dropdown-item text-danger" href="{% url 'cardiology:group_delete' group.pk %}" onclick="return confirm('Are you sure you want to delete this type?');"><i class="ri-delete-bin-line me-2"></i> Delete</a>
                             </li>
                           </ul>
                         </div>
 
                         <!-- View Modal -->
-                        <div class="modal fade" id="viewTypeModal{{ type_obj.pk }}" tabindex="-1" aria-labelledby="viewTypeModalLabel{{ type_obj.pk }}" aria-hidden="true">
+                        <div class="modal fade" id="viewTypeModal{{ group.pk }}" tabindex="-1" aria-labelledby="viewTypeModalLabel{{ group.pk }}" aria-hidden="true">
                           <div class="modal-dialog">
                             <div class="modal-content">
                               <div class="modal-header">
-                                <h5 class="modal-title" id="viewTypeModalLabel{{ type_obj.pk }}">Type Details: {{ type_obj.name }}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <h5 class="modal-title" id="viewTypeModalLabel{{ group.pk }}">Type Details: {{ group.name }}</h5>
+                                <button group="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
-                                <p><strong>Name:</strong> {{ type_obj.name }}</p>
-                                <p><strong>Category:</strong> {{ type_obj.category.name|default:"-" }}</p>
-                                <p><strong>Description:</strong> {{ type_obj.description|default:"-" }}</p>
+                                <p><strong>Name:</strong> {{ group.name }}</p>
+                                <p><strong>Category:</strong> {{ group.group.name|default:"-" }}</p>
+                                <p><strong>Description:</strong> {{ group.description|default:"-" }}</p>
                                 <p><strong>Status:</strong> 
-                                  {% if type_obj.is_active %}
+                                  {% if group.is_active %}
                                     <span class="badge bg-success">Active</span>
                                   {% else %}
                                     <span class="badge bg-danger">Inactive</span>
@@ -106,7 +105,7 @@
                                 </p>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button group="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                               </div>
                             </div>
                           </div>
@@ -118,7 +117,7 @@
                     <tr>
                       <td colspan="5" class="text-center py-4">
                         <i class="ri-microscope-line fs-1 text-muted d-block mb-2"></i>
-                        <p class="text-muted mb-0">No laboratory types registered yet.</p>
+                        <p class="text-muted mb-0">No laboratory groups registered yet.</p>
                       </td>
                     </tr>
                   {% endfor %}
@@ -126,24 +125,24 @@
               </table>
             </div>
             
-            {% if types.has_other_pages %}
+            {% if groups.has_other_pages %}
               <div class="mt-4 d-flex justify-content-center">
                 <nav aria-label="Page navigation">
                   <ul class="pagination pagination-sm mb-0">
-                    {% if types.has_previous %}
-                      <li class="page-item"><a class="page-link" href="?page={{ types.previous_page_number }}">Previous</a></li>
+                    {% if groups.has_previous %}
+                      <li class="page-item"><a class="page-link" href="?page={{ groups.previous_page_number }}">Previous</a></li>
                     {% endif %}
                     
-                    {% for i in types.paginator.page_range %}
-                      {% if types.number == i %}
+                    {% for i in groups.paginator.page_range %}
+                      {% if groups.number == i %}
                         <li class="page-item active"><span class="page-link">{{ i }}</span></li>
                       {% else %}
                         <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
                       {% endif %}
                     {% endfor %}
                     
-                    {% if types.has_next %}
-                      <li class="page-item"><a class="page-link" href="?page={{ types.next_page_number }}">Next</a></li>
+                    {% if groups.has_next %}
+                      <li class="page-item"><a class="page-link" href="?page={{ groups.next_page_number }}">Next</a></li>
                     {% endif %}
                   </ul>
                 </nav>
@@ -160,8 +159,8 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchType');
-    const tableBody = document.getElementById('typeTableBody');
+    const searchInput = document.getElementById('searchGroup');
+    const tableBody = document.getElementById('groupTableBody');
     if (!searchInput || !tableBody) return;
     
     const rows = tableBody.querySelectorAll('.type-row-item');
@@ -172,7 +171,7 @@
       rows.forEach(row => {
         const name = row.getAttribute('data-name').toLowerCase();
         const category = row.getAttribute('data-category').toLowerCase();
-        if (name.includes(term) || category.includes(term)) {
+        if (name.includes(term) || group.includes(term)) {
           row.style.display = '';
         } else {
           row.style.display = 'none';

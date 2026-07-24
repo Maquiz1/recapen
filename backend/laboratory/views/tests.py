@@ -32,14 +32,14 @@ def test_list(request):
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
-    categories = DiagnosticGroup.objects.filter(is_deleted=False, department__name='laboratory').order_by('name')
-    types = DiagnosticCategory.objects.filter(is_deleted=False, group__department__name='laboratory').order_by('name')
+    groups = DiagnosticGroup.objects.filter(is_deleted=False, department__name='laboratory').order_by('name')
+    groups = DiagnosticCategory.objects.filter(is_deleted=False, group__department__name='laboratory').order_by('name')
     
     context = {
         'tests': page_obj,
         'total_tests': total_tests,
-        'categories': categories,
-        'types': types,
+        'groups': groups,
+        'groups': groups,
         'current_q': q,
         'current_category': category_id,
         'current_type': type_id,

@@ -16,10 +16,10 @@ def fulfill_lab_order(request, patient_id):
     # Fetch all pending lab orders for this patient
     pending_orders = list(Order.objects.filter(
         patient=patient,
-        order_type='lab',
+        order_group='lab',
         status__in=['pending', 'in_progress'],
         test__isnull=False
-    ).select_related('test', 'test__laboratory_category', 'test__laboratory_type', 'ordering_doctor'))
+    ).select_related('test', 'test__diagnostic_group', 'test__diagnostic_category', 'ordering_doctor'))
 
     if not pending_orders:
         messages.info(request, f"No pending laboratory orders found for {patient}.")
@@ -45,15 +45,15 @@ def fulfill_lab_order(request, patient_id):
     # Group tests by Category and Type for the template
     grouped_tests = {}
     for test in all_tests_to_fulfill:
-        cat_name = test.laboratory_category.name if test.laboratory_category else "Uncategorized"
-        type_name = test.laboratory_type.name if test.laboratory_type else "General"
+        cat_name = test.laboratory_group.name if test.diagnostic_group else "Uncategorized"
+        group_name = test.diagnostic_group.name if test.diagnostic_category else "General"
         
         if cat_name not in grouped_tests:
             grouped_tests[cat_name] = {}
-        if type_name not in grouped_tests[cat_name]:
-            grouped_tests[cat_name][type_name] = []
+        if group_name not in grouped_tests[cat_name]:
+            grouped_tests[cat_name][group_name] = []
             
-        grouped_tests[cat_name][type_name].append(test)
+        grouped_tests[cat_name][group_name].append(test)
 
     if request.method == 'POST':
         completed_orders = set()
@@ -112,8 +112,8 @@ def fulfill_lab_order(request, patient_id):
     has_urgent = any(o.urgency == 'urgent' for o in pending_orders)
 
     category_counts = {}
-    for cat_name, types in grouped_tests.items():
-        category_counts[cat_name] = sum(len(tests) for tests in types.values())
+    for cat_name, groups in grouped_tests.items():
+        category_counts[cat_name] = sum(len(tests) for tests in groups.values())
 
     context = {
         'patient': patient,
@@ -134,7 +134,7 @@ def edit_lab_results(request, patient_id, date_type, date_string):
     patient = get_object_or_404(Patient, pk=patient_id)
     
     # Base queryset for existing results
-    results = PatientTestResult.objects.filter(patient=patient).select_related('test', 'test__laboratory_category', 'test__laboratory_type', 'order', 'order__encounter', 'order__ordering_doctor')
+    results = PatientTestResult.objects.filter(patient=patient).select_related('test', 'test__diagnostic_group', 'test__diagnostic_category', 'order', 'order__encounter', 'order__ordering_doctor')
     
     # Filter down to the specific date string
     try:
@@ -195,16 +195,16 @@ def edit_lab_results(request, patient_id, date_type, date_string):
     # Group results by Category and Type for the template
     grouped_results = defaultdict(lambda: defaultdict(list))
     for res in results:
-        cat = res.test.laboratory_category.name if res.test.laboratory_category else "Uncategorized"
-        typ = res.test.laboratory_type.name if res.test.laboratory_type else "General"
+        cat = res.test.laboratory_group.name if res.test.diagnostic_group else "Uncategorized"
+        typ = res.test.diagnostic_group.name if res.test.diagnostic_category else "General"
         grouped_results[cat][typ].append(res)
         
     grouped_results = {k: dict(v) for k, v in grouped_results.items()}
     
     category_counts = {}
-    for cat_name, types in grouped_results.items():
+    for cat_name, groups in grouped_results.items():
         pending_count = 0
-        for tests in types.values():
+        for tests in groups.values():
             for res in tests:
                 if not res.result_value:
                     pending_count += 1
@@ -218,7 +218,7 @@ def edit_lab_results(request, patient_id, date_type, date_string):
         'grouped_results': grouped_results,
         'category_counts': category_counts,
         'date_string': date_string,
-        'date_type_label': date_type.replace('_', ' ').title(),
+        'date_type_label': date_group.replace('_', ' ').title(),
         'first_doctor': first_doctor
     }
     return render(request, 'laboratory/edit_results.html', context)

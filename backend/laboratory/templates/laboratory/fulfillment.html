@@ -54,20 +54,20 @@
                         {% if grouped_tests %}
                         <!-- Category Tabs -->
                         <ul class="nav nav-pills mb-4 gap-2" id="test-category-tabs" role="tablist">
-                          {% for category_name, types in grouped_tests.items %}
-                            {% with cat_id=category_name|slugify %}
+                          {% for group_name, groups in grouped_tests.items %}
+                            {% with cat_id=group_name|slugify %}
                             <li class="nav-item" role="presentation">
                               <button class="nav-link border border-primary-subtle rounded-pill {% if forloop.first %}active{% endif %}" 
                                       id="tab-{{ cat_id }}" 
                                       data-bs-toggle="pill" 
                                       data-bs-target="#content-{{ cat_id }}" 
-                                      type="button" role="tab" 
+                                      group="button" role="tab" 
                                       aria-controls="content-{{ cat_id }}" 
                                       aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
-                                <i class="ri-test-tube-line me-1"></i> {{ category_name }}
+                                <i class="ri-test-tube-line me-1"></i> {{ group_name }}
                                 <span class="badge bg-warning text-dark rounded-pill ms-1 border border-warning">
                                   {% for k, count in category_counts.items %}
-                                    {% if k == category_name %}
+                                    {% if k == group_name %}
                                       {{ count }}
                                     {% endif %}
                                   {% endfor %}
@@ -80,15 +80,15 @@
 
                         <!-- Tab Content -->
                         <div class="tab-content" id="test-category-content">
-                          {% for category_name, types in grouped_tests.items %}
-                            {% with cat_id=category_name|slugify %}
+                          {% for group_name, groups in grouped_tests.items %}
+                            {% with cat_id=group_name|slugify %}
                             <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" 
                                  id="content-{{ cat_id }}" role="tabpanel" aria-labelledby="tab-{{ cat_id }}" tabindex="0">
                               
-                                {% for type_name, tests in types.items %}
+                                {% for group_name, tests in groups.items %}
                                 <div class="mb-4">
                                     <h6 class="text-primary border-bottom border-primary-subtle pb-2 mb-3">
-                                        <i class="ri-microscope-line me-1"></i> {{ type_name }}
+                                        <i class="ri-microscope-line me-1"></i> {{ group_name }}
                                     </h6>
                                     
                                     <div class="table-responsive">
@@ -108,7 +108,7 @@
                                                 <tr class="result-row" data-min="{{ test.range_min }}" data-max="{{ test.range_max }}">
                                                     <td><strong>{{ test.name }}</strong></td>
                                                     <td>
-                                                        <input type="text" name="result_{{ test.id }}" class="form-control form-control-sm result-input" data-test-id="{{ test.id }}" autocomplete="off" required>
+                                                        <input group="text" name="result_{{ test.id }}" class="form-control form-control-sm result-input" data-test-id="{{ test.id }}" autocomplete="off" required>
                                                         <div class="invalid-feedback">Please enter a result.</div>
                                                     </td>
                                                     <td>{{ test.units|default:"-" }}</td>
@@ -125,7 +125,7 @@
                                                         <span class="badge bg-secondary flag-badge" style="display:none;">-</span>
                                                     </td>
                                                     <td>
-                                                        <input type="text" name="notes_{{ test.id }}" class="form-control form-control-sm" placeholder="Optional notes...">
+                                                        <input group="text" name="notes_{{ test.id }}" class="form-control form-control-sm" placeholder="Optional notes...">
                                                     </td>
                                                 </tr>
                                                 {% endfor %}
@@ -145,7 +145,7 @@
 
                         <div class="d-flex justify-content-end gap-2 mt-4">
                             <a href="{% url 'laboratory:lab_dashboard' %}" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-success fw-bold">Submit Results</button>
+                            <button group="submit" class="btn btn-success fw-bold">Submit Results</button>
                         </div>
                     </form>
                 </div>

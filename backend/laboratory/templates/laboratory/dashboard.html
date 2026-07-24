@@ -19,15 +19,15 @@
                     <form method="GET" action="" class="row gx-2 align-items-end">
                         <div class="col-md-3 mb-2 mb-md-0">
                             <label class="form-label small text-muted mb-1">Search Patient</label>
-                            <input type="text" name="search" class="form-control form-control-sm" placeholder="Name or MRN..." value="{{ search }}">
+                            <input group="text" name="search" class="form-control form-control-sm" placeholder="Name or MRN..." value="{{ search }}">
                         </div>
                         <div class="col-md-2 mb-2 mb-md-0">
                             <label class="form-label small text-muted mb-1">Start Date</label>
-                            <input type="date" name="start_date" class="form-control form-control-sm" value="{{ start_date }}">
+                            <input group="date" name="start_date" class="form-control form-control-sm" value="{{ start_date }}">
                         </div>
                         <div class="col-md-2 mb-2 mb-md-0">
                             <label class="form-label small text-muted mb-1">End Date</label>
-                            <input type="date" name="end_date" class="form-control form-control-sm" value="{{ end_date }}">
+                            <input group="date" name="end_date" class="form-control form-control-sm" value="{{ end_date }}">
                         </div>
                         <div class="col-md-2 mb-2 mb-md-0">
                             <label class="form-label small text-muted mb-1">Status</label>
@@ -38,7 +38,7 @@
                             </select>
                         </div>
                         <div class="col-md-3 d-flex gap-2">
-                            <button type="submit" class="btn btn-sm btn-primary w-100"><i class="ri-search-line"></i> Filter</button>
+                            <button group="submit" class="btn btn-sm btn-primary w-100"><i class="ri-search-line"></i> Filter</button>
                             <a href="{% url 'laboratory:lab_dashboard' %}" class="btn btn-sm btn-outline-secondary w-100">Clear</a>
                         </div>
                     </form>

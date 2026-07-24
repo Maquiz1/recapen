@@ -58,6 +58,62 @@ class Patient(AuditableModel):
         super().save(*args, **kwargs)
 
     @property
+    def pathway_status(self):
+        status_dict = {}
+        # Step 1: Registration
+        status_dict['step_1'] = 'complete'
+        
+        # Step 2: Screening
+        if not hasattr(self, 'screening'):
+            status_dict['step_2'] = 'no_data'
+        else:
+            if self.screening.suspected_diseases.exists():
+                status_dict['step_2'] = 'complete'
+            else:
+                status_dict['step_2'] = 'incomplete'
+                
+        # Step 3: Test Requests
+        order_count = self.orders.count()
+        if order_count == 0:
+            status_dict['step_3'] = 'no_data'
+        else:
+            status_dict['step_3'] = 'complete'
+            
+        # Step 4: Orders Fulfillment
+        if order_count == 0:
+            status_dict['step_4'] = 'no_data'
+        else:
+            pending_count = self.orders.filter(status='pending').count()
+            if pending_count > 0:
+                status_dict['step_4'] = 'incomplete'
+            else:
+                status_dict['step_4'] = 'complete'
+                
+        # Step 5: Clinical Diagnosis
+        if not hasattr(self, 'diagnosis'):
+            status_dict['step_5'] = 'no_data'
+        else:
+            if self.diagnosis.confirmed_diseases.exists():
+                status_dict['step_5'] = 'complete'
+            else:
+                status_dict['step_5'] = 'incomplete'
+                
+        # Step 6: Study Enrollment
+        if not hasattr(self, 'enrollment'):
+            status_dict['step_6'] = 'no_data'
+        else:
+            if self.enrollment.cohort:
+                status_dict['step_6'] = 'complete'
+            else:
+                status_dict['step_6'] = 'incomplete'
+                
+        # Steps 7 and 8
+        status_dict['step_7'] = 'no_data'
+        status_dict['step_8'] = 'no_data'
+        
+        return status_dict
+
+    @property
     def scd_investigation(self):
         class SCDInvestigationWrapper:
             def __init__(self, patient):

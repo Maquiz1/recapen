@@ -17,7 +17,7 @@
         {% for message in messages %}
           <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
             {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button group="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         {% endfor %}
       </div>
@@ -29,28 +29,28 @@
     <div class="col-sm-12">
       <div class="card mb-3">
         <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
-          <h5 class="card-title mb-0">Registered Laboratory Tests <span class="badge bg-primary ms-2">{{ total_tests }} Tests</span></h5>
+          <h5 class="card-title mb-0">Registered Laboratory Test lists <span class="badge bg-primary ms-2">{{ total_tests }} Tests</span></h5>
         </div>
         <div class="card-body">
           <form method="get" action="{% url 'laboratory:list' %}" class="row gx-2 gy-2 mb-4 align-items-end">
             <div class="col-md-3">
               <label class="form-label small">Search Name</label>
-              <input type="text" name="q" class="form-control" placeholder="Search Test Name..." value="{{ current_q }}">
+              <input group="text" name="q" class="form-control" placeholder="Search Test Name..." value="{{ current_q }}">
             </div>
             <div class="col-md-3">
-              <label class="form-label small">Category</label>
+              <label class="form-label small">Group</label>
               <select name="category" class="form-select">
-                <option value="">All Categories</option>
-                {% for c in categories %}
+                <option value="">All Groups</option>
+                {% for c in groups %}
                 <option value="{{ c.id }}" {% if current_category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
                 {% endfor %}
               </select>
             </div>
             <div class="col-md-2">
-              <label class="form-label small">Type</label>
+              <label class="form-label small">Category</label>
               <select name="type" class="form-select">
-                <option value="">All Types</option>
-                {% for t in types %}
+                <option value="">All Categories</option>
+                {% for t in groups %}
                 <option value="{{ t.id }}" {% if current_type == t.id|stringformat:"s" %}selected{% endif %}>{{ t.name }}</option>
                 {% endfor %}
               </select>
@@ -64,13 +64,14 @@
               </select>
             </div>
             <div class="col-md-2 d-flex gap-2">
-              <button type="submit" class="btn btn-primary w-100">Filter</button>
+              <button group="submit" class="btn btn-primary w-100">Filter</button>
               <a href="{% url 'laboratory:list' %}" class="btn btn-outline-secondary">Clear</a>
             </div>
           </form>
           <style>
-            .table-bordered > tbody > tr:last-child > td {
-              border-bottom: 1px solid #dee2e6 !important;
+            .table-bordered > tbody > tr:last-child > td,
+            .table-bordered > tbody > tr:last-child > th {
+              border: 1px solid #dee2e6 !important;
             }
           </style>
           <div class="table-outer">
@@ -78,8 +79,8 @@
               <table class="table align-middle m-0 table-hover table-bordered">
                 <thead class="table-primary text-white">
                   <tr>
+                    <th>Group</th>
                     <th>Category</th>
-                    <th>Type</th>
                     <th>Test Name</th>
                     <th>Units</th>
                     <th>Range</th>
@@ -91,10 +92,10 @@
                 </thead>
                 <tbody id="testTableBody">
                   {% for test in tests %}
-                    <tr class="test-row-item" data-name="{{ test.name }}" data-code="{{ test.code }}" data-category="{{ test.laboratory_category.name|default:'' }}" data-type="{{ test.laboratory_type.name|default:'' }}">
-                      <td>{{ test.laboratory_category.name|default:"-" }}</td>
-                      <td>{{ test.laboratory_type.name|default:"-" }}</td>
-                      <td>{{ test.name }}</td>
+                    <tr class="test-row-item" data-name="{{ test.test_name }}" data-code="{{ test.code }}" data-group="{{ test.diagnostic_group.name|default:'' }}" data-category="{{ test.diagnostic_category.name|default:test.diagnostic_group.name|default:'' }}">
+                      <td>{{ test.diagnostic_group.name|default:"-" }}</td>
+                      <td>{{ test.diagnostic_category.name|default:test.diagnostic_group.name|default:"-" }}</td>
+                      <td>{{ test.test_name }}</td>
                       <td>{{ test.units|default:"" }}</td>
                       <td>
                         {% if test.range_min and test.range_max and test.range_min != 'N/A' and test.range_max != 'N/A' and test.range_min != '0' and test.range_max != '0' %}
@@ -114,7 +115,7 @@
                       </td>
                       <td>
                         <div class="dropdown">
-                          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="window">
+                          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" group="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="window">
                             Action
                           </button>
                           <ul class="dropdown-menu dropdown-menu-end shadow">
@@ -137,13 +138,13 @@
                             <div class="modal-content">
                               <div class="modal-header">
                                 <h5 class="modal-title" id="viewTestModalLabel{{ test.pk }}">Test Details: {{ test.name }}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <button group="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
                                 <p><strong>Name:</strong> {{ test.name }}</p>
                                 <p><strong>Code:</strong> {{ test.code }}</p>
-                                <p><strong>Category:</strong> {{ test.laboratory_category.name|default:"-" }}</p>
-                                <p><strong>Type:</strong> {{ test.laboratory_type.name|default:"-" }}</p>
+                                <p><strong>Category:</strong> {{ test.laboratory_group.name|default:"-" }}</p>
+                                <p><strong>Type:</strong> {{ test.diagnostic_group.name|default:"-" }}</p>
                                 <p><strong>Units:</strong> {{ test.units|default:"-" }}</p>
                                 <p><strong>Range:</strong> 
                                   {% if test.range_min and test.range_max and test.range_min != 'N/A' and test.range_max != 'N/A' and test.range_min != '0' and test.range_max != '0' %}
@@ -165,7 +166,7 @@
                                 </p>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button group="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                               </div>
                             </div>
                           </div>
@@ -192,7 +193,7 @@
           <span class="text-muted">Showing page {{ tests.number }} of {{ tests.paginator.num_pages }}</span>
           <ul class="pagination pagination-sm m-0">
             {% if tests.has_previous %}
-              <li class="page-item"><a class="page-link" href="?page={{ tests.previous_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">Previous</a></li>
+              <li class="page-item"><a class="page-link" href="?page={{ tests.previous_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_group %}&group={{ current_category }}{% endif %}{% if current_type %}&group={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">Previous</a></li>
             {% else %}
               <li class="page-item disabled"><span class="page-link">Previous</span></li>
             {% endif %}
@@ -201,12 +202,12 @@
               {% if tests.number == i %}
                 <li class="page-item active"><span class="page-link">{{ i }}</span></li>
               {% elif i > tests.number|add:'-3' and i < tests.number|add:'3' %}
-                <li class="page-item"><a class="page-link" href="?page={{ i }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">{{ i }}</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ i }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_group %}&group={{ current_category }}{% endif %}{% if current_type %}&group={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">{{ i }}</a></li>
               {% endif %}
             {% endfor %}
             
             {% if tests.has_next %}
-              <li class="page-item"><a class="page-link" href="?page={{ tests.next_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">Next</a></li>
+              <li class="page-item"><a class="page-link" href="?page={{ tests.next_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_group %}&group={{ current_category }}{% endif %}{% if current_type %}&group={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">Next</a></li>
             {% else %}
               <li class="page-item disabled"><span class="page-link">Next</span></li>
             {% endif %}

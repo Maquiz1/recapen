@@ -13,9 +13,10 @@ def run():
     kondoa_dist, _ = District.objects.get_or_create(name='Kondoa', region=dodoma)
     kondoa_ward, _ = Ward.objects.get_or_create(name='Kondoa', district=kondoa_dist)
 
-    kondoa_hospital, _ = Site.objects.get_or_create(
+    kondoa_hospital, _ = Site.objects.update_or_create(
         name='Kondoa Hospital',
         defaults={
+            'site_code': 'KND',
             'country': country,
             'zone': central_zone,
             'region': dodoma,
@@ -30,9 +31,10 @@ def run():
     karatu_dist, _ = District.objects.get_or_create(name='Karatu', region=arusha)
     karatu_ward, _ = Ward.objects.get_or_create(name='Karatu', district=karatu_dist)
 
-    karatu_hospital, _ = Site.objects.get_or_create(
+    karatu_hospital, _ = Site.objects.update_or_create(
         name='Karatu Hospital',
         defaults={
+            'site_code': 'KRT',
             'country': country,
             'zone': northern_zone,
             'region': arusha,

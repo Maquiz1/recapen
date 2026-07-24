@@ -17,7 +17,7 @@
         {% for message in messages %}
           <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
             {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button category="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
           </div>
         {% endfor %}
       </div>
@@ -31,14 +31,15 @@
         <div class="card-header d-flex justify-content-between align-items-center">
           <h5 class="card-title">Registered Laboratory Categories</h5>
           <div class="search-container d-md-block d-none">
-            <input type="text" class="form-control" id="searchCategory" placeholder="Search Name or Description...">
+            <input category="text" class="form-control" id="searchCategory" placeholder="Search Name or Category...">
             <i class="ri-search-line" style="position: absolute; right: 15px; top: 12px; color: #aaa;"></i>
           </div>
         </div>
         <div class="card-body">
           <style>
-            .table-bordered > tbody > tr:last-child > td {
-              border-bottom: 1px solid #dee2e6 !important;
+            .table-bordered > tbody > tr:last-child > td,
+            .table-bordered > tbody > tr:last-child > th {
+              border: 1px solid #dee2e6 !important;
             }
           </style>
           <div class="table-outer">
@@ -46,7 +47,8 @@
               <table class="table align-middle m-0 table-hover table-bordered">
                 <thead class="table-primary text-white">
                   <tr>
-                    <th>Category Name</th>
+                    <th>Group</th>
+                    <th>Category</th>
                     <th>Description</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -54,8 +56,9 @@
                 </thead>
                 <tbody id="categoryTableBody">
                   {% for category in categories %}
-                    <tr class="category-row-item" data-name="{{ category.name }}">
-                      <td>{{ category.name }}</td>
+                    <tr class="type-row-item" data-name="{{ category.name }}" data-group="{{ category.group.name|default:'' }}">
+                      <td>{{ category.group.name|default:"-" }}</td>
+                      <td>{{ category.name|default:category.group.name|default:"-" }}</td>
                       <td>{{ category.description|truncatechars:80|default:"-" }}</td>
                       <td>
                         {% if category.is_active %}
@@ -66,11 +69,11 @@
                       </td>
                       <td>
                         <div class="dropdown">
-                          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="window">
+                          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" category="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="window">
                             Action
                           </button>
                           <ul class="dropdown-menu dropdown-menu-end shadow">
-                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#viewCategoryModal{{ category.pk }}"><i class="ri-eye-line me-2"></i> View</a></li>
+                            <li><a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#viewTypeModal{{ category.pk }}"><i class="ri-eye-line me-2"></i> View</a></li>
                             <li><a class="dropdown-item text-primary" href="{% url 'laboratory:category_edit' category.pk %}"><i class="ri-edit-box-line me-2"></i> Edit</a></li>
                             {% if category.is_active %}
                               <li><a class="dropdown-item text-warning" href="{% url 'laboratory:category_deactivate' category.pk %}"><i class="ri-eye-off-line me-2"></i> Deactivate</a></li>
@@ -84,15 +87,16 @@
                         </div>
 
                         <!-- View Modal -->
-                        <div class="modal fade" id="viewCategoryModal{{ category.pk }}" tabindex="-1" aria-labelledby="viewCategoryModalLabel{{ category.pk }}" aria-hidden="true">
+                        <div class="modal fade" id="viewTypeModal{{ category.pk }}" tabindex="-1" aria-labelledby="viewTypeModalLabel{{ category.pk }}" aria-hidden="true">
                           <div class="modal-dialog">
                             <div class="modal-content">
                               <div class="modal-header">
-                                <h5 class="modal-title" id="viewCategoryModalLabel{{ category.pk }}">Category Details: {{ category.name }}</h5>
-                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                <h5 class="modal-title" id="viewTypeModalLabel{{ category.pk }}">Category Details: {{ category.name }}</h5>
+                                <button category="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                               </div>
                               <div class="modal-body">
                                 <p><strong>Name:</strong> {{ category.name }}</p>
+                                <p><strong>Category:</strong> {{ category.category.name|default:"-" }}</p>
                                 <p><strong>Description:</strong> {{ category.description|default:"-" }}</p>
                                 <p><strong>Status:</strong> 
                                   {% if category.is_active %}
@@ -103,7 +107,7 @@
                                 </p>
                               </div>
                               <div class="modal-footer">
-                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button category="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                               </div>
                             </div>
                           </div>
@@ -113,7 +117,7 @@
                     </tr>
                   {% empty %}
                     <tr>
-                      <td colspan="4" class="text-center py-4">
+                      <td colspan="5" class="text-center py-4">
                         <i class="ri-microscope-line fs-1 text-muted d-block mb-2"></i>
                         <p class="text-muted mb-0">No laboratory categories registered yet.</p>
                       </td>
@@ -161,14 +165,15 @@
     const tableBody = document.getElementById('categoryTableBody');
     if (!searchInput || !tableBody) return;
     
-    const rows = tableBody.querySelectorAll('.category-row-item');
+    const rows = tableBody.querySelectorAll('.type-row-item');
     
     searchInput.addEventListener('input', function(e) {
       const term = e.target.value.toLowerCase().trim();
       
       rows.forEach(row => {
         const name = row.getAttribute('data-name').toLowerCase();
-        if (name.includes(term)) {
+        const category = row.getAttribute('data-category').toLowerCase();
+        if (name.includes(term) || category.includes(term)) {
           row.style.display = '';
         } else {
           row.style.display = 'none';

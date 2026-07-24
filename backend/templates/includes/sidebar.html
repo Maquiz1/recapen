@@ -17,7 +17,7 @@
             <!-- App brand ends -->
 
             <!-- Pin sidebar starts -->
-            <button type="button" class="pin-sidebar me-3">
+            <button group="button" class="pin-sidebar me-3">
               <i class="ri-menu-line"></i>
             </button>
             <!-- Pin sidebar ends -->
@@ -148,13 +148,13 @@
                     <a href="{% url 'laboratory:patients_results' %}">Patients Results</a>
                   </li>
                   <li>
-                    <a href="{% url 'laboratory:category_list' %}">Category List</a>
+                    <a href="{% url 'laboratory:group_list' %}">Groups</a>
                   </li>
                   <li>
-                    <a href="{% url 'laboratory:type_list' %}">Type Lists</a>
+                    <a href="{% url 'laboratory:group_list' %}">Category</a>
                   </li>
                   <li>
-                    <a href="{% url 'laboratory:list' %}">Test Lists</a>
+                    <a href="{% url 'laboratory:list' %}">Test lists</a>
                   </li>
                 </ul>
               </li>
@@ -165,19 +165,19 @@
                 </a>
                 <ul class="treeview-menu">
                   <li>
-                    <a href="{% url 'radiology:results_list' %}">Enter Results</a>
+                    <a href="{% url 'radiology:results_list' %}">Pending Orders</a>
                   </li>
                   <li>
                     <a href="{% url 'radiology:patients_results' %}">Patients Results</a>
                   </li>
                   <li>
-                    <a href="{% url 'radiology:category_list' %}">Category List</a>
+                    <a href="{% url 'radiology:group_list' %}">Groups</a>
                   </li>
                   <li>
-                    <a href="{% url 'radiology:type_list' %}">Type Lists</a>
+                    <a href="{% url 'radiology:group_list' %}">Category</a>
                   </li>
                   <li>
-                    <a href="{% url 'radiology:list' %}">Test Lists</a>
+                    <a href="{% url 'radiology:list' %}">Test lists</a>
                   </li>
                 </ul>
               </li>
@@ -188,19 +188,19 @@
                 </a>
                 <ul class="treeview-menu">
                   <li>
-                    <a href="{% url 'cardiology:results_list' %}">Enter Results</a>
+                    <a href="{% url 'cardiology:results_list' %}">Pending Orders</a>
                   </li>
                   <li>
                     <a href="{% url 'cardiology:patients_results' %}">Patients Results</a>
                   </li>
                   <li>
-                    <a href="{% url 'cardiology:category_list' %}">Category List</a>
+                    <a href="{% url 'cardiology:group_list' %}">Groups</a>
                   </li>
                   <li>
-                    <a href="{% url 'cardiology:type_list' %}">Type Lists</a>
+                    <a href="{% url 'cardiology:group_list' %}">Category</a>
                   </li>
                   <li>
-                    <a href="{% url 'cardiology:list' %}">Test Lists</a>
+                    <a href="{% url 'cardiology:list' %}">Test lists</a>
                   </li>
                 </ul>
               </li>

@@ -24,10 +24,21 @@
             {% csrf_token %}
             
             <div class="row gx-3">
-              <!-- Name -->
-              <div class="col-md-12 col-sm-12">
+              <!-- Category -->
+              <div class="col-md-6 col-sm-12">
                 <div class="mb-3">
-                  <label class="form-label" for="id_name">Category Name <span class="text-danger">*</span></label>
+                  <label class="form-label" for="id_category">Category <span class="text-danger">*</span></label>
+                  {{ form.category }}
+                  {% if form.category.errors %}
+                    <div class="text-danger mt-1 small">{{ form.category.errors.0 }}</div>
+                  {% endif %}
+                </div>
+              </div>
+
+              <!-- Name -->
+              <div class="col-md-6 col-sm-12">
+                <div class="mb-3">
+                  <label class="form-label" for="id_name">Type Name <span class="text-danger">*</span></label>
                   {{ form.name }}
                   {% if form.name.errors %}
                     <div class="text-danger mt-1 small">{{ form.name.errors.0 }}</div>
@@ -59,8 +70,8 @@
               <a href="{% url 'cardiology:category_list' %}" class="btn btn-outline-secondary">
                 Cancel
               </a>
-              <button type="submit" class="btn btn-primary">
-                Save Category
+              <button category="submit" class="btn btn-primary">
+                Save Type
               </button>
             </div>
           </form>

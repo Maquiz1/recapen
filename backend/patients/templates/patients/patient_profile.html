@@ -174,13 +174,21 @@
 
             <!-- Step 2 -->
             <div class="d-flex align-items-start gap-2 border-bottom pb-2">
-              {% if patient.screening %}
+              {% if patient.pathway_status.step_2 == 'complete' %}
                 <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
                 <div>
                   <a href="{% url 'patients:screening' patient.pk %}" class="text-decoration-none">
                     <h6 class="mb-0 fw-semibold text-primary">2. Initial Screening <i class="ri-edit-line fs-6 ms-1"></i></h6>
                   </a>
                   <small class="text-muted">Suspected conditions selected</small>
+                </div>
+              {% elif patient.pathway_status.step_2 == 'incomplete' %}
+                <div class="icon-box sm bg-warning text-dark rounded-circle"><i class="ri-error-warning-line"></i></div>
+                <div>
+                  <a href="{% url 'patients:screening' patient.pk %}" class="text-decoration-none">
+                    <h6 class="mb-0 fw-semibold text-warning">2. Initial Screening <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                  </a>
+                  <small class="text-muted">Missing required data</small>
                 </div>
               {% else %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-checkbox-blank-circle-line"></i></div>
@@ -195,11 +203,19 @@
 
             <!-- Step 3 (New: Test Requests) -->
             <div class="d-flex align-items-start gap-2 border-bottom pb-2">
-              {% if not patient.screening %}
+              {% if patient.pathway_status.step_2 != 'complete' %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
                   <h6 class="mb-0 text-muted">3. Test Requests</h6>
                   <small class="text-warning fw-bold small"><i class="ri-lock-line"></i> Locked until screened</small>
+                </div>
+              {% elif patient.pathway_status.step_3 == 'complete' %}
+                <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
+                <div>
+                  <a href="{% url 'patients:test_requests' patient.pk %}" class="text-decoration-none">
+                    <h6 class="mb-0 fw-semibold text-primary">3. Test Requests <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                  </a>
+                  <small class="text-muted">Orders placed</small>
                 </div>
               {% else %}
                 <div class="icon-box sm bg-primary text-white rounded-circle"><i class="ri-flask-line"></i></div>
@@ -214,22 +230,21 @@
 
             <!-- Step 4 -->
             <div class="d-flex align-items-start gap-2 border-bottom pb-2">
-              {% if patient.status == 'registered' or not patient.screening %}
+              {% if patient.pathway_status.step_3 != 'complete' %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
                   <h6 class="mb-0 text-muted">4. Orders Fulfillment</h6>
-                  <small class="text-warning fw-bold small"><i class="ri-lock-line"></i> Locked until screened</small>
+                  <small class="text-warning fw-bold small"><i class="ri-lock-line"></i> Locked until ordered</small>
                 </div>
-              {% else %}
-                {% if pending_orders_exist %}
-                  <div class="icon-box sm bg-info text-white rounded-circle"><i class="ri-flask-line"></i></div>
+              {% elif patient.pathway_status.step_4 == 'incomplete' %}
+                  <div class="icon-box sm bg-warning text-dark rounded-circle"><i class="ri-error-warning-line"></i></div>
                   <div class="w-100">
                     <a href="{% url 'laboratory:patient_detail' patient.pk %}" class="text-decoration-none d-block">
-                      <h6 class="mb-1 fw-semibold text-primary">4. Orders Fulfillment <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                      <h6 class="mb-1 fw-semibold text-warning">4. Orders Fulfillment <i class="ri-edit-line fs-6 ms-1"></i></h6>
                       <span class="badge bg-warning text-dark rounded-pill mt-1">{{ pending_category_count }} Pending Categories</span>
                     </a>
                   </div>
-                {% else %}
+              {% elif patient.pathway_status.step_4 == 'complete' %}
                   <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
                   <div>
                     <a href="{% url 'laboratory:patient_detail' patient.pk %}" class="text-decoration-none">
@@ -237,25 +252,33 @@
                     </a>
                     <small class="text-success small fw-semibold"><i class="ri-checkbox-circle-fill"></i> Labs completed</small>
                   </div>
-                {% endif %}
+              {% else %}
+                  <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-flask-line"></i></div>
+                  <div>
+                    <a href="{% url 'laboratory:patient_detail' patient.pk %}" class="text-decoration-none d-block">
+                      <h6 class="mb-1 fw-semibold text-primary">4. Orders Fulfillment <i class="ri-arrow-right-line fs-6 ms-1"></i></h6>
+                    </a>
+                  </div>
               {% endif %}
             </div>
 
             <!-- Step 5 -->
             <div class="d-flex align-items-start gap-2 border-bottom pb-2">
-              {% if patient.status == 'registered' or not patient.screening %}
+              {% if patient.pathway_status.step_4 != 'complete' %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
                   <h6 class="mb-0 text-muted">5. Clinical Diagnosis</h6>
                   <small class="text-warning fw-bold small"><i class="ri-lock-line"></i> Locked until labs fulfilled</small>
                 </div>
-              {% elif pending_orders_exist %}
-                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
+              {% elif patient.pathway_status.step_5 == 'incomplete' %}
+                <div class="icon-box sm bg-warning text-dark rounded-circle"><i class="ri-error-warning-line"></i></div>
                 <div>
-                  <h6 class="mb-0 text-muted">5. Clinical Diagnosis</h6>
-                  <small class="text-muted">Locked: awaiting lab results</small>
+                  <a href="{% url 'patients:diagnosis' patient.pk %}" class="text-decoration-none">
+                    <h6 class="mb-0 fw-semibold text-warning">5. Clinical Diagnosis <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                  </a>
+                  <small class="text-muted">Missing confirmed diseases</small>
                 </div>
-              {% elif patient.diagnosis %}
+              {% elif patient.pathway_status.step_5 == 'complete' %}
                 <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
                 <div>
                   <a href="{% url 'patients:diagnosis' patient.pk %}" class="text-decoration-none">
@@ -276,7 +299,27 @@
 
             <!-- Step 6 -->
             <div class="d-flex align-items-start gap-2">
-              {% if patient.status == 'enrolled' %}
+              {% if patient.status == 'ineligible' %}
+                <div class="icon-box sm bg-danger text-white rounded-circle"><i class="ri-close-line"></i></div>
+                <div>
+                  <h6 class="mb-0 fw-semibold text-danger">Ineligible</h6>
+                  <small class="text-muted">Discharged from timeline</small>
+                </div>
+              {% elif patient.pathway_status.step_5 != 'complete' %}
+                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
+                <div>
+                  <h6 class="mb-0 text-muted">6. Study Enrollment</h6>
+                  <small class="text-warning fw-bold small"><i class="ri-lock-line"></i> Locked until clinical evaluation</small>
+                </div>
+              {% elif patient.pathway_status.step_6 == 'incomplete' %}
+                <div class="icon-box sm bg-warning text-dark rounded-circle"><i class="ri-error-warning-line"></i></div>
+                <div>
+                  <a href="{% url 'patients:enrollment' patient.pk %}" class="text-decoration-none">
+                    <h6 class="mb-0 text-warning">6. Study Enrollment <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                  </a>
+                  <small class="text-muted">Missing enrollment data</small>
+                </div>
+              {% elif patient.pathway_status.step_6 == 'complete' %}
                 <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
                 <div>
                   <a href="{% url 'patients:enrollment' patient.pk %}" class="text-decoration-none">
@@ -284,25 +327,13 @@
                   </a>
                   <small class="text-muted text-uppercase text-primary fw-bold">{{ patient.enrollment.cohort }} Cohort</small>
                 </div>
-              {% elif patient.status == 'ineligible' %}
-                <div class="icon-box sm bg-danger text-white rounded-circle"><i class="ri-close-line"></i></div>
-                <div>
-                  <h6 class="mb-0 fw-semibold text-danger">Ineligible</h6>
-                  <small class="text-muted">Discharged from timeline</small>
-                </div>
-              {% elif patient.status == 'diagnosed' %}
+              {% else %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-checkbox-blank-circle-line"></i></div>
                 <div>
                   <a href="{% url 'patients:enrollment' patient.pk %}" class="text-decoration-none">
                     <h6 class="mb-0 text-primary">6. Study Enrollment <i class="ri-arrow-right-line fs-6 ms-1"></i></h6>
                   </a>
                   <a href="{% url 'patients:enrollment' patient.pk %}" class="btn btn-xs btn-primary mt-1">Finalize Enrollment</a>
-                </div>
-              {% else %}
-                <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
-                <div>
-                  <h6 class="mb-0 text-muted">6. Study Enrollment</h6>
-                  <small class="text-warning fw-bold small"><i class="ri-lock-line"></i> Locked until clinical evaluation</small>
                 </div>
               {% endif %}
             </div>

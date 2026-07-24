@@ -25,7 +25,7 @@ def patient_register(request):
             patient.status = 'registered'
             patient.save()
             messages.success(request, f"Patient {patient} registered successfully.")
-            return redirect('patients:screening', pk=patient.pk)
+            return redirect('patients:dashboard', pk=patient.pk)
     else:
         form = PatientForm()
     return render(request, 'patients/patient_register.html', {'form': form})
@@ -62,7 +62,7 @@ def patient_screening(request, pk):
             patient.save()
             
             messages.success(request, f"Screening results saved for {patient}.")
-            return redirect('patients:profile', pk=patient.pk)
+            return redirect('patients:dashboard', pk=patient.pk)
     else:
         form = ScreeningForm(instance=screening)
         
@@ -245,7 +245,7 @@ def patient_profile(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
     pending_orders = patient.orders.filter(status='pending', test__isnull=False)
     pending_orders_exist = pending_orders.exists()
-    pending_category_count = pending_orders.values('test__laboratory_category').distinct().count() if pending_orders_exist else 0
+    pending_category_count = pending_orders.values('test__diagnostic_category').distinct().count() if pending_orders_exist else 0
     initial_encounter = patient.encounters.order_by('start_time').first()
     
     last_encounter = patient.encounters.filter(status='finished').order_by('-end_time').first()
@@ -367,7 +367,7 @@ def patient_edit(request, pk):
                 p.updated_by = request.user
             p.save()
             messages.success(request, f"Patient {p} updated successfully.")
-            return redirect('patients:list')
+            return redirect('patients:dashboard', pk=p.pk)
     else:
         form = PatientForm(instance=patient)
     return render(request, 'patients/patient_edit.html', {'form': form, 'patient': patient})

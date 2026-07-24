@@ -51,10 +51,10 @@
               <!-- Lab Category -->
               <div class="col-md-6 col-sm-12">
                 <div class="mb-3">
-                  <label class="form-label" for="id_laboratory_category">Category</label>
-                  {{ form.laboratory_category }}
-                  {% if form.laboratory_category.errors %}
-                    <div class="text-danger mt-1 small">{{ form.laboratory_category.errors.0 }}</div>
+                  <label class="form-label" for="id_diagnostic_group">Group</label>
+                  {{ form.diagnostic_group }}
+                  {% if form.laboratory_group.errors %}
+                    <div class="text-danger mt-1 small">{{ form.laboratory_group.errors.0 }}</div>
                   {% endif %}
                 </div>
               </div>
@@ -62,10 +62,10 @@
               <!-- Lab Sub Category -->
               <div class="col-md-6 col-sm-12">
                 <div class="mb-3">
-                  <label class="form-label" for="id_laboratory_type">Type</label>
-                  {{ form.laboratory_type }}
-                  {% if form.laboratory_type.errors %}
-                    <div class="text-danger mt-1 small">{{ form.laboratory_type.errors.0 }}</div>
+                  <label class="form-label" for="id_diagnostic_category">Category</label>
+                  {{ form.diagnostic_category }}
+                  {% if form.diagnostic_group.errors %}
+                    <div class="text-danger mt-1 small">{{ form.diagnostic_group.errors.0 }}</div>
                   {% endif %}
                 </div>
               </div>
@@ -135,7 +135,7 @@
                   <a href="{% url 'laboratory:list' %}" class="btn btn-outline-secondary">
                     Cancel
                   </a>
-                  <button type="submit" class="btn btn-primary">
+                  <button group="submit" class="btn btn-primary">
                     Save Test Settings
                   </button>
                 </div>

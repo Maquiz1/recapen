@@ -50,7 +50,7 @@
                 <div class="card mb-3 border shadow-sm">
                   <div class="card-body">
                     
-                    <a href="{% url 'patients:profile' patient.pk %}" class="text-decoration-none text-dark d-block">
+                    <a href="{% url 'patients:dashboard' patient.pk %}" class="text-decoration-none text-dark d-block">
                       <div class="d-flex flex-wrap gap-3 border-bottom pb-2 mb-2">
                         {% if patient.passport_size_photo %}
                           <img src="{{ patient.passport_size_photo.url }}" class="img-4x rounded-3" style="object-fit: cover;" alt="Patient Image">
@@ -109,8 +109,8 @@
                           Triage & Screen <i class="ri-arrow-right-line"></i>
                         </a>
                       {% elif patient.status == 'screened' %}
-                        <a href="{% url 'patients:investigation' patient.pk %}" class="btn btn-sm btn-outline-warning w-100">
-                          Enter Labs <i class="ri-arrow-right-line"></i>
+                        <a href="{% url 'patients:dashboard' patient.pk %}" class="btn btn-sm btn-outline-warning w-100">
+                          Patient Dashboard <i class="ri-arrow-right-line"></i>
                         </a>
                       {% elif patient.status == 'diagnosed' %}
                         <a href="{% url 'patients:diagnosis' patient.pk %}" class="btn btn-sm btn-outline-success w-100">

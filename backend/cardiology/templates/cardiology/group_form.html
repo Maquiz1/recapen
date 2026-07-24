@@ -4,7 +4,7 @@
 {% block page_title %}{{ title }}{% endblock %}
 
 {% block header_actions %}
-<a href="{% url 'cardiology:type_list' %}" class="btn btn-outline-secondary">
+<a href="{% url 'cardiology:group_list' %}" class="btn btn-outline-secondary">
   <i class="ri-arrow-left-line"></i> Cancel
 </a>
 {% endblock %}
@@ -27,10 +27,10 @@
               <!-- Category -->
               <div class="col-md-6 col-sm-12">
                 <div class="mb-3">
-                  <label class="form-label" for="id_category">Category <span class="text-danger">*</span></label>
+                  <label class="form-label" for="id_category">Group <span class="text-danger">*</span></label>
                   {{ form.category }}
-                  {% if form.category.errors %}
-                    <div class="text-danger mt-1 small">{{ form.category.errors.0 }}</div>
+                  {% if form.group.errors %}
+                    <div class="text-danger mt-1 small">{{ form.group.errors.0 }}</div>
                   {% endif %}
                 </div>
               </div>
@@ -38,7 +38,7 @@
               <!-- Name -->
               <div class="col-md-6 col-sm-12">
                 <div class="mb-3">
-                  <label class="form-label" for="id_name">Type Name <span class="text-danger">*</span></label>
+                  <label class="form-label" for="id_name">Category Name <span class="text-danger">*</span></label>
                   {{ form.name }}
                   {% if form.name.errors %}
                     <div class="text-danger mt-1 small">{{ form.name.errors.0 }}</div>
@@ -67,11 +67,11 @@
             </div>
 
             <div class="d-flex gap-2 justify-content-end mt-4">
-              <a href="{% url 'cardiology:type_list' %}" class="btn btn-outline-secondary">
+              <a href="{% url 'cardiology:group_list' %}" class="btn btn-outline-secondary">
                 Cancel
               </a>
-              <button type="submit" class="btn btn-primary">
-                Save Type
+              <button group="submit" class="btn btn-primary">
+                Save Category
               </button>
             </div>
           </form>

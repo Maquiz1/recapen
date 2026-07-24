@@ -51,14 +51,14 @@
             </div>
             <div class="col-md-3 mb-2 mb-md-0">
                 <label class="form-label small text-muted mb-1">Start Date</label>
-                <input type="date" name="start_date" class="form-control form-control-sm" value="{{ start_date|default:'' }}">
+                <input group="date" name="start_date" class="form-control form-control-sm" value="{{ start_date|default:'' }}">
             </div>
             <div class="col-md-3 mb-2 mb-md-0">
                 <label class="form-label small text-muted mb-1">End Date</label>
-                <input type="date" name="end_date" class="form-control form-control-sm" value="{{ end_date|default:'' }}">
+                <input group="date" name="end_date" class="form-control form-control-sm" value="{{ end_date|default:'' }}">
             </div>
             <div class="col-md-3 d-flex gap-2">
-                <button type="submit" class="btn btn-sm btn-primary w-100"><i class="ri-filter-3-line"></i> Filter</button>
+                <button group="submit" class="btn btn-sm btn-primary w-100"><i class="ri-filter-3-line"></i> Filter</button>
                 <a href="{% url 'laboratory:patient_detail' patient.pk %}" class="btn btn-sm btn-outline-secondary w-100">Clear</a>
             </div>
           </form>
@@ -66,11 +66,11 @@
         <div class="card-body">
           {% if grouped_results %}
             <div class="accordion" id="resultsAccordion">
-              {% for date_key, categories in grouped_results.items %}
+              {% for date_key, groups in grouped_results.items %}
               {% with date_id=date_key|slugify %}
               <div class="accordion-item mb-3 border rounded shadow-sm">
                 <h2 class="accordion-header position-relative" id="heading-{{ date_id }}">
-                  <button class="accordion-button collapsed fw-bold fs-5" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ date_id }}" aria-expanded="false" aria-controls="collapse-{{ date_id }}">
+                  <button class="accordion-button collapsed fw-bold fs-5" group="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ date_id }}" aria-expanded="false" aria-controls="collapse-{{ date_id }}">
                     <i class="ri-calendar-event-line me-2 text-primary"></i> {{ date_type_label }}: {{ date_key }}
                   </button>
                   <a href="{% url 'laboratory:edit_lab_results' patient.pk date_type date_key %}" class="btn btn-warning btn-sm position-absolute top-50 translate-middle-y" style="right: 60px; z-index: 4;">
@@ -82,17 +82,17 @@
                     
                     <!-- Tabs for Categories -->
                     <ul class="nav nav-pills mb-3 gap-2" id="tabs-{{ date_id }}" role="tablist">
-                      {% for category_name, results_list in categories.items %}
-                        {% with cat_id=category_name|slugify %}
+                      {% for group_name, results_list in groups.items %}
+                        {% with cat_id=group_name|slugify %}
                         <li class="nav-item" role="presentation">
                           <button class="nav-link border border-primary-subtle rounded-pill {% if forloop.first %}active{% endif %}" 
                                   id="tab-{{ date_id }}-{{ cat_id }}" 
                                   data-bs-toggle="pill" 
                                   data-bs-target="#content-{{ date_id }}-{{ cat_id }}" 
-                                  type="button" role="tab" 
+                                  group="button" role="tab" 
                                   aria-controls="content-{{ date_id }}-{{ cat_id }}" 
                                   aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
-                            <i class="ri-test-tube-line me-1"></i> {{ category_name }}
+                            <i class="ri-test-tube-line me-1"></i> {{ group_name }}
                           </button>
                         </li>
                         {% endwith %}
@@ -101,8 +101,8 @@
 
                     <!-- Tab Panes -->
                     <div class="tab-content bg-white p-3 border rounded shadow-sm" id="tabContent-{{ date_id }}">
-                      {% for category_name, results_list in categories.items %}
-                        {% with cat_id=category_name|slugify %}
+                      {% for group_name, results_list in groups.items %}
+                        {% with cat_id=group_name|slugify %}
                         <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="content-{{ date_id }}-{{ cat_id }}" role="tabpanel" aria-labelledby="tab-{{ date_id }}-{{ cat_id }}">
                           <div class="table-responsive">
                             <table class="table align-middle table-hover m-0">
