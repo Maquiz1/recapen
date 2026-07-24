@@ -4,12 +4,51 @@ from laboratory.models import LaboratoryTest
 from laboratory.forms import LabTestForm
 from django.core.paginator import Paginator
 
+from django.db.models import Q
+from laboratory.models import LaboratoryCategory, LaboratoryType
+
 def test_list(request):
-    tests = LaboratoryTest.objects.filter(is_deleted=False).order_by('laboratory_category__name', 'laboratory_type__name', 'name')
+    tests = LaboratoryTest.objects.filter(is_deleted=False)
+    
+    # Filtering
+    q = request.GET.get('q', '').strip()
+    category_id = request.GET.get('category', '')
+    type_id = request.GET.get('type', '')
+    status = request.GET.get('status', '')
+    
+    if q:
+        tests = tests.filter(name__icontains=q)
+    if category_id:
+        tests = tests.filter(laboratory_category_id=category_id)
+    if type_id:
+        tests = tests.filter(laboratory_type_id=type_id)
+    if status == 'active':
+        tests = tests.filter(is_active=True)
+    elif status == 'inactive':
+        tests = tests.filter(is_active=False)
+        
+    tests = tests.order_by('laboratory_category__name', 'laboratory_type__name', 'name')
+    total_tests = tests.count()
+    
     paginator = Paginator(tests, 10)
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    return render(request, 'laboratory/test_list.html', {'tests': page_obj})
+    
+    categories = LaboratoryCategory.objects.filter(is_deleted=False).order_by('name')
+    types = LaboratoryType.objects.filter(is_deleted=False).order_by('name')
+    
+    context = {
+        'tests': page_obj,
+        'total_tests': total_tests,
+        'categories': categories,
+        'types': types,
+        'current_q': q,
+        'current_category': category_id,
+        'current_type': type_id,
+        'current_status': status,
+    }
+    
+    return render(request, 'laboratory/test_list.html', context)
 
 def test_create(request):
     if request.method == 'POST':
@@ -61,9 +100,17 @@ def test_deactivate(request, pk):
 
 def test_delete(request, pk):
     test = get_object_or_404(LaboratoryTest, pk=pk, is_deleted=False)
+    
+    from orders.models import Order
+    from laboratory.models import PatientTestResult
+    
+    if PatientTestResult.objects.filter(test=test, is_deleted=False).exists() or Order.objects.filter(test=test, is_deleted=False).exists():
+        messages.error(request, f'Cannot delete "{test.name}" because it already has associated patient records or orders.')
+        return redirect('laboratory:list')
+        
     test.is_deleted = True
     test.save()
-    messages.error(request, f'Test "{test.name}" deleted.')
+    messages.success(request, f'Test "{test.name}" deleted.')
     return redirect('laboratory:list')
 
 def test_edit_redirect(request):

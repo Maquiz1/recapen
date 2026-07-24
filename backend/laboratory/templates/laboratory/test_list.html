@@ -28,14 +28,46 @@
   <div class="row gx-3">
     <div class="col-sm-12">
       <div class="card mb-3">
-        <div class="card-header d-flex justify-content-between align-items-center">
-          <h5 class="card-title">Registered Laboratory Tests</h5>
-          <div class="search-container d-md-block d-none">
-            <input type="text" class="form-control" id="searchTests" placeholder="Search Name, Category, or Type...">
-            <i class="ri-search-line" style="position: absolute; right: 15px; top: 12px; color: #aaa;"></i>
-          </div>
+        <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+          <h5 class="card-title mb-0">Registered Laboratory Tests <span class="badge bg-primary ms-2">{{ total_tests }} Tests</span></h5>
         </div>
         <div class="card-body">
+          <form method="get" action="{% url 'laboratory:list' %}" class="row gx-2 gy-2 mb-4 align-items-end">
+            <div class="col-md-3">
+              <label class="form-label small">Search Name</label>
+              <input type="text" name="q" class="form-control" placeholder="Search Test Name..." value="{{ current_q }}">
+            </div>
+            <div class="col-md-3">
+              <label class="form-label small">Category</label>
+              <select name="category" class="form-select">
+                <option value="">All Categories</option>
+                {% for c in categories %}
+                <option value="{{ c.id }}" {% if current_category == c.id|stringformat:"s" %}selected{% endif %}>{{ c.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small">Type</label>
+              <select name="type" class="form-select">
+                <option value="">All Types</option>
+                {% for t in types %}
+                <option value="{{ t.id }}" {% if current_type == t.id|stringformat:"s" %}selected{% endif %}>{{ t.name }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-md-2">
+              <label class="form-label small">Status</label>
+              <select name="status" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="active" {% if current_status == 'active' %}selected{% endif %}>Active</option>
+                <option value="inactive" {% if current_status == 'inactive' %}selected{% endif %}>Inactive</option>
+              </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+              <button type="submit" class="btn btn-primary w-100">Filter</button>
+              <a href="{% url 'laboratory:list' %}" class="btn btn-outline-secondary">Clear</a>
+            </div>
+          </form>
           <style>
             .table-bordered > tbody > tr:last-child > td {
               border-bottom: 1px solid #dee2e6 !important;
@@ -49,9 +81,9 @@
                     <th>Category</th>
                     <th>Type</th>
                     <th>Test Name</th>
-                    <th>Description</th>
-                    <th>Range</th>
                     <th>Units</th>
+                    <th>Range</th>
+                    <th>Description</th>
                     <th>Cost</th>
                     <th>Status</th>
                     <th>Action</th>
@@ -63,15 +95,15 @@
                       <td>{{ test.laboratory_category.name|default:"-" }}</td>
                       <td>{{ test.laboratory_type.name|default:"-" }}</td>
                       <td>{{ test.name }}</td>
-                      <td>{{ test.description|truncatechars:30|default:"" }}</td>
+                      <td>{{ test.units|default:"" }}</td>
                       <td>
-                        {% if test.range_min or test.range_max %}
-                          {{ test.range_min|default:"-" }} - {{ test.range_max|default:"-" }}
-                        {% else %}
-                          -
+                        {% if test.range_min and test.range_max and test.range_min != 'N/A' and test.range_max != 'N/A' and test.range_min != '0' and test.range_max != '0' %}
+                          {{ test.range_min }} - {{ test.range_max }}
+                        {% elif test.range_min and test.range_min != 'N/A' and test.range_min != '0' %}
+                          {{ test.range_min }}
                         {% endif %}
                       </td>
-                      <td>{{ test.units|default:"-" }}</td>
+                      <td>{{ test.description|truncatechars:30|default:"" }}</td>
                       <td>{{ test.cost }}</td>
                       <td>
                         {% if test.is_active %}
@@ -119,7 +151,7 @@
           <span class="text-muted">Showing page {{ tests.number }} of {{ tests.paginator.num_pages }}</span>
           <ul class="pagination pagination-sm m-0">
             {% if tests.has_previous %}
-              <li class="page-item"><a class="page-link" href="?page={{ tests.previous_page_number }}">Previous</a></li>
+              <li class="page-item"><a class="page-link" href="?page={{ tests.previous_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">Previous</a></li>
             {% else %}
               <li class="page-item disabled"><span class="page-link">Previous</span></li>
             {% endif %}
@@ -128,12 +160,12 @@
               {% if tests.number == i %}
                 <li class="page-item active"><span class="page-link">{{ i }}</span></li>
               {% elif i > tests.number|add:'-3' and i < tests.number|add:'3' %}
-                <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                <li class="page-item"><a class="page-link" href="?page={{ i }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">{{ i }}</a></li>
               {% endif %}
             {% endfor %}
             
             {% if tests.has_next %}
-              <li class="page-item"><a class="page-link" href="?page={{ tests.next_page_number }}">Next</a></li>
+              <li class="page-item"><a class="page-link" href="?page={{ tests.next_page_number }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_category %}&category={{ current_category }}{% endif %}{% if current_type %}&type={{ current_type }}{% endif %}{% if current_status %}&status={{ current_status }}{% endif %}">Next</a></li>
             {% else %}
               <li class="page-item disabled"><span class="page-link">Next</span></li>
             {% endif %}
@@ -146,29 +178,4 @@
   </div>
   <!-- Row ends -->
 </div>
-
-<script>
-  // Simple client-side search filtering
-  document.addEventListener('DOMContentLoaded', function() {
-    const searchInput = document.getElementById('searchTests');
-    const tableRows = document.querySelectorAll('.test-row-item');
-
-    if (searchInput) {
-      searchInput.addEventListener('input', function(e) {
-        const query = e.target.value.toLowerCase().trim();
-        tableRows.forEach(row => {
-          const name = row.getAttribute('data-name').toLowerCase();
-          const code = row.getAttribute('data-code').toLowerCase();
-          const category = row.getAttribute('data-category').toLowerCase();
-          const type = row.getAttribute('data-type').toLowerCase();
-          if (name.includes(query) || code.includes(query) || category.includes(query) || type.includes(query)) {
-            row.style.display = '';
-          } else {
-            row.style.display = 'none';
-          }
-        });
-      });
-    }
-  });
-</script>
 {% endblock %}

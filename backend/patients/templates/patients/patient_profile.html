@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block page_title %}Patient Profile{% endblock %}
+{% block page_title %}Patient Dashboard{% endblock %}
 
 {% block header_actions %}
 <div class="d-flex gap-2">
@@ -81,38 +81,6 @@
                 </div>
               </div>
 
-              
-              <!-- Current Site -->
-              <div class="d-flex align-items-center">
-                <div class="icon-box lg bg-primary-subtle rounded-5 me-2">
-                  <i class="ri-hospital-line fs-3 text-primary"></i>
-                </div>
-                <div>
-                  <h4 class="mb-1">{{ patient.current_site.name|default:"Not Assigned" }}</h4>
-                  <p class="m-0 text-muted small">Current Site</p>
-                </div>
-              </div>
-              
-              <!-- Diagnosis -->
-              <div class="d-flex align-items-center">
-                <div class="icon-box lg bg-primary-subtle rounded-5 me-2">
-                  <i class="ri-stethoscope-line fs-3 text-primary"></i>
-                </div>
-                <div>
-                  {% if patient.diagnosis and patient.diagnosis.confirmed_diseases.exists %}
-                    <h4 class="mb-1">
-                      {% for disease in patient.diagnosis.confirmed_diseases.all %}
-                        {{ disease.name }}{% if not forloop.last %}, {% endif %}
-                      {% endfor %}
-                    </h4>
-                  {% elif patient.diagnosis and patient.diagnosis.diagnosis %}
-                    <h4 class="mb-1 text-truncate" style="max-width: 150px;" title="{{ patient.diagnosis.diagnosis }}">{{ patient.diagnosis.diagnosis }}</h4>
-                  {% else %}
-                    <h4 class="mb-1 text-muted">Not Diagnosed</h4>
-                  {% endif %}
-                  <p class="m-0 text-muted small">Diagnosis</p>
-                </div>
-              </div>
             </div>
             <!-- Stats ends -->
 
@@ -139,6 +107,38 @@
                   <span class="text-primary fw-semibold">{{ last_attended_date|date:"d M Y, H:i" }}</span>
                 {% else %}
                   <span class="text-muted fw-semibold">No past visits recorded</span>
+                {% endif %}
+              </div>
+            </div>
+            
+            <!-- Current Site (Footer) -->
+            <div class="d-flex align-items-center">
+              <div class="icon-box sm bg-primary-subtle rounded-5 me-2">
+                <i class="ri-hospital-line fs-5 text-primary"></i>
+              </div>
+              <div class="small">
+                Current Site:
+                <span class="text-primary fw-semibold">{{ patient.current_site.name|default:"Not Assigned" }}</span>
+              </div>
+            </div>
+            
+            <!-- Diagnosis (Footer) -->
+            <div class="d-flex align-items-center">
+              <div class="icon-box sm bg-primary-subtle rounded-5 me-2">
+                <i class="ri-stethoscope-line fs-5 text-primary"></i>
+              </div>
+              <div class="small">
+                Diagnosis:
+                {% if patient.diagnosis and patient.diagnosis.confirmed_diseases.exists %}
+                  <span class="text-primary fw-semibold">
+                    {% for disease in patient.diagnosis.confirmed_diseases.all %}
+                      {{ disease.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                  </span>
+                {% elif patient.diagnosis and patient.diagnosis.diagnosis %}
+                  <span class="text-primary fw-semibold text-truncate d-inline-block align-middle" style="max-width: 150px;" title="{{ patient.diagnosis.diagnosis }}">{{ patient.diagnosis.diagnosis }}</span>
+                {% else %}
+                  <span class="text-muted fw-semibold">Not Diagnosed</span>
                 {% endif %}
               </div>
             </div>
@@ -199,7 +199,7 @@
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
                   <h6 class="mb-0 text-muted">3. Test Requests</h6>
-                  <small class="text-muted small">Locked until screened</small>
+                  <small class="text-warning fw-bold small"><i class="ri-lock-line"></i> Locked until screened</small>
                 </div>
               {% else %}
                 <div class="icon-box sm bg-primary text-white rounded-circle"><i class="ri-flask-line"></i></div>
@@ -218,29 +218,21 @@
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
                   <h6 class="mb-0 text-muted">4. Orders Fulfillment</h6>
-                  <small class="text-muted small">Locked until screened</small>
+                  <small class="text-warning fw-bold small"><i class="ri-lock-line"></i> Locked until screened</small>
                 </div>
               {% else %}
                 {% if pending_orders_exist %}
                   <div class="icon-box sm bg-info text-white rounded-circle"><i class="ri-flask-line"></i></div>
                   <div class="w-100">
-                    <a href="{% url 'patients:investigation' patient.pk %}" class="text-decoration-none">
-                      <h6 class="mb-0 fw-semibold text-primary">4. Orders Fulfillment <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                    <a href="{% url 'laboratory:patient_detail' patient.pk %}" class="text-decoration-none d-block">
+                      <h6 class="mb-1 fw-semibold text-primary">4. Orders Fulfillment <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                      <span class="badge bg-warning text-dark rounded-pill mt-1">{{ pending_category_count }} Pending Categories</span>
                     </a>
-                    <small class="text-muted d-block mb-1">Awaiting lab fulfillment:</small>
-                    <div class="pe-2">
-                      {% for order in pending_orders %}
-                        <div class="d-flex justify-content-between align-items-center mb-1 bg-light p-1 rounded border" style="font-size: 0.75rem;">
-                          <span class="text-dark text-truncate" style="max-width: 110px;" title="{{ order.test.name }}">{{ order.test.name }}</span>
-                          <a href="{% url 'laboratory:fulfill_order' order.pk %}" class="btn btn-outline-primary py-0 px-1 fw-semibold" style="font-size: 0.7rem;">Fulfill</a>
-                        </div>
-                      {% endfor %}
-                    </div>
                   </div>
                 {% else %}
                   <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
                   <div>
-                    <a href="{% url 'patients:investigation' patient.pk %}" class="text-decoration-none">
+                    <a href="{% url 'laboratory:patient_detail' patient.pk %}" class="text-decoration-none">
                       <h6 class="mb-0 fw-semibold text-primary">4. Orders Fulfillment <i class="ri-edit-line fs-6 ms-1"></i></h6>
                     </a>
                     <small class="text-success small fw-semibold"><i class="ri-checkbox-circle-fill"></i> Labs completed</small>
@@ -254,20 +246,20 @@
               {% if patient.status == 'registered' or not patient.screening %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
-                  <h6 class="mb-0 text-muted">5. Clinical Evaluation</h6>
-                  <small class="text-muted">Locked until screened</small>
+                  <h6 class="mb-0 text-muted">5. Clinical Diagnosis</h6>
+                  <small class="text-warning fw-bold small"><i class="ri-lock-line"></i> Locked until labs fulfilled</small>
                 </div>
               {% elif pending_orders_exist %}
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
-                  <h6 class="mb-0 text-muted">5. Clinical Evaluation</h6>
+                  <h6 class="mb-0 text-muted">5. Clinical Diagnosis</h6>
                   <small class="text-muted">Locked: awaiting lab results</small>
                 </div>
               {% elif patient.diagnosis %}
                 <div class="icon-box sm bg-success text-white rounded-circle"><i class="ri-check-line"></i></div>
                 <div>
                   <a href="{% url 'patients:diagnosis' patient.pk %}" class="text-decoration-none">
-                    <h6 class="mb-0 fw-semibold text-primary">5. Clinical Evaluation <i class="ri-edit-line fs-6 ms-1"></i></h6>
+                    <h6 class="mb-0 fw-semibold text-primary">5. Clinical Diagnosis <i class="ri-edit-line fs-6 ms-1"></i></h6>
                   </a>
                   <small class="text-muted">Diagnoses confirmed</small>
                 </div>
@@ -275,7 +267,7 @@
                 <div class="icon-box sm bg-primary text-white rounded-circle"><i class="ri-stethoscope-line"></i></div>
                 <div>
                   <a href="{% url 'patients:diagnosis' patient.pk %}" class="text-decoration-none">
-                    <h6 class="mb-0 fw-semibold text-primary">5. Clinical Evaluation <i class="ri-arrow-right-line fs-6 ms-1"></i></h6>
+                    <h6 class="mb-0 fw-semibold text-primary">5. Clinical Diagnosis <i class="ri-arrow-right-line fs-6 ms-1"></i></h6>
                   </a>
                   <a href="{% url 'patients:diagnosis' patient.pk %}" class="btn btn-xs btn-primary mt-1 fw-semibold">Consultation</a>
                 </div>
@@ -310,6 +302,7 @@
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
                   <h6 class="mb-0 text-muted">6. Study Enrollment</h6>
+                  <small class="text-warning fw-bold small"><i class="ri-lock-line"></i> Locked until clinical evaluation</small>
                 </div>
               {% endif %}
             </div>
@@ -328,7 +321,7 @@
                 <div class="icon-box sm bg-secondary-subtle text-muted rounded-circle"><i class="ri-lock-line"></i></div>
                 <div>
                   <h6 class="mb-0 text-muted">7. Disease Baseline</h6>
-                  <small class="text-muted">Locked until enrolled</small>
+                  <small class="text-warning fw-bold small"><i class="ri-lock-line"></i> Locked until enrolled</small>
                 </div>
               {% endif %}
             </div>

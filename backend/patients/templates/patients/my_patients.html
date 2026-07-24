@@ -186,8 +186,8 @@
                           Consult / Enroll <i class="ri-arrow-right-line"></i>
                         </a>
                       {% elif patient.status == 'enrolled' %}
-                        <a href="{% url 'patients:profile' patient.pk %}" class="btn btn-sm btn-primary w-100">
-                          View Profile <i class="ri-eye-line"></i>
+                        <a href="{% url 'patients:dashboard' patient.pk %}" class="btn btn-sm btn-primary w-100">
+                          Patient Dashboard <i class="ri-dashboard-line"></i>
                         </a>
                       {% else %}
                         <button class="btn btn-sm btn-secondary w-100" disabled>Ineligible</button>

@@ -117,25 +117,16 @@
                 </a>
                 <ul class="treeview-menu">
                   <li>
+                    <a href="{% url 'patients:register' %}">Add Patient</a>
+                  </li>
+                  <li>
                     <a href="{% url 'patients:list' %}">Patients List</a>
                   </li>
                   <li>
                     <a href="{% url 'patients:diagnosis_list' %}">Patient Diagnosis</a>
                   </li>
                   <li>
-                    <a href="{% url 'patients:register' %}">Add Patient</a>
-                  </li>
-                  <li>
                     <a href="{% url 'patients:my_patients' %}">My Patients</a>
-                  </li>
-                  <li>
-                    <a href="{% url 'patients:dashboard_no_pk' %}">Patient Dashboard</a>
-                  </li>
-                  <li>
-                    <a href="{% url 'patients:profile_no_pk' %}">Patient Profile</a>
-                  </li>
-                  <li>
-                    <a href="{% url 'patients:edit_no_pk' %}">Edit Patient Details</a>
                   </li>
                 </ul>
               </li>
@@ -154,16 +145,16 @@
                     </a>
                   </li>
                   <li>
-                    <a href="{% url 'laboratory:list' %}">Lab Tests List</a>
-                  </li>
-                  <li>
                     <a href="{% url 'laboratory:patients_results' %}">Patients Results</a>
                   </li>
                   <li>
-                    <a href="{% url 'laboratory:create' %}">Add Test</a>
+                    <a href="{% url 'laboratory:category_list' %}">Category List</a>
                   </li>
                   <li>
-                    <a href="{% url 'laboratory:edit_no_pk' %}">Edit Test</a>
+                    <a href="{% url 'laboratory:type_list' %}">Type Lists</a>
+                  </li>
+                  <li>
+                    <a href="{% url 'laboratory:list' %}">Test Lists</a>
                   </li>
                 </ul>
               </li>

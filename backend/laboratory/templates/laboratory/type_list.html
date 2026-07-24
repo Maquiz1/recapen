@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block page_title %}Laboratory Types Directory{% endblock %}
+
+{% block header_actions %}
+<a href="{% url 'laboratory:type_create' %}" class="btn btn-primary">
+  <i class="ri-add-line"></i> Register New Type
+</a>
+{% endblock %}
+
+{% block content %}
+<div class="app-body">
+  {% if messages %}
+    <div class="row gx-3">
+      <div class="col-sm-12">
+        {% for message in messages %}
+          <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+
+  <!-- Row starts -->
+  <div class="row gx-3">
+    <div class="col-sm-12">
+      <div class="card mb-3">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h5 class="card-title">Registered Laboratory Types</h5>
+          <div class="search-container d-md-block d-none">
+            <input type="text" class="form-control" id="searchType" placeholder="Search Name or Category...">
+            <i class="ri-search-line" style="position: absolute; right: 15px; top: 12px; color: #aaa;"></i>
+          </div>
+        </div>
+        <div class="card-body">
+          <style>
+            .table-bordered > tbody > tr:last-child > td {
+              border-bottom: 1px solid #dee2e6 !important;
+            }
+          </style>
+          <div class="table-outer">
+            <div class="table-responsive">
+              <table class="table align-middle m-0 table-hover table-bordered">
+                <thead class="table-primary text-white">
+                  <tr>
+                    <th>Type Name</th>
+                    <th>Category</th>
+                    <th>Description</th>
+                    <th>Status</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="typeTableBody">
+                  {% for type_obj in types %}
+                    <tr class="type-row-item" data-name="{{ type_obj.name }}" data-category="{{ type_obj.category.name|default:'' }}">
+                      <td>{{ type_obj.name }}</td>
+                      <td>{{ type_obj.category.name|default:"-" }}</td>
+                      <td>{{ type_obj.description|truncatechars:80|default:"-" }}</td>
+                      <td>
+                        {% if type_obj.is_active %}
+                          <span class="badge bg-success rounded-pill px-3">Active</span>
+                        {% else %}
+                          <span class="badge bg-danger rounded-pill px-3">Inactive</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        <div class="dropdown">
+                          <button class="btn btn-outline-secondary btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" data-bs-boundary="window">
+                            Action
+                          </button>
+                          <ul class="dropdown-menu dropdown-menu-end shadow">
+                            <li><a class="dropdown-item text-primary" href="{% url 'laboratory:type_edit' type_obj.pk %}"><i class="ri-edit-box-line me-2"></i> Edit</a></li>
+                            <li>
+                                <a class="dropdown-item text-danger" href="{% url 'laboratory:type_delete' type_obj.pk %}" onclick="return confirm('Are you sure you want to delete this type?');"><i class="ri-delete-bin-line me-2"></i> Delete</a>
+                            </li>
+                          </ul>
+                        </div>
+                      </td>
+                    </tr>
+                  {% empty %}
+                    <tr>
+                      <td colspan="5" class="text-center py-4">
+                        <i class="ri-microscope-line fs-1 text-muted d-block mb-2"></i>
+                        <p class="text-muted mb-0">No laboratory types registered yet.</p>
+                      </td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            
+            {% if types.has_other_pages %}
+              <div class="mt-4 d-flex justify-content-center">
+                <nav aria-label="Page navigation">
+                  <ul class="pagination pagination-sm mb-0">
+                    {% if types.has_previous %}
+                      <li class="page-item"><a class="page-link" href="?page={{ types.previous_page_number }}">Previous</a></li>
+                    {% endif %}
+                    
+                    {% for i in types.paginator.page_range %}
+                      {% if types.number == i %}
+                        <li class="page-item active"><span class="page-link">{{ i }}</span></li>
+                      {% else %}
+                        <li class="page-item"><a class="page-link" href="?page={{ i }}">{{ i }}</a></li>
+                      {% endif %}
+                    {% endfor %}
+                    
+                    {% if types.has_next %}
+                      <li class="page-item"><a class="page-link" href="?page={{ types.next_page_number }}">Next</a></li>
+                    {% endif %}
+                  </ul>
+                </nav>
+              </div>
+            {% endif %}
+            
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Row ends -->
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.getElementById('searchType');
+    const tableBody = document.getElementById('typeTableBody');
+    if (!searchInput || !tableBody) return;
+    
+    const rows = tableBody.querySelectorAll('.type-row-item');
+    
+    searchInput.addEventListener('input', function(e) {
+      const term = e.target.value.toLowerCase().trim();
+      
+      rows.forEach(row => {
+        const name = row.getAttribute('data-name').toLowerCase();
+        const category = row.getAttribute('data-category').toLowerCase();
+        if (name.includes(term) || category.includes(term)) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

@@ -243,8 +243,9 @@ from django.core.paginator import Paginator
 
 def patient_profile(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
-    pending_orders = patient.orders.filter(status='pending')
+    pending_orders = patient.orders.filter(status='pending', test__isnull=False)
     pending_orders_exist = pending_orders.exists()
+    pending_category_count = pending_orders.values('test__laboratory_category').distinct().count() if pending_orders_exist else 0
     initial_encounter = patient.encounters.order_by('start_time').first()
     
     last_encounter = patient.encounters.filter(status='finished').order_by('-end_time').first()
@@ -316,6 +317,7 @@ def patient_profile(request, pk):
         'patient': patient,
         'pending_orders': pending_orders,
         'pending_orders_exist': pending_orders_exist,
+        'pending_category_count': pending_category_count,
         'initial_encounter': initial_encounter,
         'last_attended_date': last_attended_date,
         'last_hba1c_order': last_hba1c_order,

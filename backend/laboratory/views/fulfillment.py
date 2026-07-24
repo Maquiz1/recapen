@@ -111,9 +111,14 @@ def fulfill_lab_order(request, patient_id):
     has_stat = any(o.urgency == 'stat' for o in pending_orders)
     has_urgent = any(o.urgency == 'urgent' for o in pending_orders)
 
+    category_counts = {}
+    for cat_name, types in grouped_tests.items():
+        category_counts[cat_name] = sum(len(tests) for tests in types.values())
+
     context = {
         'patient': patient,
         'grouped_tests': grouped_tests,
+        'category_counts': category_counts,
         'highest_urgency': 'stat' if has_stat else ('urgent' if has_urgent else 'routine'),
         'first_doctor': pending_orders[0].ordering_doctor if pending_orders else None
     }
@@ -196,12 +201,22 @@ def edit_lab_results(request, patient_id, date_type, date_string):
         
     grouped_results = {k: dict(v) for k, v in grouped_results.items()}
     
+    category_counts = {}
+    for cat_name, types in grouped_results.items():
+        pending_count = 0
+        for tests in types.values():
+            for res in tests:
+                if not res.result_value:
+                    pending_count += 1
+        category_counts[cat_name] = pending_count
+    
     first_order = results.first().order
     first_doctor = first_order.ordering_doctor if first_order else None
     
     context = {
         'patient': patient,
         'grouped_results': grouped_results,
+        'category_counts': category_counts,
         'date_string': date_string,
         'date_type_label': date_type.replace('_', ' ').title(),
         'first_doctor': first_doctor

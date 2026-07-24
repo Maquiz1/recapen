@@ -65,6 +65,13 @@
                                       aria-controls="content-{{ cat_id }}" 
                                       aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">
                                 <i class="ri-test-tube-line me-1"></i> {{ category_name }}
+                                <span class="badge bg-warning text-dark rounded-pill ms-1 border border-warning">
+                                  {% for k, count in category_counts.items %}
+                                    {% if k == category_name %}
+                                      {{ count }}
+                                    {% endif %}
+                                  {% endfor %}
+                                </span>
                               </button>
                             </li>
                             {% endwith %}
