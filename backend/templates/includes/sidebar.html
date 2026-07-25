@@ -148,7 +148,7 @@
                 </a>
                 <ul class="treeview-menu">
                   <li>
-                    <a href="{% url 'laboratory:lab_dashboard' %}" class="d-flex justify-content-between align-items-center">
+                    <a href="{% url 'laboratory:pending_orders' %}" class="d-flex justify-content-between align-items-center">
                         Pending Orders
                         {% if pending_lab_orders_count > 0 %}
                         <span class="badge bg-danger rounded-pill">{{ pending_lab_orders_count }}</span>
@@ -176,7 +176,12 @@
                 </a>
                 <ul class="treeview-menu">
                   <li>
-                    <a href="{% url 'radiology:results_list' %}">Pending Orders</a>
+                    <a href="{% url 'radiology:pending_orders' %}" class="d-flex justify-content-between align-items-center">
+                        Pending Orders
+                        {% if pending_rad_orders_count > 0 %}
+                        <span class="badge bg-danger rounded-pill">{{ pending_rad_orders_count }}</span>
+                        {% endif %}
+                    </a>
                   </li>
                   <li>
                     <a href="{% url 'radiology:patients_results' %}">Patients Results</a>
@@ -199,7 +204,12 @@
                 </a>
                 <ul class="treeview-menu">
                   <li>
-                    <a href="{% url 'cardiology:results_list' %}">Pending Orders</a>
+                    <a href="{% url 'cardiology:pending_orders' %}" class="d-flex justify-content-between align-items-center">
+                        Pending Orders
+                        {% if pending_cardio_orders_count > 0 %}
+                        <span class="badge bg-danger rounded-pill">{{ pending_cardio_orders_count }}</span>
+                        {% endif %}
+                    </a>
                   </li>
                   <li>
                     <a href="{% url 'cardiology:patients_results' %}">Patients Results</a>

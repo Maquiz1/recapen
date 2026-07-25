@@ -25,6 +25,7 @@ class Patient(AuditableModel):
         ('registered', 'Registered'),
         ('screened', 'Screened'),
         ('diagnosed', 'Diagnosed'),
+        ('eligible', 'Eligible'),
         ('enrolled', 'Enrolled'),
         ('ineligible', 'Ineligible'),
         ('died', 'Deceased'),
@@ -98,18 +99,27 @@ class Patient(AuditableModel):
             else:
                 status_dict['step_5'] = 'incomplete'
                 
-        # Step 6: Study Enrollment
+        # Step 6: Eligibility Assessment
         if not hasattr(self, 'enrollment'):
             status_dict['step_6'] = 'no_data'
         else:
-            if self.enrollment.cohort:
+            if self.enrollment.is_eligible is not None:
                 status_dict['step_6'] = 'complete'
             else:
                 status_dict['step_6'] = 'incomplete'
                 
-        # Steps 7 and 8
-        status_dict['step_7'] = 'no_data'
+        # Step 7: Study Enrollment
+        if not hasattr(self, 'enrollment'):
+            status_dict['step_7'] = 'no_data'
+        else:
+            if self.enrollment.cohort:
+                status_dict['step_7'] = 'complete'
+            else:
+                status_dict['step_7'] = 'incomplete'
+                
+        # Steps 8 and 9
         status_dict['step_8'] = 'no_data'
+        status_dict['step_9'] = 'no_data'
         
         return status_dict
 
@@ -276,8 +286,6 @@ class Screening(AuditableModel):
 
 class Diagnosis(AuditableModel):
     patient = models.OneToOneField(Patient, on_delete=models.CASCADE, related_name='diagnosis')
-    consent_given = models.BooleanField(default=False)
-    date_of_consent = models.DateField(blank=True, null=True)
     diagnosis = models.TextField()
     confirmed_diseases = models.ManyToManyField('diseases.Disease', blank=True, related_name='diagnoses')
     confirmed_cardiac_type = models.CharField(max_length=20, choices=CARDIAC_TYPE_CHOICES, blank=True, null=True)
@@ -305,7 +313,9 @@ class Enrollment(AuditableModel):
         ('dm', 'DM'),
     )
     patient = models.OneToOneField(Patient, on_delete=models.CASCADE, related_name='enrollment')
-    is_eligible = models.BooleanField(default=True)
+    is_eligible = models.BooleanField(null=True, blank=True)
+    consent_given = models.BooleanField(default=False)
+    date_of_consent = models.DateField(blank=True, null=True)
     cohort = models.CharField(max_length=20, choices=COHORT_CHOICES, blank=True, null=True)
     remarks = models.TextField(blank=True, null=True, help_text="Explanation if not eligible")
     enrollment_date = models.DateField(auto_now_add=True)

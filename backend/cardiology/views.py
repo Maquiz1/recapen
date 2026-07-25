@@ -1,3 +1,7 @@
+from datetime import datetime
+from django.db.models import Q
+from orders.models import Order
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -5,12 +9,6 @@ from diagnostics.models import DiagnosticGroup, DiagnosticCategory, DiagnosticTe
 from laboratory.forms import GroupForm, CategoryForm
 
 from .forms import CardiologyTestForm
-
-def patient_results_list(request):
-    from patients.models import Patient
-    # Show patients that have cardiology orders
-    patients = Patient.objects.filter(orders__order_category='cardiology', is_deleted=False).distinct().order_by('-created_at')
-    return render(request, 'cardiology/patient_results_list.html', {'patients': patients})
 
 def patients_with_results(request):
     from patients.models import Patient
@@ -20,47 +18,280 @@ def patients_with_results(request):
 
 def patient_results_detail(request, pk):
     from patients.models import Patient
+    from collections import defaultdict
+    from datetime import datetime
+    
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
-    results = patient.test_results.select_related('test').order_by('-performed_date', 'test__test_name')
+    results = patient.test_results.select_related('test').filter(order__order_type='cardiology').order_by('-performed_date', 'test__test_name')
+    
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    date_type = request.GET.get('date_type', 'visit_date')
+    
+    if start_date:
+        try:
+            parsed_start = datetime.strptime(start_date, '%d-%b-%Y').date()
+            filter_field = 'performed_date__date'
+            if date_type == 'visit_date':
+                filter_field = 'order__encounter__start_time__date'
+            elif date_type == 'request_date':
+                filter_field = 'order__order_date'
+            results = results.filter(**{f"{filter_field}__gte": parsed_start})
+        except ValueError:
+            pass
+            
+    if end_date:
+        try:
+            parsed_end = datetime.strptime(end_date, '%d-%b-%Y').date()
+            filter_field = 'performed_date__date'
+            if date_type == 'visit_date':
+                filter_field = 'order__encounter__start_time__date'
+            elif date_type == 'request_date':
+                filter_field = 'order__order_date'
+            results = results.filter(**{f"{filter_field}__lte": parsed_end})
+        except ValueError:
+            pass
+            
+    order_field_map = {
+        'visit_date': '-order__encounter__start_time',
+        'request_date': '-order__order_date',
+        'result_date': '-performed_date'
+    }
+    order_field = order_field_map.get(date_type, '-order__encounter__start_time')
+    results = results.order_by(order_field, 'test__test_name')
+            
+    grouped_results = defaultdict(lambda: defaultdict(list))
+    for res in results:
+        if date_type == 'visit_date' and res.order and res.order.encounter:
+            group_date = res.order.encounter.start_time
+        elif date_type == 'request_date' and res.order:
+            group_date = res.order.order_date
+        else:
+            group_date = res.performed_date
+            
+        date_key = group_date.strftime("%d %b %Y") if group_date else "Unknown Date"
+        cat_key = res.test.diagnostic_category.name if res.test.diagnostic_category else 'Uncategorized'
+        grouped_results[date_key][cat_key].append(res)
+        
+    grouped_results = {d: dict(sorted(cats.items())) for d, cats in grouped_results.items()}
+
+    date_type_labels = {
+        'visit_date': 'Visit Date',
+        'request_date': 'Request Date',
+        'result_date': 'Result Date'
+    }
+    
     return render(request, 'cardiology/patient_results_detail.html', {
         'patient': patient,
-        'results': results
+        'grouped_results': grouped_results,
+        'date_type': date_type,
+        'start_date': start_date,
+        'end_date': end_date,
+        'date_type_label': date_type_labels.get(date_type, 'Visit Date')
     })
 
+@login_required
 def pending_orders(request):
+    """
+    Shows a list of patients who have pending or in_progress lab orders.
+    """
+    from django.db.models import Q
     from orders.models import Order
-    orders = Order.objects.filter(order_category='cardiology', status='pending').order_by('order_date')
-    return render(request, 'cardiology/pending_orders.html', {'orders': orders})
+    from datetime import datetime
+    from django.core.paginator import Paginator
+
+    # Base query for lab orders that are not completed or cancelled
+    query = Q(order_type='cardiology', test__isnull=False)
+    
+    # Filter by status
+    status_filter = request.GET.get('status', 'all')
+    if status_filter == 'pending':
+        query &= Q(status='pending')
+    elif status_filter == 'in_progress':
+        query &= Q(status='in_progress')
+    else:
+        query &= Q(status__in=['pending', 'in_progress'])
+        
+    # Filter by date range
+    start_date_str = request.GET.get('start_date', '')
+    end_date_str = request.GET.get('end_date', '')
+    if start_date_str:
+        try:
+            start_date = datetime.strptime(start_date_str, '%Y-%m-%d').date()
+            query &= Q(order_date__date__gte=start_date)
+        except ValueError:
+            pass
+    if end_date_str:
+        try:
+            end_date = datetime.strptime(end_date_str, '%Y-%m-%d').date()
+            query &= Q(order_date__date__lte=end_date)
+        except ValueError:
+            pass
+            
+    # Filter by search (patient name or MRN)
+    search_query = request.GET.get('search', '').strip()
+    if search_query:
+        query &= (
+            Q(patient__first_name__icontains=search_query) |
+            Q(patient__last_name__icontains=search_query) |
+            Q(patient__mrn__icontains=search_query)
+        )
+
+    pending_orders = Order.objects.filter(query).select_related('patient').order_by('patient_id', 'order_date')
+
+    patients_dict = {}
+    for order in pending_orders:
+        p_id = order.patient.id
+        if p_id not in patients_dict:
+            patients_dict[p_id] = {
+                'patient': order.patient,
+                'order_count': 0,
+                'oldest_order_date': order.order_date,
+                'has_stat': False,
+                'has_urgent': False,
+                'status': 'pending'
+            }
+        
+        patients_dict[p_id]['order_count'] += 1
+        
+        if order.urgency == 'stat':
+            patients_dict[p_id]['has_stat'] = True
+        elif order.urgency == 'urgent':
+            patients_dict[p_id]['has_urgent'] = True
+            
+        if order.status == 'in_progress':
+            patients_dict[p_id]['status'] = 'in_progress'
+
+    # Convert to list and sort by urgency (STAT first), then date DESC (newest first)
+    patient_list = list(patients_dict.values())
+    patient_list.sort(key=lambda x: (
+        0 if x['has_stat'] else (1 if x['has_urgent'] else 2),
+        -x['oldest_order_date'].timestamp()
+    ))
+
+    # Pagination: 10 records per page
+    paginator = Paginator(patient_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'page_obj': page_obj,
+        'search': search_query,
+        'start_date': start_date_str,
+        'end_date': end_date_str,
+        'status': status_filter,
+    }
+    return render(request, 'cardiology/pending_orders.html', context)
+
 
 def fulfill_order(request, pk):
     from orders.models import Order
-    from .forms_order import FulfillOrderForm
-    order = get_object_or_404(Order, pk=pk, order_category='cardiology')
+    from patients.models import Patient
+    from laboratory.models.results import PatientTestResult
+    from django.contrib import messages
+    from django.shortcuts import render, get_object_or_404, redirect
+
+    patient_id = pk
+    patient = get_object_or_404(Patient, pk=patient_id)
     
-    if request.method == 'POST':
-        form = FulfillOrderForm(request.POST)
-        if form.is_valid():
-            result = form.save(commit=False)
-            result.patient = order.patient
-            result.test = order.test
-            result.order = order
-            if request.user.is_authenticated:
-                result.created_by = request.user
-                result.updated_by = request.user
-            result.save()
+    # Fetch all pending cardiology orders for this patient
+    pending_orders = list(Order.objects.filter(
+        patient=patient,
+        order_type='cardiology',
+        status__in=['pending', 'in_progress'],
+        test__isnull=False
+    ).select_related('test', 'test__diagnostic_group', 'test__diagnostic_category', 'ordering_doctor'))
+
+    if not pending_orders:
+        messages.info(request, f"No pending cardiology orders found for {patient}.")
+        return redirect('cardiology:pending_orders')
+        
+    # Mark them all as in_progress
+    Order.objects.filter(id__in=[o.id for o in pending_orders], status='pending').update(status='in_progress')
+
+    all_tests_to_fulfill = []
+    order_map = {} 
+    
+    for order in pending_orders:
+        all_tests_to_fulfill.append(order.test)
+        order_map[order.test.id] = order
             
+    # Group tests by Category and Type for the template
+    grouped_tests = {}
+    for test in all_tests_to_fulfill:
+        cat_name = test.diagnostic_group.name if test.diagnostic_group else "Uncategorized"
+        group_name = test.diagnostic_category.name if test.diagnostic_category else "General"
+        
+        if cat_name not in grouped_tests:
+            grouped_tests[cat_name] = {}
+        if group_name not in grouped_tests[cat_name]:
+            grouped_tests[cat_name][group_name] = []
+            
+        grouped_tests[cat_name][group_name].append(test)
+
+    if request.method == 'POST':
+        completed_orders = set()
+        
+        for test in all_tests_to_fulfill:
+            val_str = request.POST.get(f'result_{test.id}')
+            if val_str and val_str.strip():
+                notes = request.POST.get(f'notes_{test.id}', '')
+                
+                # Determine flag
+                flag = 'NORMAL'
+                try:
+                    val = float(val_str)
+                    if test.range_min:
+                        try:
+                            if val < float(test.range_min):
+                                flag = 'LOW'
+                        except ValueError:
+                            pass
+                            
+                    if test.range_max:
+                        try:
+                            if val > float(test.range_max):
+                                flag = 'HIGH'
+                        except ValueError:
+                            pass
+                except ValueError:
+                    pass
+                    
+                PatientTestResult.objects.create(
+                    patient=patient,
+                    order=order_map[test.id],
+                    test=test,
+                    result_value=val_str,
+                    flag=flag,
+                    notes=notes,
+                    entered_by=request.user if request.user.is_authenticated else None
+                )
+                
+                if test.id in order_map:
+                    completed_orders.add(order_map[test.id])
+                    
+        for order in completed_orders:
             order.status = 'completed'
             order.save()
             
-            messages.success(request, f"Order fulfilled for {order.patient}.")
-            return redirect('cardiology:pending_orders')
-    else:
-        form = FulfillOrderForm()
+        messages.success(request, f"Results successfully entered for {patient}.")
+        return redirect('cardiology:pending_orders')
         
-    return render(request, 'cardiology/fulfill_order.html', {
-        'form': form,
-        'order': order
-    })
+    has_stat = any(o.urgency == 'stat' for o in pending_orders)
+    has_urgent = any(o.urgency == 'urgent' for o in pending_orders)
+
+    category_counts = {}
+    for cat_name, groups in grouped_tests.items():
+        category_counts[cat_name] = sum(len(tests) for tests in groups.values())
+
+    context = {
+        'patient': patient,
+        'grouped_tests': grouped_tests,
+        'category_counts': category_counts,
+        'highest_urgency': 'stat' if has_stat else ('urgent' if has_urgent else 'routine'),
+        'first_doctor': pending_orders[0].ordering_doctor if pending_orders else None
+    }
+    return render(request, 'cardiology/fulfillment.html', context)
 
 def group_list(request):
     groups = DiagnosticGroup.objects.filter(is_deleted=False, department__name='cardiology').order_by('name')

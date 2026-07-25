@@ -6,12 +6,12 @@ from orders.models import Order
 from datetime import datetime
 
 @login_required
-def lab_dashboard(request):
+def pending_orders(request):
     """
     Shows a list of patients who have pending or in_progress lab orders.
     """
     # Base query for lab orders that are not completed or cancelled
-    query = Q(order_type='lab', test__isnull=False)
+    query = Q(order_type='laboratory', test__isnull=False)
     
     # Filter by status
     status_filter = request.GET.get('status', 'all')
@@ -91,4 +91,4 @@ def lab_dashboard(request):
         'end_date': end_date_str,
         'status': status_filter,
     }
-    return render(request, 'laboratory/dashboard.html', context)
+    return render(request, 'laboratory/pending_orders.html', context)

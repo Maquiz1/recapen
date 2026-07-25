@@ -6,7 +6,7 @@ def laboratory_notifications(request):
     """
     if request.user.is_authenticated:
         pending_lab_count = Order.objects.filter(
-            order_type='lab',
+            order_type='laboratory',
             status__in=['pending', 'in_progress'],
             test__isnull=False
         ).values('patient').distinct().count()

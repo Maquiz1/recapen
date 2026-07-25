@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from .models import Patient, Screening, Diagnosis, Enrollment
-from .forms import PatientForm, ScreeningForm, SCDInvestigationForm, DMInvestigationForm, CardiacInvestigationForm, DiagnosisForm, EnrollmentForm
+from .forms import PatientForm, ScreeningForm, SCDInvestigationForm, DMInvestigationForm, CardiacInvestigationForm, DiagnosisForm, EligibilityForm, EnrollmentForm
 
 def patient_list(request):
     patients = Patient.objects.filter(is_deleted=False).order_by('-created_at')
@@ -24,8 +24,14 @@ def patient_register(request):
                 patient.updated_by = request.user
             patient.status = 'registered'
             patient.save()
-            messages.success(request, f"Patient {patient} registered successfully.")
-            return redirect('patients:dashboard', pk=patient.pk)
+            
+            # Generate Patient ID if not provided
+            if not patient.id_number:
+                patient.id_number = f"PT-{patient.pk:05d}"
+                patient.save(update_fields=['id_number'])
+                
+            messages.success(request, f"Patient {patient} registered successfully with ID {patient.id_number}.")
+            return redirect('patients:list')
     else:
         form = PatientForm()
     return render(request, 'patients/patient_register.html', {'form': form})
@@ -154,45 +160,59 @@ def patient_diagnosis(request, pk):
         return redirect('patients:screening', pk=patient.pk)
         
     diagnosis, _ = Diagnosis.objects.get_or_create(patient=patient)
-    enrollment, _ = Enrollment.objects.get_or_create(patient=patient)
     
     if request.method == 'POST':
         c_form = DiagnosisForm(request.POST, instance=diagnosis, prefix='consult')
-        e_form = EnrollmentForm(request.POST, instance=enrollment, prefix='enroll')
         
-        if c_form.is_valid() and e_form.is_valid():
+        if c_form.is_valid():
             c = c_form.save(commit=False)
             if request.user.is_authenticated:
                 c.created_by = request.user
                 c.updated_by = request.user
             c.save()
             
-            e = e_form.save(commit=False)
+            patient.status = 'diagnosed'
+            patient.save()
+            
+            messages.success(request, f"Diagnosis recorded for {patient}.")
+            return redirect('patients:eligibility', pk=patient.pk)
+    else:
+        c_form = DiagnosisForm(instance=diagnosis, prefix='consult')
+        
+    return render(request, 'patients/patient_diagnosis.html', {
+        'patient': patient,
+        'c_form': c_form
+    })
+
+def patient_eligibility(request, pk):
+    patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
+    
+    if patient.status not in ['diagnosed', 'eligible', 'enrolled', 'ineligible']:
+        messages.warning(request, "Patient must be diagnosed before Eligibility Assessment.")
+        return redirect('patients:diagnosis', pk=patient.pk)
+        
+    enrollment, _ = Enrollment.objects.get_or_create(patient=patient)
+    
+    if request.method == 'POST':
+        form = EligibilityForm(request.POST, instance=enrollment)
+        
+        if form.is_valid():
+            e = form.save(commit=False)
             if request.user.is_authenticated:
                 e.created_by = request.user
                 e.updated_by = request.user
             e.save()
             
             if e.is_eligible:
-                patient.status = 'diagnosed'
+                patient.status = 'eligible'
                 patient.save()
-                
-                # Finish the encounter
-                from encounters.models import Encounter
-                from django.utils import timezone
-                encounter = Encounter.objects.filter(patient=patient, status='in_progress').first()
-                if encounter:
-                    encounter.status = 'finished'
-                    encounter.end_time = timezone.now()
-                    encounter.save()
-                    
-                messages.success(request, f"Diagnosis recorded. {patient} is eligible for enrollment.")
-                return redirect('patients:diagnosis_list')
+                messages.success(request, f"Patient {patient} is eligible. Please proceed to Enrollment.")
+                return redirect('patients:enrollment', pk=patient.pk)
             else:
                 patient.status = 'ineligible'
                 patient.save()
                 
-                # Finish the encounter
+                # Finish the encounter since they are ineligible and won't enroll
                 from encounters.models import Encounter
                 from django.utils import timezone
                 encounter = Encounter.objects.filter(patient=patient, status='in_progress').first()
@@ -202,37 +222,45 @@ def patient_diagnosis(request, pk):
                     encounter.save()
                     
                 messages.warning(request, f"Patient {patient} marked as ineligible for program.")
-                return redirect('patients:diagnosis_list')
+                return redirect('patients:list')
     else:
-        c_form = DiagnosisForm(instance=diagnosis, prefix='consult')
-        e_form = EnrollmentForm(instance=enrollment, prefix='enroll')
+        form = EligibilityForm(instance=enrollment)
         
-    return render(request, 'patients/patient_diagnosis.html', {
+    return render(request, 'patients/patient_eligibility.html', {
         'patient': patient,
-        'c_form': c_form,
-        'e_form': e_form
+        'form': form
     })
 
 def patient_enrollment(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
     
-    if patient.status not in ['diagnosed', 'enrolled']:
-        messages.warning(request, "Patient must be diagnosed and marked eligible before proceeding to Enrollment.")
-        return redirect('patients:diagnosis', pk=patient.pk)
+    if patient.status not in ['eligible', 'enrolled']:
+        messages.warning(request, "Patient must be marked eligible before proceeding to Enrollment.")
+        return redirect('patients:eligibility', pk=patient.pk)
         
     enrollment = get_object_or_404(Enrollment, patient=patient)
     
     if request.method == 'POST':
-        form = EnrollmentForm(request.POST, instance=enrollment, prefix='enroll')
+        form = EnrollmentForm(request.POST, instance=enrollment)
         if form.is_valid():
             e = form.save(commit=False)
             e.save()
             patient.status = 'enrolled'
             patient.save()
+            
+            # Finish the encounter since enrollment is complete
+            from encounters.models import Encounter
+            from django.utils import timezone
+            encounter = Encounter.objects.filter(patient=patient, status='in_progress').first()
+            if encounter:
+                encounter.status = 'finished'
+                encounter.end_time = timezone.now()
+                encounter.save()
+                
             messages.success(request, f"Patient {patient} successfully enrolled in cohort: {e.get_cohort_display()}. Please fill out the clinical baselines.")
             return redirect('clinical:baseline_forms', enrollment_id=e.pk)
     else:
-        form = EnrollmentForm(instance=enrollment, prefix='enroll')
+        form = EnrollmentForm(instance=enrollment)
         
     return render(request, 'patients/patient_enrollment.html', {
         'patient': patient,

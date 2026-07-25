@@ -8,7 +8,7 @@ from diagnostics.models import DiagnosticTest
 
 class Order(AuditableModel):
     ORDER_TYPE_CHOICES = (
-        ('lab', 'Laboratory'),
+        ('laboratory', 'Laboratory'),
         ('radiology', 'Radiology/Imaging'),
         ('cardiology', 'Cardiology'),
         ('pharmacy', 'Pharmacy/Medication'),

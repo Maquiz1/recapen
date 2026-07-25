@@ -98,6 +98,8 @@ TEMPLATES = [
                 'patients.context_processors.clinical_notifications_processor',
                 'pharmacy.context_processors.pharmacy_notifications',
                 'laboratory.context_processors.laboratory_notifications',
+                'radiology.context_processors.radiology_notifications',
+                'cardiology.context_processors.cardiology_notifications',
             ],
         },
     },

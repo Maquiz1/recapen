@@ -190,10 +190,8 @@ class DiagnosisForm(forms.ModelForm):
 
     class Meta:
         model = Diagnosis
-        fields = ['consent_given', 'date_of_consent', 'diagnosis', 'confirmed_cardiac_type', 'comments']
+        fields = ['diagnosis', 'confirmed_cardiac_type', 'comments']
         widgets = {
-            'consent_given': forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_consent_given'}),
-            'date_of_consent': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'diagnosis': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Diagnosis...', 'required': 'required'}),
             'confirmed_cardiac_type': forms.Select(attrs={'class': 'form-select', 'id': 'id_confirmed_cardiac_type'}),
             'comments': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Clinical comments...'}),
@@ -223,14 +221,23 @@ class DiagnosisForm(forms.ModelForm):
             self.add_error('confirmed_cardiac_type', 'Please select a cardiac condition type.')
         return cleaned_data
 
+class EligibilityForm(forms.ModelForm):
+    class Meta:
+        model = Enrollment
+        fields = ['is_eligible', 'remarks']
+        widgets = {
+            'is_eligible': forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'is_eligible_checkbox'}),
+            'remarks': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Explanation if not eligible', 'id': 'remarks_input'}),
+        }
+
 class EnrollmentForm(forms.ModelForm):
     class Meta:
         model = Enrollment
-        fields = ['is_eligible', 'cohort', 'remarks']
+        fields = ['consent_given', 'date_of_consent', 'cohort']
         widgets = {
-            'is_eligible': forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'is_eligible_checkbox'}),
+            'consent_given': forms.CheckboxInput(attrs={'class': 'form-check-input', 'id': 'id_consent_given'}),
+            'date_of_consent': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
             'cohort': forms.Select(attrs={'class': 'form-select'}),
-            'remarks': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Explanation if not eligible', 'id': 'remarks_input'}),
         }
 
 class TestRequestsForm(forms.Form):

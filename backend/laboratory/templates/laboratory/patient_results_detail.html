@@ -109,7 +109,7 @@
                                 <thead class="table-light">
                                 <tr>
                                   <th style="width: 25%">Test Name</th>
-                                  <th style="width: 10%">Code</th>
+
                                   <th style="width: 15%">Request Date</th>
                                   <th style="width: 15%">Result Date</th>
                                   <th style="width: 15%">Result Value</th>
@@ -120,8 +120,8 @@
                               <tbody>
                                 {% for res in results_list %}
                                 <tr>
-                                  <td><span class="fw-semibold">{{ res.test.name }}</span></td>
-                                  <td><div class="small text-muted">{{ res.test.code }}</div></td>
+                                  <td><span class="fw-semibold">{{ res.test.test_name }}</span></td>
+
                                   <td><span class="small text-muted">{{ res.order.order_date|date:"d M Y"|default:"-" }}</span></td>
                                   <td><span class="small text-muted">{{ res.performed_date|date:"d M Y"|default:"-" }}</span></td>
                                   <td>

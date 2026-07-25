@@ -1,5 +1,5 @@
 from .tests import *
-from .dashboard import *
+from .pending_orders import *
 from .fulfillment import *
 from .patients import *
 from .groups import *

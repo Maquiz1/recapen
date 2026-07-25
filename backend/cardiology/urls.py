@@ -25,8 +25,7 @@ urlpatterns = [
     path('groups/activate/<int:pk>/', views.group_activate, name='group_activate'),
     path('groups/deactivate/<int:pk>/', views.group_deactivate, name='group_deactivate'),
 
-    path('patients/', views.patient_results_list, name='results_list'),
-    path('patients/results/', views.patients_with_results, name='patients_results'),
+    path('results/', views.patients_with_results, name='patients_results'),
     path('patients/<int:pk>/', views.patient_results_detail, name='patient_detail'),
     path('orders/pending/', views.pending_orders, name='pending_orders'),
     path('orders/<int:pk>/fulfill/', views.fulfill_order, name='fulfill_order'),

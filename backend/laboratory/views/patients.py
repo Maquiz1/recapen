@@ -19,14 +19,14 @@ def patient_results_detail(request, pk):
     from django.utils import timezone
     
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
-    results = patient.test_results.select_related('test').order_by('-performed_date', 'test__name')
+    results = patient.test_results.select_related('test').filter(order__order_type='laboratory').order_by('-performed_date', 'test__test_name')
     
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
     date_type = request.GET.get('date_type', 'visit_date')
     
-    # Base queryset with select_related for orders/encounters
-    results = patient.test_results.select_related('test', 'order', 'order__encounter')
+    # Add select_related for orders/encounters to existing results
+    results = results.select_related('order', 'order__encounter')
     
     # Map date_type to the respective query field
     date_field_map = {
@@ -58,7 +58,7 @@ def patient_results_detail(request, pk):
         'result_date': '-performed_date'
     }
     order_field = order_field_map.get(date_type, '-order__encounter__start_time')
-    results = results.order_by(order_field, 'test__name')
+    results = results.order_by(order_field, 'test__test_name')
             
     # Group by the dynamically selected Date, then by Category
     grouped_results = defaultdict(lambda: defaultdict(list))
@@ -73,11 +73,11 @@ def patient_results_detail(request, pk):
             
         date_key = group_date.strftime("%d %b %Y") if group_date else "Unknown Date"
         
-        cat_key = res.test.laboratory_category.name if res.test.laboratory_category else 'Uncategorized'
+        cat_key = res.test.diagnostic_category.name if res.test.diagnostic_category else 'Uncategorized'
         grouped_results[date_key][cat_key].append(res)
         
-    # Convert to normal dicts
-    grouped_results = {d: dict(cats) for d, cats in grouped_results.items()}
+    # Convert to normal dicts and sort categories alphabetically
+    grouped_results = {d: dict(sorted(cats.items())) for d, cats in grouped_results.items()}
 
     # Determine Display Label for the Accordion based on date_type
     date_type_labels = {

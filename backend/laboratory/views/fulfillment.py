@@ -16,14 +16,14 @@ def fulfill_lab_order(request, patient_id):
     # Fetch all pending lab orders for this patient
     pending_orders = list(Order.objects.filter(
         patient=patient,
-        order_group='lab',
+        order_type='laboratory',
         status__in=['pending', 'in_progress'],
         test__isnull=False
     ).select_related('test', 'test__diagnostic_group', 'test__diagnostic_category', 'ordering_doctor'))
 
     if not pending_orders:
         messages.info(request, f"No pending laboratory orders found for {patient}.")
-        return redirect('laboratory:lab_dashboard')
+        return redirect('laboratory:pending_orders')
         
     # Mark them all as in_progress
     Order.objects.filter(id__in=[o.id for o in pending_orders], status='pending').update(status='in_progress')
@@ -33,20 +33,14 @@ def fulfill_lab_order(request, patient_id):
     order_map = {} # Map test.id -> order object (so we know which order to complete later)
     
     for order in pending_orders:
-        if order.test.is_panel:
-            sub_tests = order.test.sub_tests.filter(is_active=True, is_deleted=False)
-            for sub_test in sub_tests:
-                all_tests_to_fulfill.append(sub_test)
-                order_map[sub_test.id] = order
-        else:
-            all_tests_to_fulfill.append(order.test)
-            order_map[order.test.id] = order
+        all_tests_to_fulfill.append(order.test)
+        order_map[order.test.id] = order
             
     # Group tests by Category and Type for the template
     grouped_tests = {}
     for test in all_tests_to_fulfill:
-        cat_name = test.laboratory_group.name if test.diagnostic_group else "Uncategorized"
-        group_name = test.diagnostic_group.name if test.diagnostic_category else "General"
+        cat_name = test.diagnostic_group.name if test.diagnostic_group else "Uncategorized"
+        group_name = test.diagnostic_category.name if test.diagnostic_category else "General"
         
         if cat_name not in grouped_tests:
             grouped_tests[cat_name] = {}
@@ -106,7 +100,7 @@ def fulfill_lab_order(request, patient_id):
             order.save()
             
         messages.success(request, f"Results successfully entered for {patient}.")
-        return redirect('laboratory:lab_dashboard')
+        return redirect('laboratory:pending_orders')
         
     has_stat = any(o.urgency == 'stat' for o in pending_orders)
     has_urgent = any(o.urgency == 'urgent' for o in pending_orders)

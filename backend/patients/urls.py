@@ -11,6 +11,7 @@ urlpatterns = [
     path('test-requests/<int:pk>/', views.test_requests, name='test_requests'),
     path('investigation/<int:pk>/', views.patient_investigation, name='investigation'),
     path('diagnosis/<int:pk>/', views.patient_diagnosis, name='diagnosis'),
+    path('eligibility/<int:pk>/', views.patient_eligibility, name='eligibility'),
     path('enrollment/<int:pk>/', views.patient_enrollment, name='enrollment'),
     path('profile/<int:pk>/', views.patient_profile, name='profile'),
     path('my-patients/', views.my_patients, name='my_patients'),

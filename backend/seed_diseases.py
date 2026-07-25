@@ -24,7 +24,7 @@ def seed_diseases():
             defaults={
                 'name': item['name'],
                 'description': item['description'],
-                'order': i
+                'order': i + 1
             }
         )
         if created:

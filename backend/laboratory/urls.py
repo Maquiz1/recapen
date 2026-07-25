@@ -26,9 +26,9 @@ urlpatterns = [
     path('groups/deactivate/<int:pk>/', views.group_deactivate, name='group_deactivate'),
     
     path('patients/', views.patient_results_list, name='results_list'),
-    path('patients/results/', views.patients_with_results, name='patients_results'),
+    path('results/', views.patients_with_results, name='patients_results'),
     path('patients/<int:pk>/', views.patient_results_detail, name='patient_detail'),
-    path('orders/dashboard/', views.lab_dashboard, name='lab_dashboard'),
+    path('orders/pending/', views.pending_orders, name='pending_orders'),
     path('orders/<int:patient_id>/fulfill/', views.fulfill_lab_order, name='fulfill_order'),
     path('patients/<int:patient_id>/edit_results/<str:date_type>/<str:date_string>/', views.edit_lab_results, name='edit_lab_results'),
 ]

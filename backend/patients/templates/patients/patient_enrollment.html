@@ -41,6 +41,27 @@
             {% csrf_token %}
             <p class="text-muted">Select the specific PEN-Plus registry cohort to enroll this patient in. This determines their tracking list and data aggregation protocols.</p>
 
+            <!-- Consent Section -->
+            <div class="card mb-4 border border-secondary-subtle">
+              <div class="card-header bg-light">
+                <h6 class="mb-0 text-secondary"><i class="ri-file-text-line"></i> Patient Consent</h6>
+              </div>
+              <div class="card-body">
+                <div class="row gx-3">
+                  <div class="col-md-6 mb-3">
+                    <div class="form-check form-switch mt-4">
+                      {{ form.consent_given }}
+                      <label class="form-check-label fw-semibold ms-2" for="{{ form.consent_given.id_for_label }}">Consent Given for Enrollment</label>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-3">
+                    <label for="{{ form.date_of_consent.id_for_label }}" class="form-label">Date of Consent</label>
+                    {{ form.date_of_consent }}
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="mb-4">
               <label for="{{ form.cohort.id_for_label }}" class="form-label font-semibold">Select Registry Cohort <span class="text-danger">*</span></label>
               {{ form.cohort }}
@@ -50,7 +71,7 @@
             </div>
 
             <div class="d-flex justify-content-end gap-2 mt-4">
-              <a href="{% url 'patients:diagnosis' patient.pk %}" class="btn btn-secondary"><i class="ri-arrow-left-line"></i> Back to Consultation</a>
+              <a href="{% url 'patients:eligibility' patient.pk %}" class="btn btn-secondary"><i class="ri-arrow-left-line"></i> Back to Eligibility</a>
               <button type="submit" class="btn btn-primary">Enroll Patient</button>
             </div>
           </form>

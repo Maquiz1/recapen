@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block page_title %}Fulfill Lab Orders: {{ patient.first_name }} {{ patient.last_name }}{% endblock %}
+{% block page_title %}Fulfill Radiology Orders: {{ patient.first_name }} {{ patient.last_name }}{% endblock %}
 
 {% block content %}
 <div class="app-body">
@@ -144,7 +144,7 @@
                         {% endif %}
 
                         <div class="d-flex justify-content-end gap-2 mt-4">
-                            <a href="{% url 'laboratory:pending_orders' %}" class="btn btn-secondary">Cancel</a>
+                            <a href="{% url 'radiology:pending_orders' %}" class="btn btn-secondary">Cancel</a>
                             <button type="submit" class="btn btn-success fw-bold">Submit Results</button>
                         </div>
                     </form>
