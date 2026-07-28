@@ -22,36 +22,48 @@ class PatientForm(forms.ModelForm):
 
 class ScreeningForm(forms.ModelForm):
     from diseases.models import Disease
+    from study_config.models import ClinicalForm
     suspected_diseases = forms.ModelMultipleChoiceField(
         queryset=Disease.objects.filter(is_deleted=False, is_active=True),
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
         required=False
     )
+    assigned_forms = forms.ModelMultipleChoiceField(
+        queryset=ClinicalForm.objects.all(),
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        required=False,
+        label="Clinical Forms to Fill Now"
+    )
 
     class Meta:
         model = Screening
-        fields = ['date_of_screening', 'is_permanent_resident', 'known_ncd', 'type_of_screening', 'screening_notes']
+        fields = ['date_of_screening', 'type_of_screening', 'is_permanent_resident', 'known_ncd', 'suspected_diseases', 'screening_notes', 'assigned_forms']
         widgets = {
-            'date_of_screening': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
+            'date_of_screening': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'type_of_screening': forms.Select(attrs={'class': 'form-select'}),
             'is_permanent_resident': forms.Select(choices=[(True, 'Yes'), (False, 'No')], attrs={'class': 'form-select'}),
             'known_ncd': forms.Select(choices=[(True, 'Yes'), (False, 'No')], attrs={'class': 'form-select'}),
-            'type_of_screening': forms.Select(attrs={'class': 'form-select'}),
-            'screening_notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Enter screening notes...'}),
+            'suspected_diseases': forms.CheckboxSelectMultiple(),
+            'assigned_forms': forms.CheckboxSelectMultiple(),
+            'screening_notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Optional triage notes...'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             self.fields['suspected_diseases'].initial = self.instance.suspected_diseases.filter(is_deleted=False, is_active=True)
+            self.fields['assigned_forms'].initial = self.instance.assigned_forms.all()
 
     def save(self, commit=True):
         instance = super().save(commit=commit)
         
         diseases_to_add = self.cleaned_data.get('suspected_diseases')
+        forms_to_add = self.cleaned_data.get('assigned_forms')
         
         if not instance.pk:
             instance.save()
         instance.suspected_diseases.set(diseases_to_add)
+        instance.assigned_forms.set(forms_to_add)
         return instance
 
 class SCDInvestigationForm(forms.Form):

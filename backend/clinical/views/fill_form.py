@@ -3,9 +3,22 @@ from django.contrib import messages
 from encounters.models import Encounter
 from clinical.forms import VitalsForm, HospitalizationForm, RiskForm, SocioeconomicForm, TreatmentForm, HistoryForm, SymptomForm, ComplicationsForm, SchoolHomeAssessmentForm
 
+
+def _get_post_fill_redirect(encounter):
+    """
+    After saving a CRF form, redirect back to the screening page if the
+    encounter is a screening encounter (so the user returns to the CRF list),
+    or to the encounter detail page otherwise.
+    """
+    if encounter.encounter_type == 'screening':
+        return redirect('patients:screening', pk=encounter.patient.pk)
+    return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+
+
 def fill_form(request, encounter_id, form_code):
     encounter = get_object_or_404(Encounter, pk=encounter_id)
     form_code_lower = form_code.lower()
+
     
     if form_code_lower in ['vitals', 'vt']:
         instance = getattr(encounter, 'vitals', None)
@@ -16,7 +29,7 @@ def fill_form(request, encounter_id, form_code):
                 vitals.encounter = encounter
                 vitals.save()
                 messages.success(request, "Vitals recorded successfully.")
-                return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+                return _get_post_fill_redirect(encounter)
         else:
             form = VitalsForm(instance=instance)
             
@@ -35,7 +48,7 @@ def fill_form(request, encounter_id, form_code):
                 hosp.encounter = encounter
                 hosp.save()
                 messages.success(request, "Hospitalization recorded successfully.")
-                return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+                return _get_post_fill_redirect(encounter)
         else:
             form = HospitalizationForm(instance=instance)
             
@@ -54,7 +67,7 @@ def fill_form(request, encounter_id, form_code):
                 risk.encounter = encounter
                 risk.save()
                 messages.success(request, "Risk recorded successfully.")
-                return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+                return _get_post_fill_redirect(encounter)
         else:
             form = RiskForm(instance=instance)
             
@@ -73,7 +86,7 @@ def fill_form(request, encounter_id, form_code):
                 se.encounter = encounter
                 se.save()
                 messages.success(request, "Socioeconomic recorded successfully.")
-                return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+                return _get_post_fill_redirect(encounter)
         else:
             form = SocioeconomicForm(instance=instance)
             
@@ -92,7 +105,7 @@ def fill_form(request, encounter_id, form_code):
                 tx.encounter = encounter
                 tx.save()
                 messages.success(request, "Treatment recorded successfully.")
-                return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+                return _get_post_fill_redirect(encounter)
         else:
             form = TreatmentForm(instance=instance)
             
@@ -111,7 +124,7 @@ def fill_form(request, encounter_id, form_code):
                 hist.encounter = encounter
                 hist.save()
                 messages.success(request, "History recorded successfully.")
-                return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+                return _get_post_fill_redirect(encounter)
         else:
             form = HistoryForm(instance=instance)
             
@@ -130,7 +143,7 @@ def fill_form(request, encounter_id, form_code):
                 symp.encounter = encounter
                 symp.save()
                 messages.success(request, "Symptom recorded successfully.")
-                return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+                return _get_post_fill_redirect(encounter)
         else:
             form = SymptomForm(instance=instance)
             
@@ -149,7 +162,7 @@ def fill_form(request, encounter_id, form_code):
                 comp.encounter = encounter
                 comp.save()
                 messages.success(request, "Complications recorded successfully.")
-                return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+                return _get_post_fill_redirect(encounter)
         else:
             form = ComplicationsForm(instance=instance)
             
@@ -168,7 +181,7 @@ def fill_form(request, encounter_id, form_code):
                 assessment.encounter = encounter
                 assessment.save()
                 messages.success(request, "SchoolHomeAssessment recorded successfully.")
-                return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+                return _get_post_fill_redirect(encounter)
         else:
             form = SchoolHomeAssessmentForm(instance=instance)
             
@@ -180,4 +193,4 @@ def fill_form(request, encounter_id, form_code):
         
     else:
         messages.error(request, f"Form logic for {form_code} is not yet implemented.")
-        return redirect('encounters:encounter_detail', encounter_id=encounter.pk)
+        return _get_post_fill_redirect(encounter)

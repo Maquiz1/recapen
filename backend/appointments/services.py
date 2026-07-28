@@ -35,7 +35,7 @@ def generate_visits_for_patient(patient):
     
     if not existing_visits.exists():
         # First time generating visits
-        # Create baseline (Visit 0)
+        # Create baseline (Baseline Assessment)
         baseline_dt = timezone.make_aware(timezone.datetime.combine(enrollment_date, datetime.time(9, 0)))
         Appointment.objects.create(
             patient=patient,

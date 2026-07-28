@@ -39,7 +39,7 @@ def patient_register(request):
 def patient_screening(request, pk):
     patient = get_object_or_404(Patient, pk=pk, is_deleted=False)
     screening, created = Screening.objects.get_or_create(patient=patient)
-    
+
     if request.method == 'POST':
         form = ScreeningForm(request.POST, instance=screening)
         if form.is_valid():
@@ -50,31 +50,85 @@ def patient_screening(request, pk):
             # The custom form save method handles M2M saving even when commit=False,
             # but we explicitly save it here just to be safe.
             screening = form.save(commit=True)
-            
-            # Generate Encounter
+
+            # Ensure a screening encounter exists
             from encounters.models import Encounter
-            from orders.models import Order
-            
-            encounter, enc_created = Encounter.objects.get_or_create(
+
+            Encounter.objects.get_or_create(
                 patient=patient,
-                status='in_progress',
+                encounter_type='screening',
                 defaults={
                     'doctor': request.user if request.user.is_authenticated else None,
-                    'encounter_type': 'initial' if patient.status == 'registered' else 'followup'
+                    'status': 'in_progress',
                 }
             )
-            
+
             patient.status = 'screened'
             patient.save()
-            
+
             messages.success(request, f"Screening results saved for {patient}.")
-            return redirect('patients:dashboard', pk=patient.pk)
+            # Redirect back to this same screening page so the user
+            # can immediately see and fill the assigned CRF list below.
+            return redirect('patients:screening', pk=patient.pk)
     else:
         form = ScreeningForm(instance=screening)
-        
+
+    # Fetch the screening encounter for CRF status display
+    screening_encounter = patient.encounters.filter(encounter_type='screening').first()
+
+    # Build a CRF status list so the template can render each form with its
+    # completion state and fill URL, without cluttering the template with logic.
+    CODE_TO_ATTR = {
+        'vitals': 'vitals',
+        'vt': 'vitals',
+        'hospitalization': 'hospitalization',
+        'hosp': 'hospitalization',
+        'risk': 'risk',
+        'risks': 'risk',
+        'socioeconomic': 'socioeconomic',
+        'se': 'socioeconomic',
+        'treatment': 'treatment',
+        'tx': 'treatment',
+        'history': 'clinical_history',
+        'hist': 'clinical_history',
+        'clinical_history': 'clinical_history',
+        'hx': 'clinical_history',
+        'symptom': 'symptom',
+        'symptoms': 'symptom',
+        'symp': 'symptom',
+        'sx': 'symptom',
+        'complications': 'complications',
+        'comp': 'complications',
+        'cx': 'complications',
+        'school_home_assessment': 'school_home_assessment',
+        'schoolhomeassessment': 'school_home_assessment',
+        'schoolhome': 'school_home_assessment',
+        'school': 'school_home_assessment',
+    }
+
+    crf_status_list = []
+    if screening_encounter:
+        for clinical_form in screening.assigned_forms.all():
+            code_lower = clinical_form.code.lower()
+            attr = CODE_TO_ATTR.get(code_lower)
+            if attr is not None:
+                is_completed = hasattr(screening_encounter, attr)
+                is_implemented = True
+            else:
+                is_completed = False
+                is_implemented = False
+
+            crf_status_list.append({
+                'form': clinical_form,
+                'is_completed': is_completed,
+                'is_implemented': is_implemented,
+            })
+
     return render(request, 'patients/patient_screening.html', {
         'form': form,
-        'patient': patient
+        'patient': patient,
+        'screening_encounter': screening_encounter,
+        'crf_status_list': crf_status_list,
     })
 
 def test_requests(request, pk):
@@ -341,12 +395,15 @@ def patient_profile(request, pk):
             
         baseline_complete = is_complete
     
+    screening_encounter = patient.encounters.filter(encounter_type='screening').first()
+    
     return render(request, 'patients/patient_profile.html', {
         'patient': patient,
         'pending_orders': pending_orders,
         'pending_orders_exist': pending_orders_exist,
         'pending_category_count': pending_category_count,
         'initial_encounter': initial_encounter,
+        'screening_encounter': screening_encounter,
         'last_attended_date': last_attended_date,
         'last_hba1c_order': last_hba1c_order,
         'last_hba1c_result': last_hba1c_result,
@@ -372,12 +429,14 @@ def patient_dashboard(request, pk):
     last_hba1c_result = last_hba1c_order.results.order_by('-performed_date').first() if last_hba1c_order else None
     
     latest_followup = patient.encounters.filter(encounter_type='followup').order_by('-start_time').first()
+    screening_encounter = patient.encounters.filter(encounter_type='screening').first()
     
     return render(request, 'patients/patient_profile.html', {
         'patient': patient,
         'is_dashboard': True,
         'pending_orders': pending_orders,
         'pending_orders_exist': pending_orders_exist,
+        'screening_encounter': screening_encounter,
         'initial_encounter': initial_encounter,
         'last_attended_date': last_attended_date,
         'last_hba1c_order': last_hba1c_order,

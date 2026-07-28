@@ -222,6 +222,7 @@ class Screening(AuditableModel):
     
     suspected_diseases = models.ManyToManyField('diseases.Disease', blank=True, related_name='screenings')
     ordered_tests = models.ManyToManyField('diagnostics.DiagnosticTest', blank=True, related_name='screening_orders')
+    assigned_forms = models.ManyToManyField('study_config.ClinicalForm', blank=True, related_name='screenings')
     screening_notes = models.TextField(blank=True, null=True)
 
     def __str__(self):

@@ -42,6 +42,10 @@ def encounter_detail(request, encounter_id):
                 for form in rule.required_forms.all():
                     required_forms.add(form)
                     
+    if encounter.encounter_type == 'screening' and hasattr(patient, 'screening'):
+        for form in patient.screening.assigned_forms.all():
+            required_forms.add(form)
+                    
     has_vitals = hasattr(encounter, 'vitals')
     has_hospitalization = hasattr(encounter, 'hospitalization')
     has_risk = hasattr(encounter, 'risk')

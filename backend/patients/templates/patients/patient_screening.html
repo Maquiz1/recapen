@@ -1,7 +1,20 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block page_title %}Patient Screening & Lab Orders{% endblock %}
+{% block page_title %}Patient Screening &amp; Lab Orders{% endblock %}
+
+{% block header_actions %}
+<div class="d-flex gap-2">
+  <a href="{% url 'patients:profile' patient.pk %}" class="btn btn-outline-primary">
+    <i class="ri-arrow-left-line"></i> Back to Patient
+  </a>
+  {% if screening_encounter %}
+  <a href="{% url 'encounters:encounter_detail' screening_encounter.pk %}" class="btn btn-outline-secondary">
+    <i class="ri-layout-grid-line"></i> Screening Dashboard
+  </a>
+  {% endif %}
+</div>
+{% endblock %}
 
 {% block content %}
 <div class="app-body">
@@ -32,9 +45,10 @@
         </div>
       </div>
 
+      <!-- Screening Form Card -->
       <div class="card mb-3">
         <div class="card-header">
-          <h5 class="card-title">Initial Screening & Laboratory/Diagnostic Orders</h5>
+          <h5 class="card-title">Initial Screening &amp; Laboratory/Diagnostic Orders</h5>
         </div>
         <div class="card-body">
           <form method="post" novalidate>
@@ -79,6 +93,22 @@
               {% endfor %}
             </div>
 
+            <p class="text-muted mt-3 mb-2">Select the clinical forms to assign to this screening encounter:</p>
+            <div class="row gx-3 mb-4">
+              {% for checkbox in form.assigned_forms %}
+              <div class="col-md-4 mb-3">
+                <div class="card border p-3 h-100 bg-light-subtle">
+                  <div class="form-check mb-2">
+                    {{ checkbox.tag }}
+                    <label class="form-check-label fw-bold ms-1" for="{{ checkbox.id_for_label }}">
+                      {{ checkbox.choice_label }}
+                    </label>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+
             <!-- Notes -->
             <div class="mb-3">
               <label for="{{ form.screening_notes.id_for_label }}" class="form-label">Triage notes / clinical presentation</label>
@@ -90,11 +120,171 @@
 
             <div class="d-flex justify-content-end gap-2 mt-4">
               <a href="{% url 'patients:list' %}" class="btn btn-secondary">Cancel</a>
-              <button type="submit" class="btn btn-primary">Save Screening & Continue</button>
+              <button type="submit" class="btn btn-primary">Save Screening &amp; Continue</button>
             </div>
           </form>
         </div>
       </div>
+
+      <!-- ─────────────────────────────────────────────────────────────────────
+           CRF FORMS SECTION
+           Shown only after the patient has been screened (encounter exists).
+      ───────────────────────────────────────────────────────────────────────── -->
+      {% if screening_encounter %}
+      <div class="card mb-4" id="crf-forms-section">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <div class="d-flex align-items-center gap-2">
+            <i class="ri-file-list-3-line text-primary fs-5"></i>
+            <h5 class="card-title m-0">Assigned CRF Forms</h5>
+          </div>
+          {% if crf_status_list %}
+            {% with completed_count=0 total_count=crf_status_list|length %}
+              {# Count completed forms #}
+              {% for item in crf_status_list %}
+                {% if item.is_completed %}
+                  {% with completed_count=completed_count|add:1 %}{% endwith %}
+                {% endif %}
+              {% endfor %}
+              <span class="badge bg-primary-subtle text-primary rounded-pill fs-6 px-3">
+                <i class="ri-file-check-line me-1"></i>
+                {{ crf_status_list|length }} form{{ crf_status_list|length|pluralize }} assigned
+              </span>
+            {% endwith %}
+          {% endif %}
+        </div>
+
+        {% if crf_status_list %}
+          <!-- Progress bar -->
+          {% with total=crf_status_list|length %}
+          <div class="px-3 pt-3 pb-1">
+            <div class="d-flex justify-content-between align-items-center mb-1">
+              <small class="text-muted fw-semibold">Completion Progress</small>
+              <small class="text-muted" id="crf-progress-label">Calculating…</small>
+            </div>
+            <div class="progress" style="height: 8px;" role="progressbar">
+              <div class="progress-bar bg-success" id="crf-progress-bar" style="width: 0%"></div>
+            </div>
+          </div>
+          {% endwith %}
+
+          <!-- CRF list -->
+          <ul class="list-group list-group-flush" id="crf-list">
+            {% for item in crf_status_list %}
+            <li class="list-group-item px-3 py-3 d-flex justify-content-between align-items-center crf-row"
+                data-completed="{{ item.is_completed|yesno:'1,0' }}">
+              <div class="d-flex align-items-center gap-3">
+                <!-- Status icon -->
+                {% if item.is_completed %}
+                  <div class="icon-box sm bg-success text-white rounded-circle flex-shrink-0">
+                    <i class="ri-check-line"></i>
+                  </div>
+                {% else %}
+                  <div class="icon-box sm bg-warning-subtle text-warning rounded-circle flex-shrink-0">
+                    <i class="ri-edit-2-line"></i>
+                  </div>
+                {% endif %}
+
+                <div>
+                  <h6 class="mb-0 fw-semibold">{{ item.form.name }}</h6>
+                  {% if item.form.description %}
+                    <small class="text-muted">{{ item.form.description }}</small>
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="d-flex align-items-center gap-2">
+                {% if item.is_completed %}
+                  <span class="badge bg-success-subtle text-success px-2 py-1 rounded-pill">
+                    <i class="ri-check-line"></i> Completed
+                  </span>
+                  {% if item.is_implemented %}
+                    <a href="{% url 'clinical:fill_form' screening_encounter.pk item.form.code %}"
+                       class="btn btn-sm btn-outline-primary py-1 px-2">
+                      <i class="ri-edit-line"></i> Edit
+                    </a>
+                  {% endif %}
+                {% else %}
+                  <span class="badge bg-warning-subtle text-warning px-2 py-1 rounded-pill">
+                    <i class="ri-time-line"></i> Pending
+                  </span>
+                  {% if item.is_implemented %}
+                    <a href="{% url 'clinical:fill_form' screening_encounter.pk item.form.code %}"
+                       class="btn btn-sm btn-warning text-dark fw-semibold py-1 px-3">
+                      <i class="ri-file-edit-line"></i> Fill Form
+                    </a>
+                  {% else %}
+                    <button class="btn btn-sm btn-outline-secondary py-1 px-2" disabled title="Form not yet implemented">
+                      <i class="ri-lock-line"></i> Not Available
+                    </button>
+                  {% endif %}
+                {% endif %}
+              </div>
+            </li>
+            {% endfor %}
+          </ul>
+
+          <!-- Footer summary -->
+          <div class="card-footer bg-light d-flex justify-content-between align-items-center py-2">
+            <small class="text-muted" id="crf-summary-text">Loading…</small>
+            {% if screening_encounter %}
+            <a href="{% url 'encounters:encounter_detail' screening_encounter.pk %}"
+               class="btn btn-sm btn-outline-secondary py-1 px-2">
+              <i class="ri-layout-grid-line"></i> Full Encounter Dashboard
+            </a>
+            {% endif %}
+          </div>
+
+        {% else %}
+          <!-- No CRFs assigned yet -->
+          <div class="card-body text-center py-5">
+            <div class="mb-3">
+              <i class="ri-file-list-3-line text-muted" style="font-size: 3rem; opacity: 0.4;"></i>
+            </div>
+            <p class="text-muted mb-1 fw-semibold">No CRF forms assigned yet</p>
+            <small class="text-muted">Use the form above to select and assign clinical forms to this screening encounter.</small>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- JS: compute and display progress bar + summary -->
+      <script>
+        document.addEventListener('DOMContentLoaded', function () {
+          const rows = document.querySelectorAll('#crf-list .crf-row');
+          const progressBar = document.getElementById('crf-progress-bar');
+          const progressLabel = document.getElementById('crf-progress-label');
+          const summaryText = document.getElementById('crf-summary-text');
+
+          if (!rows.length) return;
+
+          let completedCount = 0;
+          rows.forEach(function (row) {
+            if (row.getAttribute('data-completed') === '1') {
+              completedCount++;
+            }
+          });
+
+          const total = rows.length;
+          const pct = total > 0 ? Math.round((completedCount / total) * 100) : 0;
+
+          if (progressBar) {
+            progressBar.style.width = pct + '%';
+            progressBar.setAttribute('aria-valuenow', pct);
+          }
+          if (progressLabel) {
+            progressLabel.textContent = completedCount + ' / ' + total + ' completed (' + pct + '%)';
+          }
+          if (summaryText) {
+            if (completedCount === total && total > 0) {
+              summaryText.innerHTML = '<i class="ri-checkbox-circle-fill text-success me-1"></i> All ' + total + ' forms completed!';
+            } else {
+              summaryText.textContent = completedCount + ' of ' + total + ' form' + (total !== 1 ? 's' : '') + ' completed';
+            }
+          }
+        });
+      </script>
+
+      {% endif %}{# end if screening_encounter #}
+
     </div>
   </div>
   <!-- Row ends -->
